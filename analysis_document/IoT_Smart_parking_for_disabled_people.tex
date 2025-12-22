@@ -1,0 +1,544 @@
+\documentclass[a4paper, 11pt]{article}
+
+
+%------------------------------------------------------------------------
+%
+% Author                :   Flow, Lasercata
+% Last modification     :   2025.12.22
+%
+%------------------------------------------------------------------------
+
+%---------Init {{{1
+%------Lang
+%\usepackage[french]{babel}
+%\usepackage[english]{babel}
+
+
+%See https://github.com/lasercata/LaTeX_Templates for the file latex_base.sty
+\input{style/latex_base.sty}
+
+% \input{data/data_template.sty}
+\input{data/data.sty}
+
+\renewcommand{\arraystretch}{1.4}
+%}}}1
+
+%------Title (with default LaTeX style)
+\title{IoT-Based smart parking system for disabled people}
+\author{
+    \Names
+}
+\date{\today}
+
+%---------------------------------Begin Document
+\begin{document}
+    
+    % Title {{{1
+    % \thetitle{}{}
+    \maketitle
+    
+    \tableofcontents
+    %\listoffigures
+    \listoftables
+    %\listofalgorithms
+    %\lstlistoflistings
+    \newpage
+    % }}}1
+    
+    \begin{indt}{\section{Chosen Scenario}}% {{{1
+        This project focuses on the design of an IoT-based smart parking system dedicated to people with disabilities. The objective is to ensure fair usage of reserved parking spaces, prevent fraud related to authorization cloning, and improve accessibility by providing real-time availability and booking capabilities.
+
+        Each parking space is equipped with an IoT node capable of detecting vehicle presence and verifying the validity of a disabled parking authorization. The system continuously monitors parking activity and communicates with a centralized backend that manages authorizations, detects anomalies, and informs law enforcement when violations are detected.
+
+        In addition, an interface allows authorized users to visualize nearby available parking spaces, reserve a spot up to one hour in advance, and receive feedback on their parking session. 
+    \end{indt}% }}}1
+
+    \begin{indt}{\section{Functional Requirements}} %{{{1
+        \begin{table}[H]% {{{2
+            \centering
+        
+            \begin{tabular}{|l p{350pt}|}
+                \hline
+                \multicolumn{2}{|c|}{
+                    \textbf{FR1}
+                    --- Occupancy detection
+                }
+                \\
+                \hline
+                \hline
+                \textbf{Description}
+                & The solution is able to detect the presence of a vehicle on a disabled parking space.
+                \\
+                \hline
+                \textbf{Input}
+                & Sensor data
+                \\
+                \textbf{Output}
+                & Occupancy status (occupied / free)
+                \\
+                \hline
+            \end{tabular}
+        
+            \caption{\textbf{FR1} --- Occupancy detection}
+            \label{tab:fr1}
+        \end{table}% }}}2
+
+        \begin{table}[H]% {{{2
+            \centering
+        
+            \begin{tabular}{|l p{350pt}|}
+                \hline
+                \multicolumn{2}{|c|}{
+                    \textbf{FR2} --- Authorization verification
+                }
+                \\
+                \hline
+                \hline
+                \textbf{Description}
+                & The solution is able to verify the validity of a disabled parking authorization upon vehicle detection.
+                \\
+                \hline
+                \textbf{Input}
+                & Vehicle identifier, authorization ID
+                \\
+                \textbf{Output}
+                & Authorization status (valid / invalid / expired)
+                \\
+                \hline
+            \end{tabular}
+        
+            \caption{\textbf{FR2} --- Authorization verification}
+            \label{tab:fr2}
+        \end{table}% }}}2
+
+        \begin{table}[H]% {{{2
+            \centering
+        
+            \begin{tabular}{|l p{350pt}|}
+                \hline
+                \multicolumn{2}{|c|}{
+                    \textbf{FR3} --- Authorization cloning detection
+                }
+                \\
+                \hline
+                \hline
+                \textbf{Description}
+                & The solution is able to identify simultaneous usage of the same authorization on geographically distinct parking spaces.
+                \\
+                \hline
+                \textbf{Input}
+                & Authorization ID, GPS location, timestamps
+                \\
+                \textbf{Output}
+                & Cloning alert / None
+                \\
+                \hline
+            \end{tabular}
+        
+            \caption{\textbf{FR3} --- Authorization cloning detection}
+            \label{tab:fr3}
+        \end{table}% }}}2
+
+        \begin{table}[H]% {{{2
+            \centering
+        
+            \begin{tabular}{|l p{350pt}|}
+                \hline
+                \multicolumn{2}{|c|}{
+                    \textbf{FR4} --- Violation identification
+                }
+                \\
+                \hline
+                \hline
+                \textbf{Description}
+                & The solution is able to identify unauthorized parking, expired authorizations, or missing authorizations.
+                \\
+                \hline
+                \textbf{Input}
+                & Occupancy status, authorization status
+                \\
+                \textbf{Output}
+                & Violation flag
+                \\
+                \hline
+            \end{tabular}
+        
+            \caption{\textbf{FR4} --- Violation identification}
+            \label{tab:fr4}
+        \end{table}% }}}2
+
+        \begin{table}[H]% {{{2
+            \centering
+        
+            \begin{tabular}{|l p{350pt}|}
+                \hline
+                \multicolumn{2}{|c|}{
+                    \textbf{FR5} --- Authority notification
+                }
+                \\
+                \hline
+                \hline
+                \textbf{Description}
+                & The solution is able to notify law enforcement authorities in real time when a violation or cloning event is detected.
+                \\
+                \hline
+                \textbf{Input}
+                & Violation flag or cloning alert 
+                \\
+                \textbf{Output}
+                & Notification message sent to authorities
+                \\
+                \hline
+            \end{tabular}
+        
+            \caption{\textbf{FR5} --- Authority notification}
+            \label{tab:fr5}
+        \end{table}% }}}2
+
+        \begin{table}[H]% {{{2
+            \centering
+        
+            \begin{tabular}{|l p{350pt}|}
+                \hline
+                \multicolumn{2}{|c|}{
+                    \textbf{FR6} --- Parking availability visualization
+                }
+                \\
+                \hline
+                \hline
+                \textbf{Description}
+                & The solution is able to provide real-time availability of disabled parking spaces within a selected geographical area.
+                \\
+                \hline
+                \textbf{Input}
+                & Parking spot status data
+                \\
+                \textbf{Output}
+                & Availability map / list
+                \\
+                \hline
+            \end{tabular}
+        
+            \caption{\textbf{FR6} --- Parking availability visualization}
+            \label{tab:fr6}
+        \end{table}% }}}2
+
+        \begin{table}[H]% {{{2
+            \centering
+        
+            \begin{tabular}{|l p{350pt}|}
+                \hline
+                \multicolumn{2}{|c|}{
+                    \textbf{FR7} --- Parking reservation
+                }
+                \\
+                \hline
+                \hline
+                \textbf{Description}
+                & The user is able to reserve a parking space up to one hour in advance.
+                \\
+                \hline
+                \textbf{Input}
+                & User request, parking availability
+                \\
+                \textbf{Output}
+                & Reservation confirmation
+                \\
+                \hline
+            \end{tabular}
+        
+            \caption{\textbf{FR7} --- Parking reservation}
+            \label{tab:fr7}
+        \end{table}% }}}2
+
+        \begin{table}[H]% {{{2
+            \centering
+        
+            \begin{tabular}{|l p{350pt}|}
+                \hline
+                \multicolumn{2}{|c|}{
+                    \textbf{FR8} --- Reservation timeout management
+                }
+                \\
+                \hline
+                \hline
+                \textbf{Description}
+                & The solution is able to automatically cancel reservations if the vehicle does not arrive within a predefined grace period.
+                \\
+                \hline
+                \textbf{Input}
+                & Reservation timestamp, occupancy status
+                \\
+                \textbf{Output}
+                & Reservation cancellation notice (to the user), occupancy status set to free
+                \\
+                \hline
+            \end{tabular}
+        
+            \caption{\textbf{FR8} --- Reservation timeout management}
+            \label{tab:fr8}
+        \end{table}% }}}2
+
+        \begin{table}[H]% {{{2
+            \centering
+        
+            \begin{tabular}{|l p{350pt}|}
+                \hline
+                \multicolumn{2}{|c|}{
+                    \textbf{FR9} --- Parking occupancy status
+                }
+                \\
+                \hline
+                \hline
+                \textbf{Description}
+                & The solution is able to display its current status (free, reserved, parked)
+                \\
+                \hline
+                \textbf{Input}
+                & Sensor data, reservation data
+                \\
+                \textbf{Output}
+                & Status indicator (free / reserved / parked)
+                \\
+                \hline
+            \end{tabular}
+        
+            \caption{\textbf{FR9} --- Parking occupancy status}
+            \label{tab:fr9}
+        \end{table}% }}}2
+
+        \begin{table}[H]% {{{2
+            \centering
+        
+            \begin{tabular}{|l p{350pt}|}
+                \hline
+                \multicolumn{2}{|c|}{
+                    \textbf{FR10} --- User registration
+                }
+                \\
+                \hline
+                \hline
+                \textbf{Description}
+                & The user/admin is able to register to the platform
+                \\
+                \hline
+                \textbf{Input}
+                & User registration data
+                \\
+                \textbf{Output}
+                & User account created
+                \\
+                \hline
+            \end{tabular}
+        
+            \caption{\textbf{FR10} --- User registration}
+            \label{tab:fr10}
+        \end{table}% }}}2
+    \end{indt} %}}}1
+
+    \begin{indt}{\section{Non-Functional Requirements}} %{{{1
+        \begin{table}[H]
+            \centering
+
+            \begin{tabular}{p{2cm} p{4cm} p{8cm}}
+                \hline
+
+                \textbf{ID}
+                & \textbf{Category}
+                & \textbf{Requirement}
+                \\
+
+                \hline
+                NFR1
+                & Performance
+                & It is possible to complete occupancy detection and authorization verification within 10 seconds after vehicle arrival.
+                \\
+
+                NFR2
+                & Reliability
+                & The system is available at least 99\% of the time and tolerant to temporary network outages.
+                \\
+
+                NFR3
+                & Durability
+                & The IoT nodes are reliable in outdoor environments with temperatures ranging from -20\textdegree C to 60\textdegree C.
+                \\
+
+                NFR4
+                & Portability
+                & The system is portable, allowing new parking nodes to be integrated without modifying existing nodes or backend services.
+                \\
+
+                NFR5
+                & Resource efficiency
+                & The parking node energy consumption is below 100 mW on average and supports low-power operating modes.
+                \\
+
+                NFR6
+                & Security
+                & The system communications are encrypted, and authorization identifiers are anonymized to ensure user privacy.
+                \\
+
+                NFR7
+                & Affordability
+                & The hardware cost per parking space is compatible with large-scale municipal deployment.
+                \\
+
+                \hline
+            \end{tabular}
+
+            \caption{Non-Functional Requirements}
+            \label{tab:nfr}
+        \end{table}
+    \end{indt} %}}}1
+
+    \begin{indt}{\section{Sensing and Identification Technologies}} %{{{1
+        \begin{indt}{\subsection{Vehicle Presence Detection}} %{{{2
+            \begin{table}[H]% {{{3
+                \centering
+
+                \begin{tabular}{p{3.5cm} p{5cm} p{6cm}}
+                    \hline
+                    \textbf{Technology}
+                    & \textbf{Principle}
+                    & \textbf{Remarks}
+                    \\
+
+                    \hline
+                    Ultrasonic sensor
+                    & Measures the distance between the sensor and the underside of a vehicle
+                    & Low cost and simple to integrate; performance may be affected by rain, snow, or dirt accumulation
+                    \\
+
+                    Magnetic sensor
+                    & Detects disturbances in the Earth’s magnetic field caused by a vehicle
+                    & Very low power consumption, highly robust, widely adopted in commercial smart parking systems
+                    \\
+
+                    Infrared (IR) sensor
+                    & Detects reflected infrared radiation from nearby objects
+                    & Low cost; susceptible to false detections due to sunlight, shadows, or surface contamination
+                    \\
+
+                    Camera-based detection
+                    & Uses image processing algorithms to detect vehicle presence
+                    & High detection accuracy; high cost, high power consumption, and significant privacy and legal constraints
+                    \\
+
+                    \hline
+                \end{tabular}
+
+                \caption{Vehicle Presence Detection Technologies}
+                \label{tab:presence}
+            \end{table}% }}}3
+
+            For this project, a \textbf{Magnetic sensor} is selected as the primary solution, with Infrared (IR) sensor and Ultrasonic sensor considered as a viable alternative, due to their low power consumption and robustness.
+        \end{indt} %}}}2
+
+        \begin{indt}{\subsection{Authorization Identification}} %{{{2
+            \begin{table}[H]% {{{3
+                \centering
+
+                \begin{tabular}{p{3.5cm} p{9cm}}
+                    \hline
+                    \textbf{Technology}
+                    & \textbf{Justification}
+                    \\
+
+                    \hline
+                    RFID / NFC
+                    & Short-range communication prevents remote fraud, low power consumption, mature and widely deployed technology, no dependency on smartphones, and easy integration into low-power IoT nodes.
+                    \\
+
+                    Bluetooth Low Energy (BLE)
+                    & Authorization stored in a mobile application; no physical card required; however, depends on smartphone availability, battery level, and user interaction.
+                    \\
+
+                    License Plate Recognition (LPR)
+                    & Automatic vehicle identification without user action; high computational cost, higher power consumption, privacy concerns, and legal restrictions limit its applicability.
+                    \\
+
+                    \hline
+                \end{tabular}
+
+                \caption{Authorization Identification Technologies}
+                \label{tab:auth}
+            \end{table}% }}}3
+
+            Based on this comparison, the \textbf{RFID/NFC-based solution} is selected for this project due to its simplicity, robustness, low energy consumption, and minimal privacy impact.
+        \end{indt} %}}}2
+
+        \begin{indt}{\subsection{Selected Hardware and Technologies}} %{{{2
+            \begin{table}[H]% {{{3
+                \centering
+            
+                \begin{tabular}{|l p{9cm}|}
+                    \hline
+
+                    \textbf{Technology}
+                    & \textbf{Choice}
+                    \\
+
+                    \hline
+                    \hline
+                    Microcontroller
+                    & NodeMCU ESP8266 (integrated Wi-Fi, low power)
+                    \\
+
+                    \hline
+                    Occupancy sensor
+                    & Ultrasonic sensor
+                    \\
+
+                    \hline
+                    Authorization
+                    & RFID reader (Mifare Classic)
+                    \\
+                    
+                    \hline
+                    Connectivity
+                    & Wi-Fi
+                    \\
+
+                    \hline
+                    Backend
+                    & TODO
+                    \\
+                    
+                    \hline
+                    Frontend
+                    & TODO
+                    \\
+
+                    \hline
+                \end{tabular}
+            
+                \caption{Selected hardware and technologies}
+                \label{tab:selected}
+            \end{table}% }}}3
+        \end{indt} %}}}2
+    \end{indt} %}}}1
+
+    \begin{indt}{\section{Conclusion}} %{{{1
+        This IoT-based smart parking system addresses a real societal need by improving accessibility for people with disabilities while providing authorities with efficient tools to prevent abuse.
+        The proposed architecture is scalable, energy-efficient, and compliant with security and privacy requirements, making it suitable for real-world deployment.
+    \end{indt} %}}}1
+
+    \begin{indt}{\section{Annexes}} %{{{1
+        \begin{itemize}[itemsep=0pt, leftmargin=\leftskip+12pt]
+            \item NodeMCU ESP8266 Datasheet: 
+                \url{https://cdn-shop.adafruit.com/product-files/2471/0A-ESP8266__Datasheet__EN_v4.3.pdf}
+
+            \item MFRC522 RFID Reader Datasheet (NXP): 
+                \url{https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf}
+
+            \item HC-SR04 Ultrasonic Distance Sensor Datasheet: 
+                \url{https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf}
+
+        \end{itemize}
+    \end{indt} %}}}1
+    
+\end{document}
+%--------------------------------------------End
+
+% vim:foldmethod=marker:foldlevel=0
