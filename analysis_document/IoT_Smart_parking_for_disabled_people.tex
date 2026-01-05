@@ -4,7 +4,7 @@
 %------------------------------------------------------------------------
 %
 % Author                :   Flow, Lasercata
-% Last modification     :   2025.12.22
+% Last modification     :   2026.01.05
 %
 %------------------------------------------------------------------------
 
@@ -37,6 +37,7 @@
     % \thetitle{}{}
     \maketitle
     
+    \setcounter{tocdepth}{2} % hide subsubsections from the table of contents
     \tableofcontents
     %\listoffigures
     \listoftables
@@ -390,6 +391,716 @@
             \caption{Non-Functional Requirements}
             \label{tab:nfr}
         \end{table}
+    \end{indt} %}}}1
+
+    \begin{indt}{\section{Analyse}} %{{{1
+        \begin{indt}{\subsection{FR1 -- Occupancy detection}} %{{{2
+            \begin{indt}{\subsubsection{Introduction}} %{{{3
+                The objective of this functional requirement is to detect the presence of a vehicle occupying a disabled parking space. This functionality constitutes the foundation of the smart parking system, as it triggers all subsequent processes such as authorization verification, fraud detection, and violation reporting.
+                
+                Within the context of an IoT-based parking system dedicated to people with disabilities, occupancy detection must be reliable, accurate, and continuously operational in outdoor urban environments. Any detection failure would directly impact the system’s ability to ensure fair usage of reserved parking spaces and to prevent misuse or fraud.
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Comparison of occupancy detection technologies}} %{{{3
+                Several sensing technologies can be considered to detect vehicle presence. \autoref{tab:fr1_comparison} presents a comparison of the most relevant options for this project.
+
+                \begin{table}[H]% {{{4
+                    \centering
+
+                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                        \hline
+                        \textbf{Technology}
+                        & \textbf{Component}
+                        & \textbf{Advantages / Limitations}
+                        & \textbf{Suitability}
+                        \\
+
+                        \hline
+                        Ultrasonic sensor
+                        & HC-SR04
+                        & Low cost and low power consumption; sensitive to rain, snow, and sensor orientation
+                        & Moderate
+                        \\
+
+                        Magnetic ground sensor
+                        & Honeywell HMC5883L
+                        & High reliability, unaffected by lighting and weather; requires ground installation
+                        & High
+                        \\
+
+                        Camera-based detection
+                        & Raspberry Pi Camera Module v2
+                        & High accuracy and extensibility; high power consumption and privacy concerns
+                        & Conditional
+                        \\
+
+                        Infrared sensor
+                        & Panasonic EKMB Series PIR
+                        & Low power consumption; affected by ambient temperature and sunlight
+                        & Low
+                        \\
+
+                        \hline
+                    \end{tabular}
+
+                    \caption{Comparison of Occupancy Detection Solutions}
+                    \label{tab:fr1_comparison}
+                \end{table}% }}}4
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Conclusion}} %{{{3
+                The magnetic ground sensor is selected as the most appropriate solution for occupancy detection in this project. Its robustness against environmental conditions such as rain, lighting variations, and temperature changes makes it particularly well suited for outdoor deployment in urban parking spaces. In addition, magnetic sensing does not involve the collection of visual data, thereby avoiding privacy issues associated with camera-based approaches.
+
+                Although installation requires embedding the sensor into the ground, this constraint is acceptable for a long-term infrastructure dedicated to disabled parking spaces. The high detection reliability, low false positive rate, and compatibility with low-power IoT nodes make magnetic ground sensors the best choice for fulfilling FR1.
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{References}} %{{{3
+                \begin{indi}[0pt]{}
+                    \item HC-SR04 Ultrasonic Sensor Datasheet: \\
+                        \url{https://www.handsontec.com/dataspecs/HC-SR04-Ultrasonic.pdf}
+                    \item Honeywell HMC5883L Magnetometer Datasheet: \\
+                        \url{https://www.farnell.com/datasheets/1683374.pdf}
+                    \item Raspberry Pi Camera Module v2 Documentation: \\
+                        \url{https://www.raspberrypi.com/documentation/accessories/camera.html}
+                    \item Panasonic EKMB Series PIR Sensor Datasheet: \\
+                        \url{https://na.industrial.panasonic.com/products/sensors/sensors-automotive-industrial-applications/lineup/pir-motion-sensor-papirs/series/149462}
+                \end{indi}
+            \end{indt} %}}}3
+        \end{indt} %}}}2
+
+        \begin{indt}{\subsection{FR2 -- Authorization verification}} %{{{2
+            \begin{indt}{\subsubsection{Introduction}} %{{{3
+                The purpose of this functional requirement is to verify the validity of a disabled parking authorization when a vehicle is detected occupying a reserved parking space. This step is essential to distinguish between legitimate users and unauthorized vehicles, ensuring that disabled parking spaces are used fairly and in accordance with regulations.
+
+                In the context of the proposed IoT-based smart parking system, authorization verification must be reliable, secure, and fast. Once occupancy is detected, the system must be able to associate the vehicle with a valid authorization and determine whether this authorization is authentic and still valid. This functionality directly contributes to fraud prevention, particularly against expired permits or stolen identifiers, and forms the basis for subsequent violation detection and enforcement actions.
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Comparison of authorization verification technologies}} %{{{3
+                Several technical approaches can be used to identify vehicles and verify disabled parking authorizations. \autoref{tab:fr2_comparison} compares the most relevant solutions for this project.
+
+                \begin{table}[H]% {{{4
+                    \centering
+
+                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                        \hline
+                        \textbf{Technology}
+                        & \textbf{Component}
+                        & \textbf{Advantages / Limitations}
+                        & \textbf{Suitability}
+                        \\
+
+                        \hline
+                        RFID-based authorization
+                        & MFRC522 RFID Reader
+                        & Low cost, fast identification; requires user to carry a tag and short reading range
+                        & Moderate
+                        \\
+
+                        Bluetooth Low Energy (BLE)
+                        & ESP32 BLE Module
+                        & Wireless identification, already integrated in many IoT nodes; pairing and security management required
+                        & High
+                        \\
+
+                        License Plate Recognition (LPR)
+                        & Raspberry Pi + Camera Module v2
+                        & No user interaction required; privacy concerns and high processing requirements
+                        & Conditional
+                        \\
+
+                        QR code-based authorization
+                        & Printed QR code + camera
+                        & Simple and low cost; requires manual placement and user interaction
+                        & Low
+                        \\
+
+                        \hline
+                    \end{tabular}
+
+                    \caption{Comparison of Authorization Verification Solutions}
+                    \label{tab:fr2_comparison}
+                \end{table}% }}}4
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Conclusion}} %{{{3
+                Bluetooth Low Energy (BLE)–based authorization verification is selected as the most suitable solution for this project. BLE enables automatic and contactless identification of authorized users through a secure identifier broadcast by a registered device, such as a smartphone or a dedicated BLE tag. This approach balances ease of use for people with disabilities and technical feasibility for an IoT-based infrastructure.
+
+                Compared to RFID, BLE offers a longer communication range and greater flexibility, while avoiding the privacy and computational complexity associated with camera-based license plate recognition. Furthermore, BLE is natively supported by many low-power microcontrollers, facilitating seamless integration with the parking space IoT nodes. As a result, BLE-based verification best satisfies the requirements of reliability, scalability, and user accessibility for FR2.
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{References}} %{{{3
+                \begin{indi}[0pt]{}
+                    \item MFRC522 RFID Reader Datasheet: \\
+                        \url{https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf}
+                    \item ESP32 Technical Reference Manual (BLE): \\
+                        \url{https://www.espressif.com/sites/default/files/documentation/esp32_technical_reference_manual_en.pdf}
+                    \item Raspberry Pi Camera Module v2 Documentation: \\
+                        \url{https://www.raspberrypi.com/documentation/accessories/camera.html}
+                \end{indi}
+            \end{indt} %}}}3
+        \end{indt} %}}}2
+
+        \begin{indt}{\subsection{FR3 -- Authorization cloning detection}} %{{{2
+            \begin{indt}{\subsubsection{Introduction}} %{{{3
+                The objective of this functional requirement is to detect the simultaneous use of the same disabled parking authorization across geographically distinct parking spaces. Authorization cloning represents a significant form of fraud, where a single valid identifier is duplicated or shared in order to illegally occupy multiple reserved spaces at the same time.
+
+                Within the proposed IoT-based smart parking system, this requirement is primarily addressed at the backend level. By correlating authorization identifiers with spatial and temporal data received from distributed parking nodes, the system can identify inconsistencies that are physically impossible under normal usage conditions. This functionality is essential to ensure fairness, preserve trust in the system, and support law enforcement by automatically flagging suspicious behaviour.
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Comparison of cloning detection approaches}} %{{{3
+                Several technical approaches can be employed to detect authorization cloning. \autoref{tab:fr3_comparison} compares the most relevant solutions applicable to this project.
+
+                \begin{table}[H]% {{{4
+                    \centering
+
+                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                        \hline
+                        \textbf{Technology}
+                        & \textbf{Component}
+                        & \textbf{Advantages / Limitations}
+                        & \textbf{Suitability}
+                        \\
+
+                        \hline
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        \hline
+                    \end{tabular}
+
+                    \caption{Comparison of Authorization Cloning Detection Approaches}
+                    \label{tab:fr3_comparison}
+                \end{table}% }}}4
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Conclusion}} %{{{3
+                XXX
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{References}} %{{{3
+                \begin{indi}[0pt]{}
+                    \item XXX: \\
+                        \url{https://}
+                    \item XXX: \\
+                        \url{https://}
+                    \item XXX: \\
+                        \url{https://}
+                \end{indi}
+            \end{indt} %}}}3
+        \end{indt} %}}}2
+
+        \begin{indt}{\subsection{FR4 -- Violation identification}} %{{{2
+            \begin{indt}{\subsubsection{Introduction}} %{{{3
+                The objective of this functional requirement is to identify parking violations related to disabled parking spaces, including unauthorized parking, expired authorizations, or the absence of any valid authorization. This functionality represents a critical decision layer within the smart parking system, as it transforms raw detection and verification data into actionable enforcement events.
+                
+                In the context of an IoT-based smart parking system, violation identification relies on the correlation of occupancy detection results with authorization verification outcomes. By applying predefined decision rules, the system can automatically and consistently determine whether a parking event complies with regulations. This automation reduces the need for manual inspection, improves fairness, and ensures that violations are detected in real time.
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Comparison of violation identification mechanisms}} %{{{3
+                Several approaches can be used to identify parking violations based on system inputs. \autoref{tab:fr4_comparison} presents a comparison of the most relevant mechanisms for this project.
+
+                \begin{table}[H]% {{{4
+                    \centering
+
+                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                        \hline
+                        \textbf{Technology}
+                        & \textbf{Component}
+                        & \textbf{Advantages / Limitations}
+                        & \textbf{Suitability}
+                        \\
+
+                        \hline
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        \hline
+                    \end{tabular}
+
+                    \caption{Comparison of violation identification mechanisms}
+                    \label{tab:fr4_comparison}
+                \end{table}% }}}4
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Conclusion}} %{{{3
+                XXX
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{References}} %{{{3
+                \begin{indi}[0pt]{}
+                    \item XXX: \\
+                        \url{https://}
+                    \item XXX: \\
+                        \url{https://}
+                    \item XXX: \\
+                        \url{https://}
+                \end{indi}
+            \end{indt} %}}}3
+        \end{indt} %}}}2
+
+        \begin{indt}{\subsection{FR5 -- Authority notification}} %{{{2
+            \begin{indt}{\subsubsection{Introduction}} %{{{3
+                The purpose of this functional requirement is to notify law enforcement authorities in real time when the system detects either (i) a parking violation (unauthorized parking, expired/missing authorization) or (ii) an authorization cloning event. This capability is essential to ensure enforcement can occur promptly, which increases deterrence and improves the availability of disabled parking spaces for legitimate users.
+                
+                In this IoT-based smart parking system, notifications must be delivered with low latency and high reliability. The notification chain must also be secure and auditable because it can initiate enforcement actions. Practically, this implies (1) a dependable communication path from the parking node to the backend and (2) a standardized, secure mechanism from the backend to the authority endpoint (e.g., secure REST API, email/SMS fallback, or an event feed).
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Comparison of real-time notification solutions}} %{{{3
+                \autoref{tab:fr5_comparison} compares several viable approaches to deliver real-time alerts from the system to authorities.
+
+                \begin{table}[H]% {{{4
+                    \centering
+
+                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                        \hline
+                        \textbf{Technology}
+                        & \textbf{Component}
+                        & \textbf{Advantages / Limitations}
+                        & \textbf{Suitability}
+                        \\
+
+                        \hline
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        \hline
+                    \end{tabular}
+
+                    \caption{Comparison of violation identification mechanisms}
+                    \label{tab:fr5_comparison}
+                \end{table}% }}}4
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Conclusion}} %{{{3
+                XXX
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{References}} %{{{3
+                \begin{indi}[0pt]{}
+                    \item XXX: \\
+                        \url{https://}
+                    \item XXX: \\
+                        \url{https://}
+                    \item XXX: \\
+                        \url{https://}
+                \end{indi}
+            \end{indt} %}}}3
+        \end{indt} %}}}2
+
+        \begin{indt}{\subsection{FR6 -- Parking availability visualization}} %{{{2
+            \begin{indt}{\subsubsection{Introduction}} %{{{3
+                The objective of this functional requirement is to provide users with a clear and real-time visualization of available disabled parking spaces within a selected geographical area. This functionality directly improves accessibility for people with disabilities by reducing the time and effort required to locate an appropriate parking space, especially in dense urban environments.
+
+                Within the IoT-based smart parking system, parking availability visualization serves as the primary user-facing interface. It relies on continuously updated parking spot status data collected from distributed IoT nodes and processed by the centralized backend. Accurate and intuitive visualization is essential to ensure user trust and to enable informed decision-making, particularly when combined with reservation capabilities.
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Comparison of visualization and mapping solutions}} %{{{3
+                Several technical solutions can be used to visualize parking availability data. \autoref{tab:fr6_comparison} presents a comparison of the most relevant mechanisms for this project.
+
+                \begin{table}[H]% {{{4
+                    \centering
+
+                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                        \hline
+                        \textbf{Technology}
+                        & \textbf{Component}
+                        & \textbf{Advantages / Limitations}
+                        & \textbf{Suitability}
+                        \\
+
+                        \hline
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        \hline
+                    \end{tabular}
+
+                    \caption{Comparison of violation identification mechanisms}
+                    \label{tab:fr6_comparison}
+                \end{table}% }}}4
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Conclusion}} %{{{3
+                XXX
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{References}} %{{{3
+                \begin{indi}[0pt]{}
+                    \item XXX: \\
+                        \url{https://}
+                    \item XXX: \\
+                        \url{https://}
+                    \item XXX: \\
+                        \url{https://}
+                \end{indi}
+            \end{indt} %}}}3
+        \end{indt} %}}}2
+
+        \begin{indt}{\subsection{FR7 -- Advance reservation}} %{{{2
+            \begin{indt}{\subsubsection{Introduction}} %{{{3
+                The objective of this functional requirement is to allow authorized users to reserve a disabled parking space up to one hour in advance. This feature significantly improves accessibility and planning for people with disabilities by reducing uncertainty when traveling to areas with limited parking availability.
+
+                In the context of the IoT-based smart parking system, advance reservation must be tightly integrated with real-time parking availability data to avoid conflicts and ensure fairness. The reservation mechanism must prevent double-booking, enforce time constraints, and remain synchronized with on-site occupancy detection in order to release or confirm reservations accurately.
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Comparison of reservation management approaches}} %{{{3
+                Several technical approaches can be used to implement an advance reservation mechanism. \autoref{tab:fr7_comparison} compares the most relevant solutions for this project.
+
+                \begin{table}[H]% {{{4
+                    \centering
+
+                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                        \hline
+                        \textbf{Technology}
+                        & \textbf{Component}
+                        & \textbf{Advantages / Limitations}
+                        & \textbf{Suitability}
+                        \\
+
+                        \hline
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        \hline
+                    \end{tabular}
+
+                    \caption{Comparison of violation identification mechanisms}
+                    \label{tab:fr7_comparison}
+                \end{table}% }}}4
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Conclusion}} %{{{3
+                XXX
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{References}} %{{{3
+                \begin{indi}[0pt]{}
+                    \item XXX: \\
+                        \url{https://}
+                    \item XXX: \\
+                        \url{https://}
+                    \item XXX: \\
+                        \url{https://}
+                \end{indi}
+            \end{indt} %}}}3
+        \end{indt} %}}}2
+
+        \begin{indt}{\subsection{FR8 -- Reservation timeout management}} %{{{2
+            \begin{indt}{\subsubsection{Introduction}} %{{{3
+                The objective of this functional requirement is to automatically cancel a parking space reservation if the reserved vehicle does not arrive within a predefined grace period. This functionality is essential to ensure efficient utilization of disabled parking spaces and to prevent situations where a space remains unused due to unfulfilled reservations.
+
+                In the context of the IoT-based smart parking system, reservation timeout management must operate reliably and autonomously by correlating reservation timestamps with real-time occupancy detection data. By enforcing a grace period, the system balances flexibility for users with the need to maximize availability and fairness for other authorized drivers.
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Comparison of reservation timeout approaches}} %{{{3
+                Several technical approaches can be used to manage reservation timeout. \autoref{tab:fr8_comparison} compares the most relevant solutions for this project.
+
+                \begin{table}[H]% {{{4
+                    \centering
+
+                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                        \hline
+                        \textbf{Technology}
+                        & \textbf{Component}
+                        & \textbf{Advantages / Limitations}
+                        & \textbf{Suitability}
+                        \\
+
+                        \hline
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        \hline
+                    \end{tabular}
+
+                    \caption{Comparison of reservation timeout approaches}
+                    \label{tab:fr8_comparison}
+                \end{table}% }}}4
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Conclusion}} %{{{3
+                XXX
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{References}} %{{{3
+                \begin{indi}[0pt]{}
+                    \item XXX: \\
+                        \url{https://}
+                    \item XXX: \\
+                        \url{https://}
+                    \item XXX: \\
+                        \url{https://}
+                \end{indi}
+            \end{indt} %}}}3
+        \end{indt} %}}}2
+
+        \begin{indt}{\subsection{FR9 -- Parking spot status display}} %{{{2
+            \begin{indt}{\subsubsection{Introduction}} %{{{3
+                The objective of this functional requirement is to display the current status of a disabled parking space, namely whether it is free, reserved, or currently occupied (parked). This information is essential for both end users and system operators, as it provides immediate feedback on parking availability and reservation enforcement.
+
+                Within the IoT-based smart parking system, parking spot status acts as a synthesis of multiple data sources, including real-time sensor data from the parking node and reservation information managed by the backend. A clear and reliable status representation improves user understanding, supports decision-making, and ensures consistency between physical occupancy and digital system state.
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Comparison of parking spot status display mechanisms}} %{{{3
+                Several approaches can be used to determine and display the parking spot status
+                \autoref{tab:fr9_comparison} compares the most relevant solutions for this project.
+
+                \begin{table}[H]% {{{4
+                    \centering
+
+                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                        \hline
+                        \textbf{Technology}
+                        & \textbf{Component}
+                        & \textbf{Advantages / Limitations}
+                        & \textbf{Suitability}
+                        \\
+
+                        \hline
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        \hline
+                    \end{tabular}
+
+                    \caption{Comparison of parking spot status display}
+                    \label{tab:fr9_comparison}
+                \end{table}% }}}4
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Conclusion}} %{{{3
+                XXX
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{References}} %{{{3
+                \begin{indi}[0pt]{}
+                    \item XXX: \\
+                        \url{https://}
+                    \item XXX: \\
+                        \url{https://}
+                    \item XXX: \\
+                        \url{https://}
+                \end{indi}
+            \end{indt} %}}}3
+        \end{indt} %}}}2
+
+        \begin{indt}{\subsection{FR10 -- User registration}} %{{{2
+            \begin{indt}{\subsubsection{Introduction}} %{{{3
+                The objective of this functional requirement is to allow users and administrators to register on the smart parking platform. User registration is a prerequisite for accessing personalized services such as parking availability visualization, advance reservation, and parking session management. For administrators, registration enables system configuration, monitoring, and enforcement oversight.
+
+                In the context of an IoT-based smart parking system dedicated to people with disabilities, the registration process must be secure, reliable, and compliant with data protection regulations. It must also support role differentiation (user versus administrator) and integrate seamlessly with backend services that manage authorizations, reservations, and notifications.
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Comparison of user registration and authentication solutions}} %{{{3
+                Several technical approaches can be used to implement user registration and account management.
+                \autoref{tab:fr10_comparison} compares the most relevant solutions for this project.
+
+                \begin{table}[H]% {{{4
+                    \centering
+
+                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                        \hline
+                        \textbf{Technology}
+                        & \textbf{Component}
+                        & \textbf{Advantages / Limitations}
+                        & \textbf{Suitability}
+                        \\
+
+                        \hline
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        XXX
+                        & XXX
+                        & XXX
+                        & XXX
+                        \\
+
+                        \hline
+                    \end{tabular}
+
+                    \caption{Comparison of user registration and authentication solutions}
+                    \label{tab:fr10_comparison}
+                \end{table}% }}}4
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Conclusion}} %{{{3
+                XXX
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{References}} %{{{3
+                \begin{indi}[0pt]{}
+                    \item XXX: \\
+                        \url{https://}
+                    \item XXX: \\
+                        \url{https://}
+                    \item XXX: \\
+                        \url{https://}
+                \end{indi}
+            \end{indt} %}}}3
+        \end{indt} %}}}2
     \end{indt} %}}}1
 
     \begin{indt}{\section{Sensing and Identification Technologies}} %{{{1
