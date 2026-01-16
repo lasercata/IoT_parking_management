@@ -4,7 +4,7 @@
 %------------------------------------------------------------------------
 %
 % Author                :   Flow, Lasercata
-% Last modification     :   2026.01.05
+% Last modification     :   2026.01.16
 %
 %------------------------------------------------------------------------
 
@@ -417,37 +417,60 @@
                 \begin{table}[H]% {{{4
                     \centering
 
-                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                    \begin{tabular}{p{3cm} p{2cm} p{2cm} p{2cm} p{2cm} p{2cm} p{2cm}}
                         \hline
                         \textbf{Technology}
-                        & \textbf{Component}
-                        & \textbf{Advantages / Limitations}
-                        & \textbf{Suitability}
+                        & \textbf{Performan\-ce (NF1)}
+                        & \textbf{Reliability (NF2)}
+                        & \textbf{Durability (NF3)}
+                        & \textbf{Resource efficiency (NF5)}
+                        & \textbf{Privacy (NF7)}
+                        & \textbf{Affordability (NF8)}
                         \\
 
                         \hline
                         Ultrasonic sensor
-                        & HC-SR04
-                        & Low cost and low power consumption; sensitive to rain, snow, and sensor orientation
-                        & Moderate
+                        \newline
+                        \texttt{HC-SR04}
+                        & \cellcolor{white} detection time?
+                        & \cellcolor{pastelOrange} Sensitive to rain, snow, and sensor orientation
+                        & \cellcolor{white} ?
+                        & \cellcolor{pastelGreen} Low power consumption
+                        & \cellcolor{pastelGreen} No personal data
+                        & \cellcolor{pastelGreen} Low cost
                         \\
 
                         Magnetic ground sensor
-                        & Honeywell HMC5883L
-                        & High reliability, unaffected by lighting and weather; requires ground installation
-                        & High
+                        \newline
+                        \texttt{Honeywell HMC5883L}
+                        & \cellcolor{white} detection time?
+                        & \cellcolor{pastelGreen} High
+                        & \cellcolor{pastelGreen} High
+                        & \cellcolor{white} ?
+                        & \cellcolor{pastelGreen} No personal data
+                        & \cellcolor{pastelRed} Requires ground installation
                         \\
 
                         Camera-based detection
-                        & Raspberry Pi Camera Module v2
-                        & High accuracy and extensibility; high power consumption and privacy concerns
-                        & Conditional
+                        \newline
+                        \texttt{Raspberry Pi Camera Module v2}
+                        & \cellcolor{white} detection time?
+                        & \cellcolor{pastelGreen} High accuracy
+                        & \cellcolor{pastelGreen} High
+                        & \cellcolor{pastelRed} Hight power consumption
+                        & \cellcolor{pastelRed} Processing of personal data
+                        & \cellcolor{pastelOrange}?
                         \\
 
                         Infrared sensor
-                        & Panasonic EKMB Series PIR
-                        & Low power consumption; affected by ambient temperature and sunlight
-                        & Low
+                        \newline
+                        \texttt{Panasonic EKMB Series PIR}
+                        & \cellcolor{white} detection time?
+                        & \cellcolor{pastelRed} affected by ambient temperature and sunlight
+                        & \cellcolor{pastelGreen} High
+                        & \cellcolor{pastelGreen} Low power consumption
+                        & \cellcolor{pastelGreen} No personal data
+                        & \cellcolor{pastelGreen} ?
                         \\
 
                         \hline
@@ -491,48 +514,84 @@
                 \begin{table}[H]% {{{4
                     \centering
 
-                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                    {\small
+                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
                         \hline
                         \textbf{Technology}
-                        & \textbf{Component}
-                        & \textbf{Advantages / Limitations}
-                        & \textbf{Suitability}
+                        & \textbf{Performan\-ce (NF1)}
+                        & \textbf{Reliability (NF2)}
+                        & \textbf{Durability (NF3)}
+                        & \textbf{Resource efficiency (NF5)}
+                        & \textbf{Privacy (NF7)}
+                        & \textbf{Afforda\-bi\-lity (NF8)}
+                        & \textbf{Compati\-bility (NF9)}
                         \\
 
                         \hline
                         RFID-based authorization
-                        & MFRC522 RFID Reader
-                        & Low cost, fast identification; requires user to carry a tag and short reading range
-                        & Moderate
+                        \newline
+                        \texttt{MFRC522 RFID Reader}
+                        & \cellcolor{pastelGreen} Reading time < 1s
+                        & \cellcolor{pastelGreen} High
+                        & \cellcolor{pastelGreen} High
+                        & \cellcolor{pastelGreen} Low power consumption
+                        & \cellcolor{pastelGreen} No personal data
+                        & \cellcolor{pastelGreen} Low cost
+                        & \cellcolor{pastelGreen} User must carry a tag
                         \\
 
                         Bluetooth Low Energy (BLE)
-                        & ESP32 BLE Module
-                        & Wireless identification, already integrated in many IoT nodes; pairing and security management required
-                        & High
+                        \newline
+                        \texttt{ESP32 BLE Module}
+                        & \cellcolor{white} Reading / connection time?
+                        & \cellcolor{pastelGreen} High
+                        & \cellcolor{pastelGreen} High
+                        & \cellcolor{white} ?
+                        & \cellcolor{pastelOrange} Identifiable data exchanged (Bluetooth mac)
+                        & \cellcolor{white} ?
+                        & \cellcolor{pastelRed} User must have a phone compatible with the application (1)
                         \\
 
                         License Plate Recognition (LPR)
-                        & Raspberry Pi + Camera Module v2
-                        & No user interaction required; privacy concerns and high processing requirements
-                        & Conditional
+                        \newline
+                        \texttt{Raspberry Pi + Camera Module v2}
+                        & \cellcolor{white} Reading time?
+                        & \cellcolor{pastelOrange} Good
+                        & \cellcolor{pastelGreen} High
+                        & \cellcolor{pastelRed} High power consumption
+                        & \cellcolor{pastelRed} Personal data processed
+                        & \cellcolor{white} ?
+                        & \cellcolor{pastelGreen} No user interaction
                         \\
 
                         QR code-based authorization
-                        & Printed QR code + camera
-                        & Simple and low cost; requires manual placement and user interaction
-                        & Low
+                        \newline
+                        \texttt{Printed QR code + camera}
+                        & \cellcolor{white} Reading time?
+                        & \cellcolor{pastelGreen} High
+                        & \cellcolor{pastelGreen} Good
+                        & \cellcolor{pastelGreen} No power consumption
+                        & \cellcolor{pastelGreen} No personal data processed
+                        & \cellcolor{pastelGreen} Low cost
+                        & \cellcolor{pastelRed} User must have a phone compatible with the application (1)
                         \\
 
                         \hline
                     \end{tabular}
+                    }
 
                     \caption{Comparison of Authorization Verification Solutions}
                     \label{tab:fr2_comparison}
                 \end{table}% }}}4
+
+                (1): This requires to develop and maintain applications for android and iOS, across multiple versions of the OSes, and requires that all users have a phone.
+
+                % TODO: reliability (NF2) here does not take into account the network (in fact, for security, it should always check the validity from the server.)
             \end{indt} %}}}3
 
             \begin{indt}{\subsubsection{Conclusion}} %{{{3
+                % TODO: change this.
+
                 Bluetooth Low Energy (BLE)–based authorization verification is selected as the most suitable solution for this project. BLE enables automatic and contactless identification of authorized users through a secure identifier broadcast by a registered device, such as a smartphone or a dedicated BLE tag. This approach balances ease of use for people with disabilities and technical feasibility for an IoT-based infrastructure.
 
                 Compared to RFID, BLE offers a longer communication range and greater flexibility, while avoiding the privacy and computational complexity associated with camera-based license plate recognition. Furthermore, BLE is natively supported by many low-power microcontrollers, facilitating seamless integration with the parking space IoT nodes. As a result, BLE-based verification best satisfies the requirements of reliability, scalability, and user accessibility for FR2.
@@ -563,41 +622,71 @@
                 \begin{table}[H]% {{{4
                     \centering
 
-                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                    {\small
+                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
                         \hline
                         \textbf{Technology}
-                        & \textbf{Component}
-                        & \textbf{Advantages / Limitations}
-                        & \textbf{Suitability}
+                        & \textbf{Performan\-ce (NF1)}
+                        & \textbf{Reliability (NF2)}
+                        & \textbf{Durability (NF3)}
+                        & \textbf{Resource efficiency (NF5)}
+                        & \textbf{Privacy (NF7)}
+                        & \textbf{Afforda\-bi\-lity (NF8)}
+                        & \textbf{Compati\-bility (NF9)}
                         \\
 
                         \hline
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         \hline
                     \end{tabular}
+                    }
 
                     \caption{Comparison of Authorization Cloning Detection Approaches}
                     \label{tab:fr3_comparison}
@@ -633,41 +722,71 @@
                 \begin{table}[H]% {{{4
                     \centering
 
-                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                    {\small
+                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
                         \hline
                         \textbf{Technology}
-                        & \textbf{Component}
-                        & \textbf{Advantages / Limitations}
-                        & \textbf{Suitability}
+                        & \textbf{Performan\-ce (NF1)}
+                        & \textbf{Reliability (NF2)}
+                        & \textbf{Durability (NF3)}
+                        & \textbf{Resource efficiency (NF5)}
+                        & \textbf{Privacy (NF7)}
+                        & \textbf{Afforda\-bi\-lity (NF8)}
+                        & \textbf{Compati\-bility (NF9)}
                         \\
 
                         \hline
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         \hline
                     \end{tabular}
+                    }
 
                     \caption{Comparison of violation identification mechanisms}
                     \label{tab:fr4_comparison}
@@ -703,41 +822,71 @@
                 \begin{table}[H]% {{{4
                     \centering
 
-                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                    {\small
+                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
                         \hline
                         \textbf{Technology}
-                        & \textbf{Component}
-                        & \textbf{Advantages / Limitations}
-                        & \textbf{Suitability}
+                        & \textbf{Performan\-ce (NF1)}
+                        & \textbf{Reliability (NF2)}
+                        & \textbf{Durability (NF3)}
+                        & \textbf{Resource efficiency (NF5)}
+                        & \textbf{Privacy (NF7)}
+                        & \textbf{Afforda\-bi\-lity (NF8)}
+                        & \textbf{Compati\-bility (NF9)}
                         \\
 
                         \hline
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         \hline
                     \end{tabular}
+                    }
 
                     \caption{Comparison of violation identification mechanisms}
                     \label{tab:fr5_comparison}
@@ -773,41 +922,71 @@
                 \begin{table}[H]% {{{4
                     \centering
 
-                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                    {\small
+                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
                         \hline
                         \textbf{Technology}
-                        & \textbf{Component}
-                        & \textbf{Advantages / Limitations}
-                        & \textbf{Suitability}
+                        & \textbf{Performan\-ce (NF1)}
+                        & \textbf{Reliability (NF2)}
+                        & \textbf{Durability (NF3)}
+                        & \textbf{Resource efficiency (NF5)}
+                        & \textbf{Privacy (NF7)}
+                        & \textbf{Afforda\-bi\-lity (NF8)}
+                        & \textbf{Compati\-bility (NF9)}
                         \\
 
                         \hline
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         \hline
                     \end{tabular}
+                    }
 
                     \caption{Comparison of violation identification mechanisms}
                     \label{tab:fr6_comparison}
@@ -843,41 +1022,71 @@
                 \begin{table}[H]% {{{4
                     \centering
 
-                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                    {\small
+                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
                         \hline
                         \textbf{Technology}
-                        & \textbf{Component}
-                        & \textbf{Advantages / Limitations}
-                        & \textbf{Suitability}
+                        & \textbf{Performan\-ce (NF1)}
+                        & \textbf{Reliability (NF2)}
+                        & \textbf{Durability (NF3)}
+                        & \textbf{Resource efficiency (NF5)}
+                        & \textbf{Privacy (NF7)}
+                        & \textbf{Afforda\-bi\-lity (NF8)}
+                        & \textbf{Compati\-bility (NF9)}
                         \\
 
                         \hline
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         \hline
                     \end{tabular}
+                    }
 
                     \caption{Comparison of violation identification mechanisms}
                     \label{tab:fr7_comparison}
@@ -913,41 +1122,71 @@
                 \begin{table}[H]% {{{4
                     \centering
 
-                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                    {\small
+                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
                         \hline
                         \textbf{Technology}
-                        & \textbf{Component}
-                        & \textbf{Advantages / Limitations}
-                        & \textbf{Suitability}
+                        & \textbf{Performan\-ce (NF1)}
+                        & \textbf{Reliability (NF2)}
+                        & \textbf{Durability (NF3)}
+                        & \textbf{Resource efficiency (NF5)}
+                        & \textbf{Privacy (NF7)}
+                        & \textbf{Afforda\-bi\-lity (NF8)}
+                        & \textbf{Compati\-bility (NF9)}
                         \\
 
                         \hline
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         \hline
                     \end{tabular}
+                    }
 
                     \caption{Comparison of reservation timeout approaches}
                     \label{tab:fr8_comparison}
@@ -984,41 +1223,71 @@
                 \begin{table}[H]% {{{4
                     \centering
 
-                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                    {\small
+                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
                         \hline
                         \textbf{Technology}
-                        & \textbf{Component}
-                        & \textbf{Advantages / Limitations}
-                        & \textbf{Suitability}
+                        & \textbf{Performan\-ce (NF1)}
+                        & \textbf{Reliability (NF2)}
+                        & \textbf{Durability (NF3)}
+                        & \textbf{Resource efficiency (NF5)}
+                        & \textbf{Privacy (NF7)}
+                        & \textbf{Afforda\-bi\-lity (NF8)}
+                        & \textbf{Compati\-bility (NF9)}
                         \\
 
                         \hline
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         \hline
                     \end{tabular}
+                    }
 
                     \caption{Comparison of parking spot status display}
                     \label{tab:fr9_comparison}
@@ -1055,41 +1324,71 @@
                 \begin{table}[H]% {{{4
                     \centering
 
-                    \begin{tabular}{p{4cm} p{2.5cm} p{5cm} p{2.5cm}}
+                    {\small
+                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
                         \hline
                         \textbf{Technology}
-                        & \textbf{Component}
-                        & \textbf{Advantages / Limitations}
-                        & \textbf{Suitability}
+                        & \textbf{Performan\-ce (NF1)}
+                        & \textbf{Reliability (NF2)}
+                        & \textbf{Durability (NF3)}
+                        & \textbf{Resource efficiency (NF5)}
+                        & \textbf{Privacy (NF7)}
+                        & \textbf{Afforda\-bi\-lity (NF8)}
+                        & \textbf{Compati\-bility (NF9)}
                         \\
 
                         \hline
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         XXX
-                        & XXX
-                        & XXX
-                        & XXX
+                        \newline
+                        \texttt{ref}
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
+                        & \cellcolor{white} XXX
                         \\
 
                         \hline
                     \end{tabular}
+                    }
 
                     \caption{Comparison of user registration and authentication solutions}
                     \label{tab:fr10_comparison}
