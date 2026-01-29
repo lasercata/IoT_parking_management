@@ -4,7 +4,7 @@
 %------------------------------------------------------------------------
 %
 % Author                :   Flow, Lasercata
-% Last modification     :   2026.01.16
+% Last modification     :   2026.01.28
 %
 %------------------------------------------------------------------------
 
@@ -403,7 +403,7 @@
         \end{table}
     \end{indt} %}}}1
 
-    \begin{indt}{\section{Analyse}} %{{{1
+    \begin{indt}{\section{Analysis}} %{{{1
         \begin{indt}{\subsection{FR1 -- Occupancy detection}} %{{{2
             \begin{indt}{\subsubsection{Introduction}} %{{{3
                 The objective of this functional requirement is to detect the presence of a vehicle occupying a disabled parking space. This functionality constitutes the foundation of the smart parking system, as it triggers all subsequent processes such as authorization verification, fraud detection, and violation reporting.
@@ -502,6 +502,8 @@
         \end{indt} %}}}2
 
         \begin{indt}{\subsection{FR2 -- Authorization verification}} %{{{2
+            \label{sub:fr2}
+
             \begin{indt}{\subsubsection{Introduction}} %{{{3
                 The purpose of this functional requirement is to verify the validity of a disabled parking authorization when a vehicle is detected occupying a reserved parking space. This step is essential to distinguish between legitimate users and unauthorized vehicles, ensuring that disabled parking spaces are used fairly and in accordance with regulations.
 
@@ -510,6 +512,18 @@
 
             \begin{indt}{\subsubsection{Comparison of authorization verification technologies}} %{{{3
                 Several technical approaches can be used to identify vehicles and verify disabled parking authorizations. \autoref{tab:fr2_comparison} compares the most relevant solutions for this project.
+
+                \begin{indi}{Possible technologies:}
+                    \item \textbf{RFID}: the user carries a RFID tag and present it to the node
+
+                    \item \textbf{Bluetooth}: the user uses a phone application with the bluetooth activated
+
+                    \item \textbf{License plate recognition}: the node reads the car's plate using a camera
+
+                    \item \textbf{QR code on the node}: there is a QR code printed on each node (different for each) and the user scans it with a phone application
+
+                    \item \textbf{QR code reader}: through its interface, the user generates a QR code that is read by the node
+                \end{indi}
 
                 \begin{table}[H]% {{{4
                     \centering
@@ -528,7 +542,7 @@
                         \\
 
                         \hline
-                        RFID-based authorization
+                        RFID
                         \newline
                         \texttt{MFRC522 RFID Reader}
                         & \cellcolor{pastelGreen} Reading time < 1s
@@ -564,9 +578,9 @@
                         & \cellcolor{pastelGreen} No user interaction
                         \\
 
-                        QR code-based authorization
+                        QR code
                         \newline
-                        \texttt{Printed QR code + camera}
+                        \texttt{QR code on the node}
                         & \cellcolor{white} Reading time?
                         & \cellcolor{pastelGreen} High
                         & \cellcolor{pastelGreen} Good
@@ -574,6 +588,18 @@
                         & \cellcolor{pastelGreen} No personal data processed
                         & \cellcolor{pastelGreen} Low cost
                         & \cellcolor{pastelRed} User must have a phone compatible with the application (1)
+                        \\
+
+                        QR code reader
+                        \newline
+                        \texttt{QR code reader}
+                        & \cellcolor{white} Reading time?
+                        & \cellcolor{pastelGreen} High
+                        & \cellcolor{pastelGreen} ?
+                        & \cellcolor{pastelOrange} ?
+                        & \cellcolor{pastelGreen} No personal data processed
+                        & \cellcolor{white} ?
+                        & \cellcolor{pastelOrange} User must have an internet connection
                         \\
 
                         \hline
@@ -611,77 +637,54 @@
 
         \begin{indt}{\subsection{FR3 -- Authorization cloning detection}} %{{{2
             \begin{indt}{\subsubsection{Introduction}} %{{{3
-                The objective of this functional requirement is to detect the simultaneous use of the same disabled parking authorization across geographically distinct parking spaces. Authorization cloning represents a significant form of fraud, where a single valid identifier is duplicated or shared in order to illegally occupy multiple reserved spaces at the same time.
+                The objective of this functional requirement is to detect the simultaneous use of the same disabled parking authorization across distinct parking spaces.
+                Authorization cloning represents a significant form of fraud, where a single valid identifier is duplicated or shared in order to illegally occupy multiple reserved spaces at the same time.
 
-                Within the proposed IoT-based smart parking system, this requirement is primarily addressed at the backend level. By correlating authorization identifiers with spatial and temporal data received from distributed parking nodes, the system can identify inconsistencies that are physically impossible under normal usage conditions. This functionality is essential to ensure fairness, preserve trust in the system, and support law enforcement by automatically flagging suspicious behaviour.
+                This functionality is essential to ensure fairness, preserve trust in the system, and support law enforcement by automatically flagging suspicious behaviour.
+
+                \vspace{12pt}
+
+                Independently of the choice of the authorization technology (\textit{cf} \autoref{sub:fr2}), the authorization will be based on some kind of identifier (ID).
+                \begin{indi}{But the type of the ID varies:}
+                    \item In the case of the \textbf{QR code on the node}, the ID identifies the node itself. Here, authorization cloning means that the same user account scans multiple distinct nodes.
+
+                    \item In the other cases, the ID represent the user. Cloning here means that multiple distinct nodes read the same user ID.
+
+                    \item For the \textbf{QR code on the node} and for the \textbf{license plate reader}, the ID is fixed and not customizable.
+                \end{indi}
+                
+                \begin{indi}{So to address this requirement, multiple options are possible:}
+                    \item If the ID represents the user, it will be retrieved by the node. In this case, to detect cloning, the node can either ask all the other nodes if the same ID is in use, or ask the IoT platform.
+                        Otherwise, if the ID represent the node, it is only possible to address this requirement in the IoT platform.
+
+                    \item If the ID represents the user and is customizable, it is possible to include in it a random part, modified/generated at each reading, that will be used for authentication (like a one time code), thus making it impossible to have two valid authorisations at the same time.
+                \end{indi}
             \end{indt} %}}}3
 
             \begin{indt}{\subsubsection{Comparison of cloning detection approaches}} %{{{3
-                Several technical approaches can be employed to detect authorization cloning. \autoref{tab:fr3_comparison} compares the most relevant solutions applicable to this project.
-
                 \begin{table}[H]% {{{4
                     \centering
 
                     {\small
-                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
+                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt}}
                         \hline
-                        \textbf{Technology}
+                        \textbf{Approach}
                         & \textbf{Performan\-ce (NF1)}
                         & \textbf{Reliability (NF2)}
-                        & \textbf{Durability (NF3)}
                         & \textbf{Resource efficiency (NF5)}
-                        & \textbf{Privacy (NF7)}
-                        & \textbf{Afforda\-bi\-lity (NF8)}
-                        & \textbf{Compati\-bility (NF9)}
                         \\
 
                         \hline
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
+                        Detection at the \emph{nodes} level
+                        & \cellcolor{pastelRed} A lot of network overhead
+                        & \cellcolor{pastelOrange} If a node's network is down, it will not answer
+                        & \cellcolor{pastelRed} Due to the numerous network requests, high energy consumption
                         \\
 
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
+                        Detection at the \emph{Platform} level
+                        & \cellcolor{pastelGreen} Good performance (one network request)
+                        & \cellcolor{pastelOrange} needs connection to the Platform
+                        & \cellcolor{pastelGreen} low consumption
                         \\
 
                         \hline
@@ -694,18 +697,9 @@
             \end{indt} %}}}3
 
             \begin{indt}{\subsubsection{Conclusion}} %{{{3
-                XXX
-            \end{indt} %}}}3
+                In the light of the \autoref{tab:fr3_comparison}, the detection seems more advantageous at the \emph{Platform} level.
 
-            \begin{indt}{\subsubsection{References}} %{{{3
-                \begin{indi}[0pt]{}
-                    \item XXX: \\
-                        \url{https://}
-                    \item XXX: \\
-                        \url{https://}
-                    \item XXX: \\
-                        \url{https://}
-                \end{indi}
+                Furthermore, by correlating authorization identifiers with spatial and temporal data received from distributed parking nodes, the system can identify inconsistencies that are physically impossible under normal usage conditions.
             \end{indt} %}}}3
         \end{indt} %}}}2
 
@@ -814,6 +808,8 @@
                 The purpose of this functional requirement is to notify law enforcement authorities in real time when the system detects either (i) a parking violation (unauthorized parking, expired/missing authorization) or (ii) an authorization cloning event. This capability is essential to ensure enforcement can occur promptly, which increases deterrence and improves the availability of disabled parking spaces for legitimate users.
                 
                 In this IoT-based smart parking system, notifications must be delivered with low latency and high reliability. The notification chain must also be secure and auditable because it can initiate enforcement actions. Practically, this implies (1) a dependable communication path from the parking node to the backend and (2) a standardized, secure mechanism from the backend to the authority endpoint (e.g., secure REST API, email/SMS fallback, or an event feed).
+
+                TODO: here maybe two tables are needed: one to compare the \emph{protocols} (e.g HTTP, MQTT, CoaP, ...), and one to compare the \emph{authority endpoint} (SMS, email, Discord, ...)
             \end{indt} %}}}3
 
             \begin{indt}{\subsubsection{Comparison of real-time notification solutions}} %{{{3
@@ -1214,6 +1210,8 @@
                 The objective of this functional requirement is to display the current status of a disabled parking space, namely whether it is free, reserved, or currently occupied (parked). This information is essential for both end users and system operators, as it provides immediate feedback on parking availability and reservation enforcement.
 
                 Within the IoT-based smart parking system, parking spot status acts as a synthesis of multiple data sources, including real-time sensor data from the parking node and reservation information managed by the backend. A clear and reliable status representation improves user understanding, supports decision-making, and ensures consistency between physical occupancy and digital system state.
+
+                TODO: also send the current state to the platform. So need to compare the different \emph{communication technologies} also.
             \end{indt} %}}}3
 
             \begin{indt}{\subsubsection{Comparison of parking spot status display mechanisms}} %{{{3
@@ -1409,6 +1407,18 @@
                         \url{https://}
                 \end{indi}
             \end{indt} %}}}3
+        \end{indt} %}}}2
+
+        \begin{indt}{\subsection{Board selection}} %{{{2
+            TODO (this is a global choice)
+
+            Node MCU ESP8266, Arduino UNO, Raspberry Pi 3
+        \end{indt} %}}}2
+
+        \begin{indt}{\subsection{User interface selection}} %{{{2
+            TODO
+
+            SMS, Discord, Email, WhatsApp, push notification on smartphone, ad hoc app
         \end{indt} %}}}2
     \end{indt} %}}}1
 
