@@ -479,6 +479,84 @@
             \end{indt} %}}}3
         \end{indt} %}}}2
 
+        \begin{indt}{\subsection{Network protocols}} %{{{2
+            To fulfil the functional requirements \textbf{FR5} (authority notification), \textbf{FR6} (Real time parking visualization), \textbf{FR7} (advance reservation), there need to be communication between the different entities (the \emph{nodes}, the \emph{IoT platform}, and the \emph{user interface} (UI)).
+
+            \begin{indi}{Based on the requirements, there are three types of communications:}
+                \item[(1)] platform $\longleftarrow$ UI (visualization, reservation)
+                \item[(2)] platform $\longrightarrow$ UI (authority notification)
+                \item[(3)] nodes $\longrightarrow$ platform (status update for visualization, violation notification)
+                \item[(4)] nodes $\longleftarrow$ platform (reservation)
+            \end{indi}
+
+            \vspace{6pt}
+            
+            $\bullet$ The case (2) is addressed in the \autoref{sub:fr5}.
+
+            \vspace{6pt}
+            
+            $\bullet$ For the case (1), the only relevant option is to use the HTTP client/server protocol, with the platform being the server.
+
+            \vspace{6pt}
+            
+            $\bullet$ For (3), the update must be fast in order to have a \emph{real-time} visualization. Here again, the client/server model seems more appropriate: the nodes are clients that connect to the server (the platform) when something occurs. It provides a real-time update and it light for the nodes (that have limited resources).
+
+            \vspace{6pt}
+            
+            $\bullet$ Remain the case (4). Here the platform has to send data to a given node.
+
+            \begin{indi}{The following approaches are possible:}
+                \item[(A)] client/server, each node implements a server ;
+                \item[(B)] client/server, platform is the server and the nodes regularly check for update ;
+                \item[(C)] publish-subscriber, each node subscribes to a topic with its ID so that the platform can publish to a given node.
+            \end{indi}
+
+            \begin{table}[H]% {{{3
+                \centering
+
+                {\small
+                \begin{tabular}{p{3cm} p{80pt} p{80pt} p{80pt} p{80pt}}
+                    \hline
+                    \textbf{Protocol}
+                    & \textbf{Performance (NF1)}
+                    & \textbf{Reliability (NF2)}
+                    & \textbf{Portability (NF4)}
+                    & \textbf{Resource efficiency (NF5)}
+                    \\
+
+                    \hline
+                    (A)
+                    & \cellcolor{pastelGreen} Good performance
+                    & \cellcolor{pastelOrange} Each node is independent, but depend on the platform
+                    & \cellcolor{pastelRed} Need to update the platform when adding new nodes
+                    & \cellcolor{pastelRed} Each node being a server consumes a lot
+                    \\
+
+                    (B)
+                    & \cellcolor{pastelOrange} Depends on the frequency of requests
+                    & \cellcolor{pastelOrange} Each node is independent, but depend on the platform
+                    & \cellcolor{pastelGreen} Adding/removing nodes is transparent
+                    & \cellcolor{pastelRed} Generate a lot of network traffic
+                    \\
+
+                    (C)
+                    & \cellcolor{pastelGreen} Good performance
+                    & \cellcolor{pastelOrange} Each node is independent, but depend on the platform
+                    & \cellcolor{pastelGreen} Adding/removing nodes is transparent
+                    & \cellcolor{pastelOrange} Generally lower power needed
+                    \\
+
+                    \hline
+                \end{tabular}
+                }
+
+                \caption{Comparison of protocols for Platform $\longrightarrow$ node communication}
+                \label{tab:protocols_comparison}
+            \end{table}% }}}3
+
+            According to \autoref{tab:protocols_comparison}, the publish-subscriber solution seems the most appropriated approach for this communication.
+        \end{indt} %}}}2
+
         \begin{indt}{\subsection{FR1 -- Occupancy detection}} %{{{2
             \begin{indt}{\subsubsection{Introduction}} %{{{3
                 The objective of this functional requirement is to detect the presence of a vehicle occupying a disabled parking space. This functionality constitutes the foundation of the smart parking system, as it triggers all subsequent processes such as authorization verification, fraud detection, and violation reporting.
@@ -868,6 +946,8 @@
         \end{indt} %}}}2
 
         \begin{indt}{\subsection{FR5 -- Authority notification}} %{{{2
+            \label{sub:fr5}
+
             \begin{indt}{\subsubsection{Introduction}} %{{{3
                 The purpose of this functional requirement is to notify law enforcement authorities in real time when the system detects either (i) a parking violation (unauthorized parking, expired/missing authorization) or (ii) an authorization cloning event. This capability is essential to ensure enforcement can occur promptly, which increases deterrence and improves the availability of disabled parking spaces for legitimate users.
                 
