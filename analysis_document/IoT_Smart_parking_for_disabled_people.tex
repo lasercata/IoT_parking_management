@@ -4,7 +4,7 @@
 %------------------------------------------------------------------------
 %
 % Author                :   Flow, Lasercata
-% Last modification     :   2026.01.28
+% Last modification     :   2026.01.30
 %
 %------------------------------------------------------------------------
 
@@ -387,7 +387,7 @@
 
                 NFR8
                 & Affordability
-                & The hardware cost per parking space is compatible with large-scale municipal deployment.
+                & The hardware cost per parking space and the software maintenance cost is compatible with large-scale municipal deployment.
                 \\
 
                 NFR9
@@ -404,6 +404,81 @@
     \end{indt} %}}}1
 
     \begin{indt}{\section{Analysis}} %{{{1
+        \begin{indt}{\subsection{Board selection}} %{{{2
+            TODO (this is a global choice)
+
+            Node MCU ESP8266, Arduino UNO, Raspberry Pi 3
+        \end{indt} %}}}2
+
+        \begin{indt}{\subsection{User interface}} %{{{2
+            \begin{indt}{\subsubsection{Introduction}} %{{{3
+                To address the functional requirements \textbf{FR6} (parking availability visualization), \textbf{FR7} (advance reservation), and \textbf{FR10} (user registration), a \emph{user interface} is needed.
+                
+                The user interface must support role differentiation (user, regulator, administrator) and give different permissions to each.
+
+                It must also enable administrators to list all the nodes and monitor their status.
+                
+                \begin{indi}{Possible options are as follows:}
+                    \item Native phone app
+                    \item Web app
+                    \item Command line tool (can be in the form of a Discord/Telegram bot)
+                \end{indi}
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Comparison of user interfaces}} %{{{3
+                \begin{table}[H]% {{{4
+                    \centering
+
+                    {\small
+                    \begin{tabular}{p{3cm} p{80pt} p{80pt} p{80pt} p{80pt}}
+                        \hline
+                        \textbf{Technology}
+                        & \textbf{Reliability (NF2)}
+                        & \textbf{Privacy (NF7)}
+                        & \textbf{Afforda\-bility (NF8)}
+                        & \textbf{Compati\-bility (NF9)}
+                        \\
+
+                        \hline
+                        Phone app
+                        & \cellcolor{pastelOrange} Depends on network, but can cache data
+                        & \cellcolor{pastelGreen} Good privacy is possible
+                        & \cellcolor{pastelRed} Need to maintain multiple app versions
+                        & \cellcolor{pastelRed} Users need compatible phone
+                        \\
+
+                        Web app
+                        & \cellcolor{pastelRed} Depends on network's availability
+                        & \cellcolor{pastelGreen} Good privacy is possible
+                        & \cellcolor{pastelGreen} Low maintenance cost
+                        & \cellcolor{pastelGreen} Most users' devices are able to interact with web pages
+                        \\
+
+                        Command line app
+                        & \cellcolor{pastelOrange} Depends on network, but can cache data
+                        & \cellcolor{pastelOrange} If using Discord/Telegram, data is shared to that third-party
+                        & \cellcolor{pastelGreen} Low maintenance cost
+                        & \cellcolor{pastelOrange} While probably compatible with user's devices, it is not user-friendly
+                        \\
+
+                        \hline
+                    \end{tabular}
+                    }
+
+                    \caption{Comparison of user interfaces}
+                    \label{tab:UI_comparison}
+                \end{table}% }}}4
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{Conclusion}} %{{{3
+                In the light of the \autoref{tab:UI_comparison}, the \emph{web interface} seems the most appropriate for the user interface as it has the largest compatibility.
+                Regarding reliability, in the event of a network outage, no real time data is possible. Even if with a native application, it might possible to cache data, it will become outdated and the visualisation will be wrong.
+                We put a stronger emphasis on the compatibility of end user's device.
+
+                This interface will also be appropriate to implement the multi-level authorizations (admin, user, ...)
+            \end{indt} %}}}3
+        \end{indt} %}}}2
+
         \begin{indt}{\subsection{FR1 -- Occupancy detection}} %{{{2
             \begin{indt}{\subsubsection{Introduction}} %{{{3
                 The objective of this functional requirement is to detect the presence of a vehicle occupying a disabled parking space. This functionality constitutes the foundation of the smart parking system, as it triggers all subsequent processes such as authorization verification, fraud detection, and violation reporting.
@@ -666,7 +741,7 @@
                     \centering
 
                     {\small
-                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt}}
+                    \begin{tabular}{p{3cm} p{100pt} p{100pt} p{100pt}}
                         \hline
                         \textbf{Approach}
                         & \textbf{Performan\-ce (NF1)}
@@ -710,97 +785,86 @@
                 In the context of an IoT-based smart parking system, violation identification relies on the correlation of occupancy detection results with authorization verification outcomes. By applying predefined decision rules, the system can automatically and consistently determine whether a parking event complies with regulations. This automation reduces the need for manual inspection, improves fairness, and ensures that violations are detected in real time.
             \end{indt} %}}}3
 
-            \begin{indt}{\subsubsection{Comparison of violation identification mechanisms}} %{{{3
-                Several approaches can be used to identify parking violations based on system inputs. \autoref{tab:fr4_comparison} presents a comparison of the most relevant mechanisms for this project.
-
-                \begin{table}[H]% {{{4
-                    \centering
-
-                    {\small
-                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
-                        \hline
-                        \textbf{Technology}
-                        & \textbf{Performan\-ce (NF1)}
-                        & \textbf{Reliability (NF2)}
-                        & \textbf{Durability (NF3)}
-                        & \textbf{Resource efficiency (NF5)}
-                        & \textbf{Privacy (NF7)}
-                        & \textbf{Afforda\-bi\-lity (NF8)}
-                        & \textbf{Compati\-bility (NF9)}
-                        \\
-
-                        \hline
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        \\
-
-                        \hline
-                    \end{tabular}
-                    }
-
-                    \caption{Comparison of violation identification mechanisms}
-                    \label{tab:fr4_comparison}
-                \end{table}% }}}4
-            \end{indt} %}}}3
-
-            \begin{indt}{\subsubsection{Conclusion}} %{{{3
-                XXX
-            \end{indt} %}}}3
-
-            \begin{indt}{\subsubsection{References}} %{{{3
-                \begin{indi}[0pt]{}
-                    \item XXX: \\
-                        \url{https://}
-                    \item XXX: \\
-                        \url{https://}
-                    \item XXX: \\
-                        \url{https://}
-                \end{indi}
-            \end{indt} %}}}3
+            % \begin{indt}{\subsubsection{Comparison of violation identification mechanisms}} %{{{3
+            %     Several approaches can be used to identify parking violations based on system inputs. \autoref{tab:fr4_comparison} presents a comparison of the most relevant mechanisms for this project.
+            %
+            %     \begin{table}[H]% {{{4
+            %         \centering
+            %
+            %         {\small
+            %         \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
+            %             \hline
+            %             \textbf{Technology}
+            %             & \textbf{Performan\-ce (NF1)}
+            %             & \textbf{Reliability (NF2)}
+            %             & \textbf{Durability (NF3)}
+            %             & \textbf{Resource efficiency (NF5)}
+            %             & \textbf{Privacy (NF7)}
+            %             & \textbf{Afforda\-bi\-lity (NF8)}
+            %             & \textbf{Compati\-bility (NF9)}
+            %             \\
+            %
+            %             \hline
+            %             XXX
+            %             \newline
+            %             \texttt{ref}
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             \\
+            %
+            %             XXX
+            %             \newline
+            %             \texttt{ref}
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             \\
+            %
+            %             XXX
+            %             \newline
+            %             \texttt{ref}
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             \\
+            %
+            %             XXX
+            %             \newline
+            %             \texttt{ref}
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             & \cellcolor{white} XXX
+            %             \\
+            %
+            %             \hline
+            %         \end{tabular}
+            %         }
+            %
+            %         \caption{Comparison of violation identification mechanisms}
+            %         \label{tab:fr4_comparison}
+            %     \end{table}% }}}4
+            % \end{indt} %}}}3
+            %
+            % \begin{indt}{\subsubsection{Conclusion}} %{{{3
+            %     XXX
+            % \end{indt} %}}}3
         \end{indt} %}}}2
 
         \begin{indt}{\subsection{FR5 -- Authority notification}} %{{{2
@@ -809,7 +873,7 @@
                 
                 In this IoT-based smart parking system, notifications must be delivered with low latency and high reliability. The notification chain must also be secure and auditable because it can initiate enforcement actions. Practically, this implies (1) a dependable communication path from the parking node to the backend and (2) a standardized, secure mechanism from the backend to the authority endpoint (e.g., secure REST API, email/SMS fallback, or an event feed).
 
-                TODO: here maybe two tables are needed: one to compare the \emph{protocols} (e.g HTTP, MQTT, CoaP, ...), and one to compare the \emph{authority endpoint} (SMS, email, Discord, ...)
+                TODO: here maybe two tables are needed: one to compare the \emph{protocols} (e.g HTTP, MQTT, CoaP, ...), and one to compare the \emph{authority endpoint} (SMS, Discord, Email, WhatsApp, push notification on smartphone, ad hoc app, ...)
             \end{indt} %}}}3
 
             \begin{indt}{\subsubsection{Comparison of real-time notification solutions}} %{{{3
@@ -905,205 +969,157 @@
             \end{indt} %}}}3
         \end{indt} %}}}2
 
-        \begin{indt}{\subsection{FR6 -- Parking availability visualization}} %{{{2
-            \begin{indt}{\subsubsection{Introduction}} %{{{3
-                The objective of this functional requirement is to provide users with a clear and real-time visualization of available disabled parking spaces within a selected geographical area. This functionality directly improves accessibility for people with disabilities by reducing the time and effort required to locate an appropriate parking space, especially in dense urban environments.
+        % \begin{indt}{\subsection{FR6 -- Parking availability visualization}} %{{{2
+        %     \begin{indt}{\subsubsection{Introduction}} %{{{3
+        %         The objective of this functional requirement is to provide users with a clear and real-time visualization of available disabled parking spaces within a selected geographical area. This functionality directly improves accessibility for people with disabilities by reducing the time and effort required to locate an appropriate parking space, especially in dense urban environments.
+        %
+        %         % Within the IoT-based smart parking system, parking availability visualization serves as the primary user-facing interface. It relies on continuously updated parking spot status data collected from distributed IoT nodes and processed by the centralized backend. Accurate and intuitive visualization is essential to ensure user trust and to enable informed decision-making, particularly when combined with reservation capabilities.
+        %     \end{indt} %}}}3
+        %
+        %     \begin{indt}{\subsubsection{Comparison of visualization and mapping solutions}} %{{{3
+        %         Several technical solutions can be used to visualize parking availability data. \autoref{tab:fr6_comparison} presents a comparison of the most relevant mechanisms for this project.
+        %
+        %         \begin{table}[H]% {{{4
+        %             \centering
+        %
+        %             {\small
+        %             \begin{tabular}{p{3cm} p{80pt} p{80pt} p{80pt} p{80pt}}
+        %                 \hline
+        %                 \textbf{Technology}
+        %                 & \textbf{Reliability (NF2)}
+        %                 & \textbf{Privacy (NF7)}
+        %                 & \textbf{Afforda\-bility (NF8)}
+        %                 & \textbf{Compati\-bility (NF9)}
+        %                 \\
+        %
+        %                 \hline
+        %                 Phone app
+        %                 & \cellcolor{pastelOrange} Depends on network, but can cache data
+        %                 & \cellcolor{pastelGreen} Good privacy is possible
+        %                 & \cellcolor{pastelRed} Need to maintain multiple app versions
+        %                 & \cellcolor{pastelRed} Users need compatible phone
+        %                 \\
+        %
+        %                 Web app
+        %                 & \cellcolor{pastelRed} Depends on network's availability
+        %                 & \cellcolor{pastelGreen} Good privacy is possible
+        %                 & \cellcolor{pastelGreen} Low maintenance cost
+        %                 & \cellcolor{pastelGreen} Most users' devices are able to interact with web pages
+        %                 \\
+        %
+        %                 Command line app
+        %                 & \cellcolor{pastelOrange} Depends on network, but can cache data
+        %                 & \cellcolor{pastelOrange} If using Discord/Telegram, data is shared to that third-party
+        %                 & \cellcolor{pastelGreen} Low maintenance cost
+        %                 & \cellcolor{pastelOrange} While probably compatible with user's devices, it is not user-friendly
+        %                 \\
+        %
+        %                 \hline
+        %             \end{tabular}
+        %             }
+        %
+        %             \caption{Comparison of user interfaces}
+        %             \label{tab:fr6_comparison}
+        %         \end{table}% }}}4
+        %     \end{indt} %}}}3
+        %
+        %     \begin{indt}{\subsubsection{Conclusion}} %{{{3
+        %         In the light of the \autoref{tab:fr6_comparison}, the \emph{web interface} seems the most appropriate for the user interface as it has the largest compatibility.
+        %         Regarding reliability, in the event of a network outage, no real time data is possible. Even if with a native application, it might possible to cache data, it will become outdated and the visualisation will be wrong.
+        %         We put a stronger emphasis on the compatibility of end user's device.
+        %
+        %         This interface will also be appropriate to implement the multi-level authorizations (admin, user, ...)
+        %     \end{indt} %}}}3
+        % \end{indt} %}}}2
 
-                Within the IoT-based smart parking system, parking availability visualization serves as the primary user-facing interface. It relies on continuously updated parking spot status data collected from distributed IoT nodes and processed by the centralized backend. Accurate and intuitive visualization is essential to ensure user trust and to enable informed decision-making, particularly when combined with reservation capabilities.
-            \end{indt} %}}}3
-
-            \begin{indt}{\subsubsection{Comparison of visualization and mapping solutions}} %{{{3
-                Several technical solutions can be used to visualize parking availability data. \autoref{tab:fr6_comparison} presents a comparison of the most relevant mechanisms for this project.
-
-                \begin{table}[H]% {{{4
-                    \centering
-
-                    {\small
-                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
-                        \hline
-                        \textbf{Technology}
-                        & \textbf{Performan\-ce (NF1)}
-                        & \textbf{Reliability (NF2)}
-                        & \textbf{Durability (NF3)}
-                        & \textbf{Resource efficiency (NF5)}
-                        & \textbf{Privacy (NF7)}
-                        & \textbf{Afforda\-bi\-lity (NF8)}
-                        & \textbf{Compati\-bility (NF9)}
-                        \\
-
-                        \hline
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        \\
-
-                        \hline
-                    \end{tabular}
-                    }
-
-                    \caption{Comparison of violation identification mechanisms}
-                    \label{tab:fr6_comparison}
-                \end{table}% }}}4
-            \end{indt} %}}}3
-
-            \begin{indt}{\subsubsection{Conclusion}} %{{{3
-                XXX
-            \end{indt} %}}}3
-
-            \begin{indt}{\subsubsection{References}} %{{{3
-                \begin{indi}[0pt]{}
-                    \item XXX: \\
-                        \url{https://}
-                    \item XXX: \\
-                        \url{https://}
-                    \item XXX: \\
-                        \url{https://}
-                \end{indi}
-            \end{indt} %}}}3
-        \end{indt} %}}}2
-
-        \begin{indt}{\subsection{FR7 -- Advance reservation}} %{{{2
-            \begin{indt}{\subsubsection{Introduction}} %{{{3
-                The objective of this functional requirement is to allow authorized users to reserve a disabled parking space up to one hour in advance. This feature significantly improves accessibility and planning for people with disabilities by reducing uncertainty when traveling to areas with limited parking availability.
-
-                In the context of the IoT-based smart parking system, advance reservation must be tightly integrated with real-time parking availability data to avoid conflicts and ensure fairness. The reservation mechanism must prevent double-booking, enforce time constraints, and remain synchronized with on-site occupancy detection in order to release or confirm reservations accurately.
-            \end{indt} %}}}3
-
-            \begin{indt}{\subsubsection{Comparison of reservation management approaches}} %{{{3
-                Several technical approaches can be used to implement an advance reservation mechanism. \autoref{tab:fr7_comparison} compares the most relevant solutions for this project.
-
-                \begin{table}[H]% {{{4
-                    \centering
-
-                    {\small
-                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
-                        \hline
-                        \textbf{Technology}
-                        & \textbf{Performan\-ce (NF1)}
-                        & \textbf{Reliability (NF2)}
-                        & \textbf{Durability (NF3)}
-                        & \textbf{Resource efficiency (NF5)}
-                        & \textbf{Privacy (NF7)}
-                        & \textbf{Afforda\-bi\-lity (NF8)}
-                        & \textbf{Compati\-bility (NF9)}
-                        \\
-
-                        \hline
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        \\
-
-                        \hline
-                    \end{tabular}
-                    }
-
-                    \caption{Comparison of violation identification mechanisms}
-                    \label{tab:fr7_comparison}
-                \end{table}% }}}4
-            \end{indt} %}}}3
-
-            \begin{indt}{\subsubsection{Conclusion}} %{{{3
-                XXX
-            \end{indt} %}}}3
-
-            \begin{indt}{\subsubsection{References}} %{{{3
-                \begin{indi}[0pt]{}
-                    \item XXX: \\
-                        \url{https://}
-                    \item XXX: \\
-                        \url{https://}
-                    \item XXX: \\
-                        \url{https://}
-                \end{indi}
-            \end{indt} %}}}3
-        \end{indt} %}}}2
+        % \begin{indt}{\subsection{FR7 -- Advance reservation}} %{{{2
+        %     \begin{indt}{\subsubsection{Introduction}} %{{{3
+        %         The objective of this functional requirement is to allow authorized users to reserve a disabled parking space up to one hour in advance. This feature significantly improves accessibility and planning for people with disabilities by reducing uncertainty when traveling to areas with limited parking availability.
+        %
+        %         In the context of the IoT-based smart parking system, advance reservation must be tightly integrated with real-time parking availability data to avoid conflicts and ensure fairness. The reservation mechanism must prevent double-booking, enforce time constraints, and remain synchronized with on-site occupancy detection in order to release or confirm reservations accurately.
+        %     \end{indt} %}}}3
+        %
+        %     \begin{indt}{\subsubsection{Comparison of reservation management approaches}} %{{{3
+        %         Several technical approaches can be used to implement an advance reservation mechanism. \autoref{tab:fr7_comparison} compares the most relevant solutions for this project.
+        %
+        %         \begin{table}[H]% {{{4
+        %             \centering
+        %
+        %             {\small
+        %             \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
+        %                 \hline
+        %                 \textbf{Technology}
+        %                 & \textbf{Performan\-ce (NF1)}
+        %                 & \textbf{Reliability (NF2)}
+        %                 & \textbf{Durability (NF3)}
+        %                 & \textbf{Resource efficiency (NF5)}
+        %                 & \textbf{Privacy (NF7)}
+        %                 & \textbf{Afforda\-bi\-lity (NF8)}
+        %                 & \textbf{Compati\-bility (NF9)}
+        %                 \\
+        %
+        %                 \hline
+        %                 XXX
+        %                 \newline
+        %                 \texttt{ref}
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 \\
+        %
+        %                 XXX
+        %                 \newline
+        %                 \texttt{ref}
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 \\
+        %
+        %                 XXX
+        %                 \newline
+        %                 \texttt{ref}
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 \\
+        %
+        %                 XXX
+        %                 \newline
+        %                 \texttt{ref}
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 \\
+        %
+        %                 \hline
+        %             \end{tabular}
+        %             }
+        %
+        %             \caption{Comparison of violation identification mechanisms}
+        %             \label{tab:fr7_comparison}
+        %         \end{table}% }}}4
+        %     \end{indt} %}}}3
+        %
+        %     \begin{indt}{\subsubsection{Conclusion}} %{{{3
+        %         XXX
+        %     \end{indt} %}}}3
+        % \end{indt} %}}}2
 
         \begin{indt}{\subsection{FR8 -- Reservation timeout management}} %{{{2
             \begin{indt}{\subsubsection{Introduction}} %{{{3
@@ -1308,196 +1324,100 @@
             \end{indt} %}}}3
         \end{indt} %}}}2
 
-        \begin{indt}{\subsection{FR10 -- User registration}} %{{{2
-            \begin{indt}{\subsubsection{Introduction}} %{{{3
-                The objective of this functional requirement is to allow users and administrators to register on the smart parking platform. User registration is a prerequisite for accessing personalized services such as parking availability visualization, advance reservation, and parking session management. For administrators, registration enables system configuration, monitoring, and enforcement oversight.
-
-                In the context of an IoT-based smart parking system dedicated to people with disabilities, the registration process must be secure, reliable, and compliant with data protection regulations. It must also support role differentiation (user versus administrator) and integrate seamlessly with backend services that manage authorizations, reservations, and notifications.
-            \end{indt} %}}}3
-
-            \begin{indt}{\subsubsection{Comparison of user registration and authentication solutions}} %{{{3
-                Several technical approaches can be used to implement user registration and account management.
-                \autoref{tab:fr10_comparison} compares the most relevant solutions for this project.
-
-                \begin{table}[H]% {{{4
-                    \centering
-
-                    {\small
-                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
-                        \hline
-                        \textbf{Technology}
-                        & \textbf{Performan\-ce (NF1)}
-                        & \textbf{Reliability (NF2)}
-                        & \textbf{Durability (NF3)}
-                        & \textbf{Resource efficiency (NF5)}
-                        & \textbf{Privacy (NF7)}
-                        & \textbf{Afforda\-bi\-lity (NF8)}
-                        & \textbf{Compati\-bility (NF9)}
-                        \\
-
-                        \hline
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        \\
-
-                        \hline
-                    \end{tabular}
-                    }
-
-                    \caption{Comparison of user registration and authentication solutions}
-                    \label{tab:fr10_comparison}
-                \end{table}% }}}4
-            \end{indt} %}}}3
-
-            \begin{indt}{\subsubsection{Conclusion}} %{{{3
-                XXX
-            \end{indt} %}}}3
-
-            \begin{indt}{\subsubsection{References}} %{{{3
-                \begin{indi}[0pt]{}
-                    \item XXX: \\
-                        \url{https://}
-                    \item XXX: \\
-                        \url{https://}
-                    \item XXX: \\
-                        \url{https://}
-                \end{indi}
-            \end{indt} %}}}3
-        \end{indt} %}}}2
-
-        \begin{indt}{\subsection{Board selection}} %{{{2
-            TODO (this is a global choice)
-
-            Node MCU ESP8266, Arduino UNO, Raspberry Pi 3
-        \end{indt} %}}}2
-
-        \begin{indt}{\subsection{User interface selection}} %{{{2
-            TODO
-
-            SMS, Discord, Email, WhatsApp, push notification on smartphone, ad hoc app
-        \end{indt} %}}}2
+        % \begin{indt}{\subsection{FR10 -- User registration}} %{{{2
+        %     \begin{indt}{\subsubsection{Introduction}} %{{{3
+        %         The objective of this functional requirement is to allow users and administrators to register on the smart parking platform. User registration is a prerequisite for accessing personalized services such as parking availability visualization, advance reservation, and parking session management. For administrators, registration enables system configuration, monitoring, and enforcement oversight.
+        %
+        %         In the context of an IoT-based smart parking system dedicated to people with disabilities, the registration process must be secure, reliable, and compliant with data protection regulations. It must also support role differentiation (user versus administrator) and integrate seamlessly with backend services that manage authorizations, reservations, and notifications.
+        %     \end{indt} %}}}3
+        %
+        %     \begin{indt}{\subsubsection{Comparison of user registration and authentication solutions}} %{{{3
+        %         Several technical approaches can be used to implement user registration and account management.
+        %         \autoref{tab:fr10_comparison} compares the most relevant solutions for this project.
+        %
+        %         \begin{table}[H]% {{{4
+        %             \centering
+        %
+        %             {\small
+        %             \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
+        %                 \hline
+        %                 \textbf{Technology}
+        %                 & \textbf{Performan\-ce (NF1)}
+        %                 & \textbf{Reliability (NF2)}
+        %                 & \textbf{Durability (NF3)}
+        %                 & \textbf{Resource efficiency (NF5)}
+        %                 & \textbf{Privacy (NF7)}
+        %                 & \textbf{Afforda\-bi\-lity (NF8)}
+        %                 & \textbf{Compati\-bility (NF9)}
+        %                 \\
+        %
+        %                 \hline
+        %                 XXX
+        %                 \newline
+        %                 \texttt{ref}
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 \\
+        %
+        %                 XXX
+        %                 \newline
+        %                 \texttt{ref}
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 \\
+        %
+        %                 XXX
+        %                 \newline
+        %                 \texttt{ref}
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 \\
+        %
+        %                 XXX
+        %                 \newline
+        %                 \texttt{ref}
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 & \cellcolor{white} XXX
+        %                 \\
+        %
+        %                 \hline
+        %             \end{tabular}
+        %             }
+        %
+        %             \caption{Comparison of user registration and authentication solutions}
+        %             \label{tab:fr10_comparison}
+        %         \end{table}% }}}4
+        %     \end{indt} %}}}3
+        %
+        %     \begin{indt}{\subsubsection{Conclusion}} %{{{3
+        %         XXX
+        %     \end{indt} %}}}3
+        % \end{indt} %}}}2
     \end{indt} %}}}1
 
-    \begin{indt}{\section{Sensing and Identification Technologies}} %{{{1
-        \begin{indt}{\subsection{Vehicle Presence Detection}} %{{{2
-            \begin{table}[H]% {{{3
-                \centering
+    \newpage
 
-                \begin{tabular}{p{3.5cm} p{5cm} p{6cm}}
-                    \hline
-                    \textbf{Technology}
-                    & \textbf{Principle}
-                    & \textbf{Remarks}
-                    \\
-
-                    \hline
-                    Ultrasonic sensor
-                    & Measures the distance between the sensor and the underside of a vehicle
-                    & Low cost and simple to integrate; performance may be affected by rain, snow, or dirt accumulation
-                    \\
-
-                    Magnetic sensor
-                    & Detects disturbances in the Earth’s magnetic field caused by a vehicle
-                    & Very low power consumption, highly robust, widely adopted in commercial smart parking systems
-                    \\
-
-                    Infrared (IR) sensor
-                    & Detects reflected infrared radiation from nearby objects
-                    & Low cost; susceptible to false detections due to sunlight, shadows, or surface contamination
-                    \\
-
-                    Camera-based detection
-                    & Uses image processing algorithms to detect vehicle presence
-                    & High detection accuracy; high cost, high power consumption, and significant privacy and legal constraints
-                    \\
-
-                    \hline
-                \end{tabular}
-
-                \caption{Vehicle Presence Detection Technologies}
-                \label{tab:presence}
-            \end{table}% }}}3
-
-            For this project, a \textbf{Magnetic sensor} is selected as the primary solution, with Infrared (IR) sensor and Ultrasonic sensor considered as a viable alternative, due to their low power consumption and robustness.
-        \end{indt} %}}}2
-
-        \begin{indt}{\subsection{Authorization Identification}} %{{{2
-            \begin{table}[H]% {{{3
-                \centering
-
-                \begin{tabular}{p{3.5cm} p{9cm}}
-                    \hline
-                    \textbf{Technology}
-                    & \textbf{Justification}
-                    \\
-
-                    \hline
-                    RFID / NFC
-                    & Short-range communication prevents remote fraud, low power consumption, mature and widely deployed technology, no dependency on smartphones, and easy integration into low-power IoT nodes.
-                    \\
-
-                    Bluetooth Low Energy (BLE)
-                    & Authorization stored in a mobile application; no physical card required; however, depends on smartphone availability, battery level, and user interaction.
-                    \\
-
-                    License Plate Recognition (LPR)
-                    & Automatic vehicle identification without user action; high computational cost, higher power consumption, privacy concerns, and legal restrictions limit its applicability.
-                    \\
-
-                    \hline
-                \end{tabular}
-
-                \caption{Authorization Identification Technologies}
-                \label{tab:auth}
-            \end{table}% }}}3
-
-            Based on this comparison, the \textbf{RFID/NFC-based solution} is selected for this project due to its simplicity, robustness, low energy consumption, and minimal privacy impact.
-        \end{indt} %}}}2
-
+    \begin{indt}{\section{Design}} %{{{1
         \begin{indt}{\subsection{Selected Hardware and Technologies}} %{{{2
             \begin{table}[H]% {{{3
                 \centering
