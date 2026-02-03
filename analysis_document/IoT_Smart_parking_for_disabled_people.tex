@@ -4,7 +4,7 @@
 %------------------------------------------------------------------------
 %
 % Author                :   Flow, Lasercata
-% Last modification     :   2026.01.30
+% Last modification     :   2026.02.03
 %
 %------------------------------------------------------------------------
 
@@ -559,97 +559,240 @@
 
         \begin{indt}{\subsection{FR1 -- Occupancy detection}} %{{{2
             \begin{indt}{\subsubsection{Introduction}} %{{{3
-                The objective of this functional requirement is to detect the presence of a vehicle occupying a disabled parking space. This functionality constitutes the foundation of the smart parking system, as it triggers all subsequent processes such as authorization verification, fraud detection, and violation reporting.
-                
-                Within the context of an IoT-based parking system dedicated to people with disabilities, occupancy detection must be reliable, accurate, and continuously operational in outdoor urban environments. Any detection failure would directly impact the system’s ability to ensure fair usage of reserved parking spaces and to prevent misuse or fraud.
+                The objective of this functional requirement is to detect the presence of a vehicle occupying a disabled parking space. Several sensing technologies can be considered. They are first compared at a technology level against the non-functional requirements (NFR) of the system, in order to identify the most suitable candidates before selecting specific sensors.
             \end{indt} %}}}3
 
             \begin{indt}{\subsubsection{Comparison of occupancy detection technologies}} %{{{3
-                Several sensing technologies can be considered to detect vehicle presence. \autoref{tab:fr1_comparison} presents a comparison of the most relevant options for this project.
+                Several sensing technologies can be considered to detect vehicle presence. \autoref{tab:technolog_fr1_comparison} presents a comparison of the most relevant options for this project.
 
-                \begin{table}[H]% {{{4
+                \begin{table}[H]
                     \centering
-
-                    \begin{tabular}{p{3cm} p{2cm} p{2cm} p{2cm} p{2cm} p{2cm} p{2cm}}
+                    {\small
+                    \begin{tabular}{p{60pt} p{55pt} p{55pt} p{55pt} p{55pt} p{45pt} p{38pt} p{55pt}}
                         \hline
                         \textbf{Technology}
-                        & \textbf{Performan\-ce (NF1)}
-                        & \textbf{Reliability (NF2)}
-                        & \textbf{Durability (NF3)}
-                        & \textbf{Resource efficiency (NF5)}
-                        & \textbf{Privacy (NF7)}
-                        & \textbf{Affordability (NF8)}
+                        & \textbf{NFR1\newline Performance}
+                        & \textbf{NFR2\newline Reliability}
+                        & \textbf{NFR3\newline Durability}
+                        & \textbf{NFR4\newline Portability}
+                        & \textbf{NFR5\newline Efficiency}
+                        & \textbf{NFR7\newline Privacy}
+                        & \textbf{NFR8\newline Affordability}
+    
                         \\
-
+                        %Colors : pastelGreen, pastelOrange, pastelRed
                         \hline
+                        
+                        Magnetometer
+                        & \cellcolor{pastelGreen}   Fast detection
+                        & \cellcolor{pastelGreen}   Long-term stability
+                        & \cellcolor{pastelGreen}   Outdoor-proven
+                        & \cellcolor{pastelGreen}   Easy node replication
+                        & \cellcolor{pastelGreen}   Ultra-low power
+                        & \cellcolor{pastelGreen}   No\newline personal data
+                        & \cellcolor{pastelGreen}   Low cost
+                        
+                        \\
+    
                         Ultrasonic sensor
-                        \newline
-                        \texttt{HC-SR04}
-                        & \cellcolor{white} detection time?
-                        & \cellcolor{pastelOrange} Sensitive to rain, snow, and sensor orientation
-                        & \cellcolor{white} ?
-                        & \cellcolor{pastelGreen} Low power consumption
-                        & \cellcolor{pastelGreen} No personal data
-                        & \cellcolor{pastelGreen} Low cost
+                        & \cellcolor{pastelGreen}   Fast detection
+                        & \cellcolor{pastelOrange}  Performance variability
+                        & \cellcolor{pastelOrange}  Weather sensitive
+                        & \cellcolor{pastelGreen}   Easy to integrate
+                        & \cellcolor{pastelGreen}   Low power
+                        & \cellcolor{pastelGreen}   No\newline personal data
+                        & \cellcolor{pastelGreen}   Low cost
+                        
                         \\
-
-                        Magnetic ground sensor
-                        \newline
-                        \texttt{Honeywell HMC5883L}
-                        & \cellcolor{white} detection time?
-                        & \cellcolor{pastelGreen} High
-                        & \cellcolor{pastelGreen} High
-                        & \cellcolor{white} ?
-                        & \cellcolor{pastelGreen} No personal data
-                        & \cellcolor{pastelRed} Requires ground installation
+    
+                        mmWave radar
+                        & \cellcolor{pastelGreen}   Very high accuracy
+                        & \cellcolor{pastelGreen}   High detection consistency
+                        & \cellcolor{pastelGreen}   Wide temp range
+                        & \cellcolor{pastelGreen}   Self-contained node
+                        & \cellcolor{pastelOrange}  Moderate power
+                        & \cellcolor{pastelGreen}   No\newline personal data
+                        & \cellcolor{pastelOrange}  Higher unit cost
+                        
                         \\
-
-                        Camera-based detection
-                        \newline
-                        \texttt{Raspberry Pi Camera Module v2}
-                        & \cellcolor{white} detection time?
-                        & \cellcolor{pastelGreen} High accuracy
-                        & \cellcolor{pastelGreen} High
-                        & \cellcolor{pastelRed} Hight power consumption
-                        & \cellcolor{pastelRed} Processing of personal data
-                        & \cellcolor{pastelOrange}?
+                        
+                        Camera
+                        & \cellcolor{pastelGreen}   High accuracy
+                        & \cellcolor{pastelOrange}  Environment-dependent
+                        & \cellcolor{pastelOrange}  Weather \& light sensitive
+                        & \cellcolor{pastelOrange}  Heavier node
+                        & \cellcolor{pastelRed}     High power
+                        & \cellcolor{pastelRed}     Personal data processed
+                        & \cellcolor{pastelOrange}  Moderate cost
+                        
                         \\
-
-                        Infrared sensor
-                        \newline
-                        \texttt{Panasonic EKMB Series PIR}
-                        & \cellcolor{white} detection time?
-                        & \cellcolor{pastelRed} affected by ambient temperature and sunlight
-                        & \cellcolor{pastelGreen} High
-                        & \cellcolor{pastelGreen} Low power consumption
-                        & \cellcolor{pastelGreen} No personal data
-                        & \cellcolor{pastelGreen} ?
+    
+                        Pressure\newline sensor
+                        & \cellcolor{pastelGreen}   Very high accuracy
+                        & \cellcolor{pastelGreen}   Long-term stability
+                        & \cellcolor{pastelGreen}   Embedded
+                        & \cellcolor{pastelRed}     Fixed infrastructure
+                        & \cellcolor{pastelGreen}   Ultra-low power
+                        & \cellcolor{pastelGreen}   No\newline personal data
+                        & \cellcolor{pastelRed}     High installation cost
+                        
                         \\
-
                         \hline
                     \end{tabular}
+                    }
+    
+                    \caption{Technology comparison for FR1 (Occupancy detection)}
+                    \label{tab:technolog_fr1_comparison}
+                \end{table}
+    
+                \begin{indi}{Based on the NFR-driven comparison:}
+                    \item Magnetometers best satisfy NFR2 (Reliability), NFR3 (Durability), NFR4 (Portability), NFR5 (Resource efficiency), NFR7 (Privacy), and NFR8 (Affordability). Their ultra-low power consumption, robustness in outdoor environments, and minimal privacy impact make them particularly suitable for large-scale deployment.
+                    \item Ultrasonic sensors provide a cost-effective and simple detection solution that satisfies NFR1 (Performance) and NFR8 (Affordability). While their reliability can be affected by environmental conditions, these limitations are acceptable when combined with appropriate placement and signal filtering.
+                    \item mmWave radar, although highly reliable and accurate, is not retained due to its higher cost and power consumption, which are less compatible with the constraints of large-scale deployment.
+                \end{indi}
 
-                    \caption{Comparison of Occupancy Detection Solutions}
-                    \label{tab:fr1_comparison}
-                \end{table}% }}}4
+                We will now compare selected sensors for each chosen technology : 
+
+                \begin{table}[H]
+                    \centering
+                    {\small
+                    \begin{tabular}{p{60pt} p{55pt} p{55pt} p{60pt} p{55pt} p{45pt} p{38pt} p{55pt}}
+                        \hline
+                        \textbf{Technology}
+                        & \textbf{NFR1\newline Performance}
+                        & \textbf{NFR2\newline Reliability}
+                        & \textbf{NFR3\newline Durability}
+                        & \textbf{NFR4\newline Portability}
+                        & \textbf{NFR5\newline Efficiency}
+                        & \textbf{NFR7\newline Privacy}
+                        & \textbf{NFR8\newline Affordability}
+    
+                        \\
+                        
+                        %Colors : pastelGreen, pastelOrange, pastelRed
+                        \hline
+                        HMC5883L
+                        & \cellcolor{pastelOrange} meas.: $6\,\text{ms}$\newline turn-on: $200\,\mu\text{s}$
+                        & \cellcolor{pastelGreen} FS: $\pm 8\,\text{G}$; res.: $5\,\text{mG}$
+                        & \cellcolor{pastelGreen} $-30$ to $85\,^{\circ}\text{C}$
+                        & \cellcolor{pastelGreen} 3x3x0.9 mm
+                        & \cellcolor{pastelGreen} idle: $2$--$6\,\mu\text{A}$\newline meas.: $100\,\mu\text{A}$
+                        & \cellcolor{pastelGreen} no personal data
+                        & \cellcolor{pastelGreen} 2--4\,€
+                        \\
+
+                        LIS3MDL
+                        & \cellcolor{pastelGreen} I$^2$C: $0.01$--$0.0025\,\text{ms}$
+                        & \cellcolor{pastelGreen} FS:\newline $\pm4\text{G} \newline \pm8\text{G}\newline \pm12\text{G}\newline \pm16$\,G\newline sens.: $6842$--$1711$\,LSB/G
+                        & \cellcolor{pastelGreen} $-40$ to $85\,^{\circ}\text{C}$
+                        & \cellcolor{pastelGreen} 2x2x1 mm
+                        & \cellcolor{pastelGreen} LP: $40\,\mu\text{A}$\newline HR:$270\mu\text{A}$ PD: $1\,\mu\text{A}$
+                        & \cellcolor{pastelGreen} no personal data
+                        & \cellcolor{pastelGreen} 2--4\,€
+                        \\
+                        
+                        MMC5983MA
+                        & \cellcolor{pastelGreen} ODR: $1\,\text{ms}$
+                        & \cellcolor{pastelGreen} FS: $\pm 8$\,G\newline noise: $0.4$--$1.2$\,mG
+                        & \cellcolor{pastelGreen} $-40$ to $105\,^{\circ}\text{C}$
+                        & \cellcolor{pastelGreen} 3x3x1 mm
+                        & \cellcolor{pastelRed} max: $450\,\mu\text{A}$ min: $32\,\mu\text{A}$\newline PD: $1\,\mu\text{A}$
+                        & \cellcolor{pastelGreen} no personal data
+                        & \cellcolor{pastelOrange} 3--5\,€
+                        \\
+                        
+                        \hline
+                    \end{tabular}
+                    }
+    
+                    \caption{Magnetometer sensor comparison (for FR1 – Occupancy detection)}
+                    \label{tab:magnetometer_comparison}
+                \end{table}
+
+                \begin{table}[H]
+                    \centering
+                    {\small
+                    \begin{tabular}{p{60pt} p{55pt} p{55pt} p{60pt} p{55pt} p{45pt} p{38pt} p{55pt}}
+                        \hline
+                        \textbf{Technology}
+                        & \textbf{NFR1\newline Performance}
+                        & \textbf{NFR2\newline Reliability}
+                        & \textbf{NFR3\newline Durability}
+                        & \textbf{NFR4\newline Portability}
+                        & \textbf{NFR5\newline Efficiency}
+                        & \textbf{NFR7\newline Privacy}
+                        & \textbf{NFR8\newline Affordability}
+    
+                        \\
+                        
+                        %Colors : pastelGreen, pastelOrange, pastelRed
+                        \hline
+                        
+                        HC-SR04
+                        & \cellcolor{pastelGreen} trig: $10\,\mu\text{s}$\newline ultrasonic: $0.025\,\text{ms}$
+                        & \cellcolor{pastelOrange} range: $2$--$400\,\text{cm}$\newline optimal: $10$--$250\,\text{cm}$
+                        & \cellcolor{pastelRed}  $-10$ to $50\,^{\circ}\text{C}$
+                        & \cellcolor{pastelGreen} 45.5x20x15.5 mm
+                        & \cellcolor{pastelOrange} meas.: $15\,\text{mA}$
+                        & \cellcolor{pastelGreen} no personal data
+                        & \cellcolor{pastelGreen} 2--5\,€
+                        \\
+                        
+                        JSN-SR04T
+                        & \cellcolor{pastelGreen} trig: $1$--$10\,\mu\text{s}$\newline ultrasonic: $0.025\,\text{ms}$
+                        & \cellcolor{pastelGreen} range: $21$--$600\,\text{cm}$\newline acc.: $\pm1\,\text{cm}$; angle: $75^\circ$
+                        & \cellcolor{pastelGreen} $-20$ to $70\,^{\circ}\text{C}$
+                        & \cellcolor{pastelGreen} 41x29x12 mm
+                        & \cellcolor{pastelGreen} meas.: $8\,\text{mA}$ (max)
+                        & \cellcolor{pastelGreen} no personal data
+                        & \cellcolor{pastelOrange} 7--12\,USD
+                        \\
+                        
+                        MB7066
+                        & \cellcolor{pastelGreen} read: $100\,\text{ms}$\newline ultrasonic: $0.024\,\text{ms}$
+                        & \cellcolor{pastelGreen} range: $0$--$1068\,\text{cm}$\newline res.: $1\,\text{cm}$
+                        & \cellcolor{pastelGreen} $-40$ to $70\,^{\circ}\text{C}$
+                        & \cellcolor{pastelOrange} 66x44x44 mm
+                        & \cellcolor{pastelGreen} avg.: $3.4\,\text{mA}$
+                        & \cellcolor{pastelGreen} no personal data
+                        & \cellcolor{pastelRed} 70\,€
+                        \\
+                        
+                        \hline
+                    \end{tabular}
+                    }
+    
+                    \caption{Ultrasonic sensor comparison (for FR1 – Occupancy detection)}
+                    \label{tab:ultrasonic_comparison}
+                \end{table}
+                
             \end{indt} %}}}3
 
             \begin{indt}{\subsubsection{Conclusion}} %{{{3
-                The magnetic ground sensor is selected as the most appropriate solution for occupancy detection in this project. Its robustness against environmental conditions such as rain, lighting variations, and temperature changes makes it particularly well suited for outdoor deployment in urban parking spaces. In addition, magnetic sensing does not involve the collection of visual data, thereby avoiding privacy issues associated with camera-based approaches.
+                The ultrasonic sensor \textbf{JSN-SR04T} emerges as the most suitable ultrasonic solution, achieving a balanced trade-off between detection performance (NFR1), environmental robustness (NFR3), cost-effectiveness (NFR8), and integration simplicity (NFR4). Its waterproof construction enables reliable operation in outdoor parking environments, making it particularly attractive for exposed installations. While ultrasonic sensing remains moderately sensitive to environmental factors such as temperature variations and surface conditions, the JSN-SR04T nonetheless provides acceptable performance for occupancy detection in controlled outdoor scenarios.
+                
+                Within the magnetic sensing category, the \textbf{LIS3MDL} magnetometer clearly outperforms alternative solutions by meeting all critical non-functional requirements. It offers high measurement reliability (NFR2), a wide operating temperature range suitable for harsh outdoor conditions (NFR3), extremely low power consumption (NFR5), a compact footprint facilitating seamless integration (NFR4), and a competitive cost profile (NFR8). Furthermore, as a passive sensor that does not collect identifiable information, it fully complies with privacy and data protection constraints (NFR7).
 
-                Although installation requires embedding the sensor into the ground, this constraint is acceptable for a long-term infrastructure dedicated to disabled parking spaces. The high detection reliability, low false positive rate, and compatibility with low-power IoT nodes make magnetic ground sensors the best choice for fulfilling FR1.
+                Although both sensing technologies are technically viable for parking occupancy detection, the \textbf{LIS3MDL magnetometer} is retained as the primary solution for FR1. Compared to the ultrasonic alternative, it delivers more stable and weather-independent detection, significantly lower energy consumption, and superior scalability for long-term, large-scale municipal deployment. 
+
+                The ultrasonic solution remains a relevant complementary or fallback option in specific deployment contexts; however, considering robustness, efficiency, and sustainability, the LIS3MDL represents the most reliable and future-proof choice for the objectives of this project.
+
             \end{indt} %}}}3
 
             \begin{indt}{\subsubsection{References}} %{{{3
                 \begin{indi}[0pt]{}
-                    \item HC-SR04 Ultrasonic Sensor Datasheet: \\
-                        \url{https://www.handsontec.com/dataspecs/HC-SR04-Ultrasonic.pdf}
-                    \item Honeywell HMC5883L Magnetometer Datasheet: \\
+                    \item HMC5883L \\
                         \url{https://www.farnell.com/datasheets/1683374.pdf}
-                    \item Raspberry Pi Camera Module v2 Documentation: \\
-                        \url{https://www.raspberrypi.com/documentation/accessories/camera.html}
-                    \item Panasonic EKMB Series PIR Sensor Datasheet: \\
-                        \url{https://na.industrial.panasonic.com/products/sensors/sensors-automotive-industrial-applications/lineup/pir-motion-sensor-papirs/series/149462}
+                    \item LIS3MDL \\
+                        \url{https://www.st.com/resource/en/datasheet/lis3mdl.pdf}
+                    \item  MMC5983MA \\
+                        \url{https://media.digikey.com/pdf/Data%20Sheets/MEMSIC%20PDFs/MMC5983MA_RevA_4-3-19.pdf}
+                    \item HC-SR04 \\
+                        \url{AfmBOoqgJk1Ae9gaQMog_Z40pvioIMT2Mbwldx9volQIyF4KeMp_n0zt}
+                    \item  JSN-SR04T-3.0 \\
+                        \url{https://rjrorwxhjiilll5q.ldycdn.com/JSN-SR04T-3.0-aidnqBpoKliRljSlqnqkilqj.pdf}
+                    \item  MB7066  \\
+                        \url{https://maxbotix.com/products/mb7066?srsltid=AfmBOoqEIVSvBMfivgPepWI8CKkaL7QnT86JSa6BEp5mJjJ7jSiUES8i}
                 \end{indi}
             \end{indt} %}}}3
         \end{indt} %}}}2
@@ -669,121 +812,233 @@
                 \begin{indi}{Possible technologies:}
                     \item \textbf{RFID}: the user carries a RFID tag and present it to the node
 
-                    \item \textbf{Bluetooth}: the user uses a phone application with the bluetooth activated
+                    \item \textbf{Bluetooth}: the user uses a phone application with the bluetooth activated or a dedicated tag.
 
-                    \item \textbf{License plate recognition}: the node reads the car's plate using a camera
+                    \item \textbf{License plate recognition (LPR)}: the node reads the car's plate using a camera
 
                     \item \textbf{QR code on the node}: there is a QR code printed on each node (different for each) and the user scans it with a phone application
 
                     \item \textbf{QR code reader}: through its interface, the user generates a QR code that is read by the node
                 \end{indi}
 
-                \begin{table}[H]% {{{4
+                \begin{table}[H]
                     \centering
-
                     {\small
-                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
+                    \begin{tabular}{p{60pt} p{55pt} p{55pt} p{60pt} p{55pt} p{45pt} p{38pt} p{55pt}}
                         \hline
                         \textbf{Technology}
-                        & \textbf{Performan\-ce (NF1)}
-                        & \textbf{Reliability (NF2)}
-                        & \textbf{Durability (NF3)}
-                        & \textbf{Resource efficiency (NF5)}
-                        & \textbf{Privacy (NF7)}
-                        & \textbf{Afforda\-bi\-lity (NF8)}
-                        & \textbf{Compati\-bility (NF9)}
+                        & \textbf{NFR1\newline Performance}
+                        & \textbf{NFR2\newline Reliability}
+                        & \textbf{NFR3\newline Durability}
+                        & \textbf{NFR4\newline Portability}
+                        & \textbf{NFR5\newline Efficiency}
+                        & \textbf{NFR7\newline Privacy}
+                        & \textbf{NFR8\newline Affordability}
                         \\
-
                         \hline
-                        RFID
-                        \newline
-                        \texttt{MFRC522 RFID Reader}
-                        & \cellcolor{pastelGreen} Reading time < 1s
-                        & \cellcolor{pastelGreen} High
-                        & \cellcolor{pastelGreen} High
-                        & \cellcolor{pastelGreen} Low power consumption
-                        & \cellcolor{pastelGreen} No personal data
-                        & \cellcolor{pastelGreen} Low cost
-                        & \cellcolor{pastelGreen} User must carry a tag
-                        \\
-
-                        Bluetooth Low Energy (BLE)
-                        \newline
-                        \texttt{ESP32 BLE Module}
-                        & \cellcolor{white} Reading / connection time?
-                        & \cellcolor{pastelGreen} High
-                        & \cellcolor{pastelGreen} High
-                        & \cellcolor{white} ?
-                        & \cellcolor{pastelOrange} Identifiable data exchanged (Bluetooth mac)
-                        & \cellcolor{white} ?
-                        & \cellcolor{pastelRed} User must have a phone compatible with the application (1)
-                        \\
-
-                        License Plate Recognition (LPR)
-                        \newline
-                        \texttt{Raspberry Pi + Camera Module v2}
-                        & \cellcolor{white} Reading time?
-                        & \cellcolor{pastelOrange} Good
-                        & \cellcolor{pastelGreen} High
-                        & \cellcolor{pastelRed} High power consumption
-                        & \cellcolor{pastelRed} Personal data processed
-                        & \cellcolor{white} ?
-                        & \cellcolor{pastelGreen} No user interaction
-                        \\
-
+                        
                         QR code
-                        \newline
-                        \texttt{QR code on the node}
-                        & \cellcolor{white} Reading time?
-                        & \cellcolor{pastelGreen} High
-                        & \cellcolor{pastelGreen} Good
-                        & \cellcolor{pastelGreen} No power consumption
-                        & \cellcolor{pastelGreen} No personal data processed
-                        & \cellcolor{pastelGreen} Low cost
-                        & \cellcolor{pastelRed} User must have a phone compatible with the application (1)
+                        & \cellcolor{pastelGreen}   Fast
+                        & \cellcolor{pastelOrange}  Phone-dependent
+                        & \cellcolor{pastelGreen}   No electronics
+                        & \cellcolor{pastelGreen}   Very high
+                        & \cellcolor{pastelGreen}   Negligible
+                        & \cellcolor{pastelOrange}  Public static identifier
+                        & \cellcolor{pastelRed}     User must have a compatible device (1)
                         \\
 
                         QR code reader
-                        \newline
-                        \texttt{QR code reader}
-                        & \cellcolor{white} Reading time?
+                        & \cellcolor{pastelGreen}   Fast
+                        & \cellcolor{pastelGreen}   System-controlled
+                        & \cellcolor{pastelOrange}  Outdoor exposure
+                        & \cellcolor{pastelOrange}  Larger hardware
+                        & \cellcolor{pastelOrange}  Moderate
+                        & \cellcolor{pastelGreen}   Token-based
+                        & \cellcolor{pastelOrange}  Medium
+                        \\
+                        
+                        RFID
+                        & \cellcolor{pastelGreen} Fast
                         & \cellcolor{pastelGreen} High
-                        & \cellcolor{pastelGreen} ?
-                        & \cellcolor{pastelOrange} ?
-                        & \cellcolor{pastelGreen} No personal data processed
-                        & \cellcolor{white} ?
-                        & \cellcolor{pastelOrange} User must have an internet connection
+                        & \cellcolor{pastelGreen} High
+                        & \cellcolor{pastelGreen} High
+                        & \cellcolor{pastelGreen} Low 
+                        & \cellcolor{pastelGreen} No personal data
+                        & \cellcolor{pastelGreen} Low
+                        \\
+                        
+                        BLE (smartphone)
+                        & \cellcolor{pastelGreen}   Fast
+                        & \cellcolor{pastelOrange}  Phone-dependent
+                        & \cellcolor{pastelOrange}  Phone dependent
+                        & \cellcolor{pastelGreen}   High
+                        & \cellcolor{pastelOrange}  Moderate
+                        & \cellcolor{pastelOrange}  Device identifier
+                        & \cellcolor{pastelRed}     User must have a compatible device (1)
                         \\
 
+                        BLE (tag)
+                        & \cellcolor{pastelGreen}   Fast
+                        & \cellcolor{pastelGreen}   High
+                        & \cellcolor{pastelGreen}   High
+                        & \cellcolor{pastelGreen}   High
+                        & \cellcolor{pastelGreen}   Low
+                        & \cellcolor{pastelGreen}   No personal data
+                        & \cellcolor{pastelGreen}   Low
+                        \\
+                        
+                        Camera / LPR
+                        & \cellcolor{pastelGreen}   Fast
+                        & \cellcolor{pastelOrange}  Environment-dependent
+                        & \cellcolor{pastelOrange}  Outdoor-sensitive
+                        & \cellcolor{pastelOrange}  Complex setup
+                        & \cellcolor{pastelRed}     High
+                        & \cellcolor{pastelRed}     Personal data
+                        & \cellcolor{pastelOrange}  Medium
+                        \\
+                        
                         \hline
                     \end{tabular}
                     }
-
-                    \caption{Comparison of Authorization Verification Solutions}
+                    \caption{Authorization verification technology comparison (FR2)}
                     \label{tab:fr2_comparison}
-                \end{table}% }}}4
+                \end{table}
+
 
                 (1): This requires to develop and maintain applications for android and iOS, across multiple versions of the OSes, and requires that all users have a phone.
 
                 % TODO: reliability (NF2) here does not take into account the network (in fact, for security, it should always check the validity from the server.)
             \end{indt} %}}}3
-
+            
             \begin{indt}{\subsubsection{Conclusion}} %{{{3
-                % TODO: change this.
-
-                Bluetooth Low Energy (BLE)–based authorization verification is selected as the most suitable solution for this project. BLE enables automatic and contactless identification of authorized users through a secure identifier broadcast by a registered device, such as a smartphone or a dedicated BLE tag. This approach balances ease of use for people with disabilities and technical feasibility for an IoT-based infrastructure.
-
-                Compared to RFID, BLE offers a longer communication range and greater flexibility, while avoiding the privacy and computational complexity associated with camera-based license plate recognition. Furthermore, BLE is natively supported by many low-power microcontrollers, facilitating seamless integration with the parking space IoT nodes. As a result, BLE-based verification best satisfies the requirements of reliability, scalability, and user accessibility for FR2.
+                Among the considered authorization verification mechanisms, the identifier-based approach provides the best compromise between performance, reliability, privacy preservation, energy efficiency, and deployment cost. Solutions based on printed QR codes are simple and inexpensive but remain vulnerable to misuse and replay, while camera-based approaches introduce significant privacy concerns and higher system complexity.
+            
+                Identifier-based solutions using NFC or BLE tags allow fast and reliable authorization verification without requiring the collection of personal data, and are well suited for outdoor deployment and large-scale deployment. This approach also enables effective detection of expired or cloned authorizations through backend mechanisms.
+            
+                NFC or BLE-based authorization verification is therefore retained as the preferred solution for implementing FR2, as it satisfies the functional requirement while remaining compliant with the system’s non-functional constraints.
             \end{indt} %}}}3
 
+            \begin{table}[H]
+                \centering
+                {\small
+                \begin{tabular}{p{60pt} p{55pt} p{55pt} p{60pt} p{55pt} p{45pt} p{38pt} p{55pt}}
+                    \hline
+                    \textbf{Component}
+                    & \textbf{NFR1\newline Performance}
+                    & \textbf{NFR2\newline Reliability}
+                    & \textbf{NFR3\newline Durability}
+                    & \textbf{NFR4\newline Portability}
+                    & \textbf{NFR5\newline Efficiency}
+                    & \textbf{NFR7\newline Privacy}
+                    & \textbf{NFR8\newline Affordability}
+                    \\
+                    \hline
+                    %Colors : pastelGreen, pastelOrange, pastelRed
+                    
+                    PN532
+                    & \cellcolor{pastelGreen} RF: $212/424\,\text{kbit/s}$\newline NFCIP-1: up to $424\,\text{kbit/s}$
+                    & \cellcolor{pastelGreen} range: $50$--$100\,\text{mm}$\newline ISO14443 / FeliCa
+                    & \cellcolor{pastelGreen} $-30$ to $85\,^{\circ}\text{C}$
+                    & \cellcolor{pastelOrange} 43x41x4mm
+                    & \cellcolor{pastelOrange} HPD: $1$--$2\,\mu\text{A}$\newline SPD: $22$--$45\,\mu\text{A}$\newline active: $25\,\text{mA}$; TX: $60$--$150\,\text{mA}$
+                    & \cellcolor{pastelGreen} no personal data
+                    & \cellcolor{pastelOrange} 10-25€
+                    \\
+                                        
+                    ST25R3911B
+                    & \cellcolor{pastelGreen} RF: $3.4$--$6.8\,\text{Mbit/s}$\newline SPI: $6\,\text{Mbit/s}$
+                    & \cellcolor{pastelGreen} ISO14443 A/B\newline ISO15693; FeliCa; NFCIP-1
+                    & \cellcolor{pastelGreen} $-40$ to $125\,^{\circ}\text{C}$
+                    & \cellcolor{pastelGreen} 5x5 mm
+                    & \cellcolor{pastelRed} TX power: up to $1.4\,\text{W}$
+                    & \cellcolor{pastelGreen} no personal data
+                    & \cellcolor{pastelGreen} 4 - 10€
+                    \\
+
+                    RC522
+                    & \cellcolor{pastelGreen} RF: up to $848\,\text{kBd}$\newline SPI: $10\,\text{Mbit/s}$\newline I$^2$C: $400$--$3400\,\text{kBd}$\newline UART: $1228.8\,\text{kBd}$
+                    & \cellcolor{pastelGreen} range: up to $50\,\text{mm}$\newline ISO14443A / MIFARE / NTAG
+                    & \cellcolor{pastelGreen} $-25$ to $85\,^{\circ}\text{C}$
+                    & \cellcolor{pastelOrange} 39x59.5
+                    & \cellcolor{pastelOrange} HPD: $\leq5\,\mu\text{A}$\newline SPD: $\leq10\,\mu\text{A}$\newline dig.: $6.5$--$9\,\text{mA}$\newline ana.: $3$--$10\,\text{mA}$\newline TX: $60$--$100\,\text{mA}$
+                    & \cellcolor{pastelGreen} no personal data
+                    & \cellcolor{pastelGreen} 5€
+                    \\
+
+                    \hline
+                \end{tabular}
+                }
+                \caption{NFC reader comparison for authorization verification (FR2)}
+                \label{tab:fr2_nfc_comparison}
+            \end{table}
+
+            \begin{table}[H]
+                \centering
+                {\small
+                \begin{tabular}{p{60pt} p{55pt} p{55pt} p{60pt} p{55pt} p{45pt} p{38pt} p{55pt}}
+                    \hline
+                    \textbf{Component}
+                    & \textbf{NFR1\newline Performance}
+                    & \textbf{NFR2\newline Reliability}
+                    & \textbf{NFR3\newline Durability}
+                    & \textbf{NFR4\newline Portability}
+                    & \textbf{NFR5\newline Efficiency}
+                    & \textbf{NFR7\newline Privacy}
+                    & \textbf{NFR8\newline Affordability}
+                    \\
+                    \hline
+                    
+                    nRF52832
+                    & \cellcolor{pastelGreen} BLE: $1/2\,\text{Mbit/s}$
+                    & \cellcolor{pastelGreen} sens.: $-96\,\text{dBm}$\newline TX: $-20$ to $+4\,\text{dBm}$
+                    & \cellcolor{pastelGreen} storage: $-40$ to $125\,^{\circ}\text{C}$
+                    & \cellcolor{pastelGreen} 6x6 mm (QFN48)\newline 3.0x3.2 mm (WLCSP)
+                    & \cellcolor{pastelGreen} TX: $5.3\,\text{mA}$; RX: $5.4\,\text{mA}$\newline OFF: $0.3$--$0.7\,\mu\text{A}$\newline ON: $1.9\,\mu\text{A}$
+                    & \cellcolor{pastelGreen} no personal data
+                    & \cellcolor{pastelGreen} 3€
+                    \\
+                    
+                    nRF52840
+                    & \cellcolor{pastelGreen} BLE: $2/1/0.5/0.125\,\text{Mbit/s}$\newline $250\,\text{kbit/s}$
+                    & \cellcolor{pastelGreen} sens.: $-103$ to $-89\,\text{dBm}$\newline TX: $-20$ to $+8\,\text{dBm}$
+                    & \cellcolor{pastelGreen} storage: $-40$ to $125\,^{\circ}\text{C}$
+                    & \cellcolor{pastelOrange} 7x7 mm (aQFN73)\newline 6x6 mm (QFN48)\newline 3.5x3.6 mm (WLCSP94)
+                    & \cellcolor{pastelGreen} TX: $6.4$--$16.4\,\text{mA}$\newline RX: $6.26\,\text{mA}$\newline OFF: $0.4$--$1.86\,\mu\text{A}$\newline ON: $0.97$--$3.16\,\mu\text{A}$
+                    & \cellcolor{pastelGreen} no personal data
+                    & \cellcolor{pastelOrange} 4 - 5€
+                    \\
+                    
+                    ESP32 (BLE)
+                    & \cellcolor{pastelOrange} BLE: $1\,\text{Mbit/s}$
+                    & \cellcolor{pastelOrange} TX: $+10\,\text{dBm}$\newline sens.: $-98\,\text{dBm}$
+                    & \cellcolor{pastelGreen} $-40$ to $85\,^{\circ}\text{C}$
+                    & \cellcolor{pastelGreen} 6x6 mm (QFN48)
+                    & \cellcolor{pastelRed} TX (BLE): $\approx130\,\text{mA}$\newline RX (BLE): $\approx95\,\text{mA}$\newline sleep: $<10\,\mu\text{A}$
+                    & \cellcolor{pastelGreen} no personal data
+                    & \cellcolor{pastelRed} 10 - 12€
+                    \\
+                    
+                    \hline
+                \end{tabular}
+                }
+                \caption{BLE tag/module comparison for authorization verification (FR2)}
+                \label{tab:fr2_ble_comparison}
+            \end{table}
+            
             \begin{indt}{\subsubsection{References}} %{{{3
                 \begin{indi}[0pt]{}
-                    \item MFRC522 RFID Reader Datasheet: \\
+                    \item PN532 \\
+                        \url{https://www.nxp.com/docs/en/nxp/data-sheets/PN532_C1.pdf}
+                    \item ST25R3911B \\
+                        \url{https://www.st.com/resource/en/datasheet/st25r3911b.pdf}
+                    \item RC522 \\
                         \url{https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf}
-                    \item ESP32 Technical Reference Manual (BLE): \\
-                        \url{https://www.espressif.com/sites/default/files/documentation/esp32_technical_reference_manual_en.pdf}
-                    \item Raspberry Pi Camera Module v2 Documentation: \\
-                        \url{https://www.raspberrypi.com/documentation/accessories/camera.html}
+                    \item  nRF52832 \\
+                        \url{https://www.mouser.com/datasheet/2/297/nRF52832_PS_v1_8-2942485.pdf?srsltid=AfmBOoo9n4_EaF3MnbrdnOF_RJarP5XHm6LFrIZ6vz10-iwqlFAtiVsc}
+                    \item nRF52840 \\
+                        \url{https://www.mouser.com/datasheet/2/297/nrf52840_soc_v3_0-2942478.pdf?srsltid=AfmBOorbVdt1C1CK4AhXirzDBJGzVHEBn_wYVgSABXg5qlGZLTQ2Yol6}
+                    \item ESP 32 (BLE)\\
+                        \url{https://cdn.sparkfun.com/datasheets/IoT/esp32_datasheet_en.pdf}
                 \end{indi}
             \end{indt} %}}}3
         \end{indt} %}}}2
@@ -862,535 +1117,260 @@
                 
                 In the context of an IoT-based smart parking system, violation identification relies on the correlation of occupancy detection results with authorization verification outcomes. By applying predefined decision rules, the system can automatically and consistently determine whether a parking event complies with regulations. This automation reduces the need for manual inspection, improves fairness, and ensures that violations are detected in real time.
             \end{indt} %}}}3
-
-            % \begin{indt}{\subsubsection{Comparison of violation identification mechanisms}} %{{{3
-            %     Several approaches can be used to identify parking violations based on system inputs. \autoref{tab:fr4_comparison} presents a comparison of the most relevant mechanisms for this project.
-            %
-            %     \begin{table}[H]% {{{4
-            %         \centering
-            %
-            %         {\small
-            %         \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
-            %             \hline
-            %             \textbf{Technology}
-            %             & \textbf{Performan\-ce (NF1)}
-            %             & \textbf{Reliability (NF2)}
-            %             & \textbf{Durability (NF3)}
-            %             & \textbf{Resource efficiency (NF5)}
-            %             & \textbf{Privacy (NF7)}
-            %             & \textbf{Afforda\-bi\-lity (NF8)}
-            %             & \textbf{Compati\-bility (NF9)}
-            %             \\
-            %
-            %             \hline
-            %             XXX
-            %             \newline
-            %             \texttt{ref}
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             \\
-            %
-            %             XXX
-            %             \newline
-            %             \texttt{ref}
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             \\
-            %
-            %             XXX
-            %             \newline
-            %             \texttt{ref}
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             \\
-            %
-            %             XXX
-            %             \newline
-            %             \texttt{ref}
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             & \cellcolor{white} XXX
-            %             \\
-            %
-            %             \hline
-            %         \end{tabular}
-            %         }
-            %
-            %         \caption{Comparison of violation identification mechanisms}
-            %         \label{tab:fr4_comparison}
-            %     \end{table}% }}}4
-            % \end{indt} %}}}3
-            %
-            % \begin{indt}{\subsubsection{Conclusion}} %{{{3
-            %     XXX
-            % \end{indt} %}}}3
         \end{indt} %}}}2
 
         \begin{indt}{\subsection{FR5 -- Authority notification}} %{{{2
             \label{sub:fr5}
 
             \begin{indt}{\subsubsection{Introduction}} %{{{3
-                The purpose of this functional requirement is to notify law enforcement authorities in real time when the system detects either (i) a parking violation (unauthorized parking, expired/missing authorization) or (ii) an authorization cloning event. This capability is essential to ensure enforcement can occur promptly, which increases deterrence and improves the availability of disabled parking spaces for legitimate users.
-                
-                In this IoT-based smart parking system, notifications must be delivered with low latency and high reliability. The notification chain must also be secure and auditable because it can initiate enforcement actions. Practically, this implies (1) a dependable communication path from the parking node to the backend and (2) a standardized, secure mechanism from the backend to the authority endpoint (e.g., secure REST API, email/SMS fallback, or an event feed).
+                The objective of this functional requirement is to notify law enforcement authorities in real time when the system detects either (i) a parking violation (unauthorized parking, expired or missing authorization) or (ii) an authorization cloning event. This capability is essential to enable timely enforcement actions, thereby increasing deterrence and improving the effective availability of disabled parking spaces for legitimate users.
 
-                TODO: here maybe two tables are needed: one to compare the \emph{protocols} (e.g HTTP, MQTT, CoaP, ...), and one to compare the \emph{authority endpoint} (SMS, Discord, Email, WhatsApp, push notification on smartphone, ad hoc app, ...)
+                Within the proposed IoT-based smart parking system, authority notification is the final step of a multi-stage detection and validation process. The notification chain must also be secure and auditable because it can initiate enforcement actions. Practically, this implies (1) a dependable communication path from the parking node to the backend and (2) a standardized, secure mechanism from the backend to the authority endpoint (e.g., secure REST API, email/SMS fallback, or an event feed).
+                
+                This section therefore first examines the technological approaches used to detect and gather evidences of violations, before comparing the communication technologies suitable for transmitting validated events to law enforcement authorities.
+                
+                %TODO: here maybe two tables are needed: one to compare the \emph{protocols} (e.g HTTP, MQTT, CoaP, ...), and one to compare the \emph{authority endpoint} (SMS, Discord, Email, WhatsApp, push notification on smartphone, ad hoc app, ...)
             \end{indt} %}}}3
 
             \begin{indt}{\subsubsection{Comparison of real-time notification solutions}} %{{{3
-                \autoref{tab:fr5_comparison} compares several viable approaches to deliver real-time alerts from the system to authorities.
 
-                \begin{table}[H]% {{{4
+                Once the system identifies a violation event (unauthorized parking, expired/missing authorization, or cloning), it must collect the minimum set of information required for enforcement. In practice, this includes a vehicle identifier, a timestamped occupancy context, and the parking space location/ID. Several approaches can be used to associate a violation with a vehicle, each with different impacts on privacy, cost, and deployability. The first step is therefore to compare the main evidence acquisition solutions against the non-functional requirements.
+                
+                \autoref{tab:fr5_evidence_acquisition} compares several viable approaches to collect information regarding a violation detection. 
+
+                \begin{table}[H]
                     \centering
-
                     {\small
-                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
+                    \begin{tabular}{p{65pt} p{55pt} p{55pt} p{60pt} p{55pt} p{45pt} p{38pt} p{55pt}}
                         \hline
-                        \textbf{Technology}
-                        & \textbf{Performan\-ce (NF1)}
-                        & \textbf{Reliability (NF2)}
-                        & \textbf{Durability (NF3)}
-                        & \textbf{Resource efficiency (NF5)}
-                        & \textbf{Privacy (NF7)}
-                        & \textbf{Afforda\-bi\-lity (NF8)}
-                        & \textbf{Compati\-bility (NF9)}
+                        \textbf{Approach}
+                        & \textbf{NFR1\newline Performance}
+                        & \textbf{NFR2\newline Reliability}
+                        & \textbf{NFR3\newline Durability}
+                        & \textbf{NFR4\newline Portability}
+                        & \textbf{NFR5\newline Efficiency}
+                        & \textbf{NFR7\newline Privacy}
+                        & \textbf{NFR8\newline Affordability}
                         \\
-
                         \hline
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
+                        
+                        LPR camera
+                        & \cellcolor{pastelGreen}   real-time
+                        & \cellcolor{pastelGreen}   high
+                        & \cellcolor{pastelOrange}  outdoor-sensitive
+                        & \cellcolor{pastelRed}     fixed installation
+                        & \cellcolor{pastelRed}     high consumption
+                        & \cellcolor{pastelRed}     personal data
+                        & \cellcolor{pastelOrange}  high cost
                         \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
+                        
+                        User identifier\newline (NFC/BLE) (1)
+                        & \cellcolor{pastelOrange}  near real-time
+                        & \cellcolor{pastelOrange}  user-dependent
+                        & \cellcolor{pastelGreen}   outdoor-grade
+                        & \cellcolor{pastelGreen}   scalable nodes
+                        & \cellcolor{pastelGreen}   low
+                        & \cellcolor{pastelGreen}   minimal
+                        & \cellcolor{pastelGreen}   low
                         \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
+                        
+                        Manual report\newline (authority app)
+                        & \cellcolor{pastelOrange}  delayed
+                        & \cellcolor{pastelOrange}  human-dependent
+                        & \cellcolor{pastelGreen}   no hardware
+                        & \cellcolor{pastelGreen}   very high
+                        & \cellcolor{pastelGreen}   negligible
+                        & \cellcolor{pastelGreen}   controlled access
+                        & \cellcolor{pastelGreen}   very low
                         \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        \\
-
+                        
                         \hline
                     \end{tabular}
                     }
+                    \caption{Evidence acquisition approaches to qualify a violation event (FR5)}
+                    \label{tab:fr5_evidence_acquisition}
+                \end{table}
 
-                    \caption{Comparison of violation identification mechanisms}
-                    \label{tab:fr5_comparison}
-                \end{table}% }}}4
-            \end{indt} %}}}3
+                (1): This approach is restricted to violations that can be inferred from authorization data (example: cloned identifiers, expired or invalid authorizations). It does not allow direct identification of a vehicle that occupies a reserved parking space without presenting any authorization, since no vehicle-specific identifier is captured.
 
-            \begin{indt}{\subsubsection{Conclusion}} %{{{3
-                XXX
-            \end{indt} %}}}3
+                \autoref{tab:fr5_communication_comparison} compares several viable approaches to deliver real-time alerts from the system to authorities.
 
-            \begin{indt}{\subsubsection{References}} %{{{3
-                \begin{indi}[0pt]{}
-                    \item XXX: \\
-                        \url{https://}
-                    \item XXX: \\
-                        \url{https://}
-                    \item XXX: \\
-                        \url{https://}
-                \end{indi}
-            \end{indt} %}}}3
-        \end{indt} %}}}2
-
-        % \begin{indt}{\subsection{FR6 -- Parking availability visualization}} %{{{2
-        %     \begin{indt}{\subsubsection{Introduction}} %{{{3
-        %         The objective of this functional requirement is to provide users with a clear and real-time visualization of available disabled parking spaces within a selected geographical area. This functionality directly improves accessibility for people with disabilities by reducing the time and effort required to locate an appropriate parking space, especially in dense urban environments.
-        %
-        %         % Within the IoT-based smart parking system, parking availability visualization serves as the primary user-facing interface. It relies on continuously updated parking spot status data collected from distributed IoT nodes and processed by the centralized backend. Accurate and intuitive visualization is essential to ensure user trust and to enable informed decision-making, particularly when combined with reservation capabilities.
-        %     \end{indt} %}}}3
-        %
-        %     \begin{indt}{\subsubsection{Comparison of visualization and mapping solutions}} %{{{3
-        %         Several technical solutions can be used to visualize parking availability data. \autoref{tab:fr6_comparison} presents a comparison of the most relevant mechanisms for this project.
-        %
-        %         \begin{table}[H]% {{{4
-        %             \centering
-        %
-        %             {\small
-        %             \begin{tabular}{p{3cm} p{80pt} p{80pt} p{80pt} p{80pt}}
-        %                 \hline
-        %                 \textbf{Technology}
-        %                 & \textbf{Reliability (NF2)}
-        %                 & \textbf{Privacy (NF7)}
-        %                 & \textbf{Afforda\-bility (NF8)}
-        %                 & \textbf{Compati\-bility (NF9)}
-        %                 \\
-        %
-        %                 \hline
-        %                 Phone app
-        %                 & \cellcolor{pastelOrange} Depends on network, but can cache data
-        %                 & \cellcolor{pastelGreen} Good privacy is possible
-        %                 & \cellcolor{pastelRed} Need to maintain multiple app versions
-        %                 & \cellcolor{pastelRed} Users need compatible phone
-        %                 \\
-        %
-        %                 Web app
-        %                 & \cellcolor{pastelRed} Depends on network's availability
-        %                 & \cellcolor{pastelGreen} Good privacy is possible
-        %                 & \cellcolor{pastelGreen} Low maintenance cost
-        %                 & \cellcolor{pastelGreen} Most users' devices are able to interact with web pages
-        %                 \\
-        %
-        %                 Command line app
-        %                 & \cellcolor{pastelOrange} Depends on network, but can cache data
-        %                 & \cellcolor{pastelOrange} If using Discord/Telegram, data is shared to that third-party
-        %                 & \cellcolor{pastelGreen} Low maintenance cost
-        %                 & \cellcolor{pastelOrange} While probably compatible with user's devices, it is not user-friendly
-        %                 \\
-        %
-        %                 \hline
-        %             \end{tabular}
-        %             }
-        %
-        %             \caption{Comparison of user interfaces}
-        %             \label{tab:fr6_comparison}
-        %         \end{table}% }}}4
-        %     \end{indt} %}}}3
-        %
-        %     \begin{indt}{\subsubsection{Conclusion}} %{{{3
-        %         In the light of the \autoref{tab:fr6_comparison}, the \emph{web interface} seems the most appropriate for the user interface as it has the largest compatibility.
-        %         Regarding reliability, in the event of a network outage, no real time data is possible. Even if with a native application, it might possible to cache data, it will become outdated and the visualisation will be wrong.
-        %         We put a stronger emphasis on the compatibility of end user's device.
-        %
-        %         This interface will also be appropriate to implement the multi-level authorizations (admin, user, ...)
-        %     \end{indt} %}}}3
-        % \end{indt} %}}}2
-
-        % \begin{indt}{\subsection{FR7 -- Advance reservation}} %{{{2
-        %     \begin{indt}{\subsubsection{Introduction}} %{{{3
-        %         The objective of this functional requirement is to allow authorized users to reserve a disabled parking space up to one hour in advance. This feature significantly improves accessibility and planning for people with disabilities by reducing uncertainty when traveling to areas with limited parking availability.
-        %
-        %         In the context of the IoT-based smart parking system, advance reservation must be tightly integrated with real-time parking availability data to avoid conflicts and ensure fairness. The reservation mechanism must prevent double-booking, enforce time constraints, and remain synchronized with on-site occupancy detection in order to release or confirm reservations accurately.
-        %     \end{indt} %}}}3
-        %
-        %     \begin{indt}{\subsubsection{Comparison of reservation management approaches}} %{{{3
-        %         Several technical approaches can be used to implement an advance reservation mechanism. \autoref{tab:fr7_comparison} compares the most relevant solutions for this project.
-        %
-        %         \begin{table}[H]% {{{4
-        %             \centering
-        %
-        %             {\small
-        %             \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
-        %                 \hline
-        %                 \textbf{Technology}
-        %                 & \textbf{Performan\-ce (NF1)}
-        %                 & \textbf{Reliability (NF2)}
-        %                 & \textbf{Durability (NF3)}
-        %                 & \textbf{Resource efficiency (NF5)}
-        %                 & \textbf{Privacy (NF7)}
-        %                 & \textbf{Afforda\-bi\-lity (NF8)}
-        %                 & \textbf{Compati\-bility (NF9)}
-        %                 \\
-        %
-        %                 \hline
-        %                 XXX
-        %                 \newline
-        %                 \texttt{ref}
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 \\
-        %
-        %                 XXX
-        %                 \newline
-        %                 \texttt{ref}
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 \\
-        %
-        %                 XXX
-        %                 \newline
-        %                 \texttt{ref}
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 \\
-        %
-        %                 XXX
-        %                 \newline
-        %                 \texttt{ref}
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 \\
-        %
-        %                 \hline
-        %             \end{tabular}
-        %             }
-        %
-        %             \caption{Comparison of violation identification mechanisms}
-        %             \label{tab:fr7_comparison}
-        %         \end{table}% }}}4
-        %     \end{indt} %}}}3
-        %
-        %     \begin{indt}{\subsubsection{Conclusion}} %{{{3
-        %         XXX
-        %     \end{indt} %}}}3
-        % \end{indt} %}}}2
-
-        \begin{indt}{\subsection{FR8 -- Reservation timeout management}} %{{{2
-            \begin{indt}{\subsubsection{Introduction}} %{{{3
-                The objective of this functional requirement is to automatically cancel a parking space reservation if the reserved vehicle does not arrive within a predefined grace period. This functionality is essential to ensure efficient utilization of disabled parking spaces and to prevent situations where a space remains unused due to unfulfilled reservations.
-
-                In the context of the IoT-based smart parking system, reservation timeout management must operate reliably and autonomously by correlating reservation timestamps with real-time occupancy detection data. By enforcing a grace period, the system balances flexibility for users with the need to maximize availability and fairness for other authorized drivers.
-            \end{indt} %}}}3
-
-            \begin{indt}{\subsubsection{Comparison of reservation timeout approaches}} %{{{3
-                Several technical approaches can be used to manage reservation timeout. \autoref{tab:fr8_comparison} compares the most relevant solutions for this project.
-
-                \begin{table}[H]% {{{4
+                \begin{table}[H]
                     \centering
-
                     {\small
-                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
+                    \begin{tabular}{p{60pt} p{55pt} p{55pt} p{60pt} p{55pt} p{45pt} p{38pt} p{55pt}}
                         \hline
                         \textbf{Technology}
-                        & \textbf{Performan\-ce (NF1)}
-                        & \textbf{Reliability (NF2)}
-                        & \textbf{Durability (NF3)}
-                        & \textbf{Resource efficiency (NF5)}
-                        & \textbf{Privacy (NF7)}
-                        & \textbf{Afforda\-bi\-lity (NF8)}
-                        & \textbf{Compati\-bility (NF9)}
+                        & \textbf{NFR1\newline Performance}
+                        & \textbf{NFR2\newline Reliability}
+                        & \textbf{NFR3\newline Durability}
+                        & \textbf{NFR4\newline Portability}
+                        & \textbf{NFR5\newline Efficiency}
+                        & \textbf{NFR7\newline Privacy}
+                        & \textbf{NFR8\newline Affordability}
                         \\
-
                         \hline
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
+                        
+                         Wi-Fi
+                        & \cellcolor{pastelGreen} $<100$ ms
+                        & \cellcolor{pastelOrange} local infrastructure dependent
+                        & \cellcolor{pastelOrange} $-10$ to $50\,^{\circ}$C
+                        & \cellcolor{pastelGreen} $\sim$50 m
+                        & \cellcolor{pastelOrange} 200--400 mW
+                        & \cellcolor{pastelGreen} TLS (WPA2/3)
+                        & \cellcolor{pastelGreen} very low
                         \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
+                        
+                        LTE-M
+                        & \cellcolor{pastelGreen} 50--150 ms
+                        & \cellcolor{pastelGreen} Managed infrastructure
+                        & \cellcolor{pastelGreen} $-40$ to $85\,^{\circ}$C
+                        & \cellcolor{pastelGreen} nationwide
+                        & \cellcolor{pastelGreen} 50--100 mW
+                        & \cellcolor{pastelGreen} SIM-based
+                        & \cellcolor{pastelOrange} medium
                         \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
+                        
+                        NB-IoT
+                        & \cellcolor{pastelOrange} 1--10 s
+                        & \cellcolor{pastelGreen} Managed infrastructure
+                        & \cellcolor{pastelGreen} $-40$ to $85\,^{\circ}$C
+                        & \cellcolor{pastelGreen} nationwide
+                        & \cellcolor{pastelGreen} 10--50 mW
+                        & \cellcolor{pastelGreen} SIM-based
+                        & \cellcolor{pastelGreen} low
                         \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
+                        
+                        LoRaWAN
+                        & \cellcolor{pastelOrange} 5--30 s
+                        & \cellcolor{pastelRed} no guarantees on latency or message delivery
+                        & \cellcolor{pastelGreen} $-40$ to $85\,^{\circ}$C
+                        & \cellcolor{pastelGreen} 2--15 km
+                        & \cellcolor{pastelGreen} $<10$ mW
+                        & \cellcolor{pastelOrange} AES-128
+                        & \cellcolor{pastelGreen} low
                         \\
-
+                        
                         \hline
                     \end{tabular}
                     }
-
-                    \caption{Comparison of reservation timeout approaches}
-                    \label{tab:fr8_comparison}
-                \end{table}% }}}4
+                    \caption{Communication technology comparison for authority notification (FR5)}
+                    \label{tab:fr5_communication_comparison}
+                \end{table}
             \end{indt} %}}}3
 
+            So, we have :
+            \begin{indi}[0pt]{}
+                \item LoRaWAN is an open-standard protocol operating in unlicensed spectrum, well suited for private, low-power, and long-range applications such as agriculture or smart city monitoring, and enabling multi-year battery lifetimes. However, its higher latency make it less appropriate for real-time authority notifications.
+
+                \item NB-IoT (Narrowband IoT) operates on licensed cellular spectrum, providing high reliability, good indoor penetration, and native security mechanisms. While its latency is higher than LTE-M, it remains compatible with the real-time constraints of FR5 and offers very low power consumption, making it particularly suitable for large-scale deployments.
+
+                \item LTE-M also relies on licensed cellular infrastructure and offers lower latency and higher throughput than NB-IoT, which is advantageous for time-critical notifications. This comes at the cost of higher energy consumption and operational expenses, which may limit scalability for dense deployments.
+
+                \item Wi-Fi provides very low latency and high data rates, but its reliability is strongly dependent on the availability and stability of local infrastructure. In outdoor public environments, this dependency reduces robustness and limits its suitability for city-wide authority notification systems.
+            \end{indi}
+            
             \begin{indt}{\subsubsection{Conclusion}} %{{{3
-                XXX
+                Overall, among the considered evidence acquisition approaches, the user identifier–based solution (NFC/BLE) provides the best compromise between reliability, privacy preservation, energy efficiency, and deployment cost. Camera-based solutions introduce significant privacy concerns and higher installation and operational costs, while manual reporting does not satisfy real-time requirements. The identifier-based approach is therefore retained for FR5 — violation evidence acquisition. For violations where no identifier can be collected, the parking space location and timestamp are considered sufficient information for on-site enforcement by patrol units.
+                
+                Also, among the considered communication technologies, NB-IoT offers the best trade-off between latency, reliability, energy efficiency, security, and cost, and is therefore retained as the preferred solution for implementing FR5 — Authority notification.
             \end{indt} %}}}3
 
-            \begin{indt}{\subsubsection{References}} %{{{3
-                \begin{indi}[0pt]{}
-                    \item XXX: \\
-                        \url{https://}
-                    \item XXX: \\
-                        \url{https://}
-                    \item XXX: \\
-                        \url{https://}
-                \end{indi}
-            \end{indt} %}}}3
         \end{indt} %}}}2
 
         \begin{indt}{\subsection{FR9 -- Parking spot status display}} %{{{2
             \begin{indt}{\subsubsection{Introduction}} %{{{3
-                The objective of this functional requirement is to display the current status of a disabled parking space, namely whether it is free, reserved, or currently occupied (parked). This information is essential for both end users and system operators, as it provides immediate feedback on parking availability and reservation enforcement.
-
-                Within the IoT-based smart parking system, parking spot status acts as a synthesis of multiple data sources, including real-time sensor data from the parking node and reservation information managed by the backend. A clear and reliable status representation improves user understanding, supports decision-making, and ensures consistency between physical occupancy and digital system state.
-
-                TODO: also send the current state to the platform. So need to compare the different \emph{communication technologies} also.
+                The objective of this functional requirement is to display the current status of a disabled parking space, namely whether it is \texttt{free}, \texttt{reserved}, or \texttt{occupied}. This information must be directly observable at the parking spot in order to guide users and support reservation enforcement.
+            
+                In the proposed IoT-based smart parking system, the parking spot status is derived from the aggregation of multiple data sources, including real-time occupancy detection at the node level and reservation information managed by the backend. The display mechanism must therefore provide a clear, reliable, and immediate representation of the system state, while remaining compatible with outdoor deployment constraints, low-power operation, and large-scale municipal rollout.
             \end{indt} %}}}3
 
             \begin{indt}{\subsubsection{Comparison of parking spot status display mechanisms}} %{{{3
                 Several approaches can be used to determine and display the parking spot status
-                \autoref{tab:fr9_comparison} compares the most relevant solutions for this project.
+                \autoref{tab:fr9_display_comparison} compares the most relevant solutions for this project.
 
-                \begin{table}[H]% {{{4
+                \begin{table}[H]
                     \centering
-
                     {\small
-                    \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
+                    \begin{tabular}{p{60pt} p{55pt} p{55pt} p{60pt} p{55pt} p{45pt} p{38pt} p{55pt}}
                         \hline
                         \textbf{Technology}
-                        & \textbf{Performan\-ce (NF1)}
-                        & \textbf{Reliability (NF2)}
-                        & \textbf{Durability (NF3)}
-                        & \textbf{Resource efficiency (NF5)}
-                        & \textbf{Privacy (NF7)}
-                        & \textbf{Afforda\-bi\-lity (NF8)}
-                        & \textbf{Compati\-bility (NF9)}
+                        & \textbf{NFR1\newline Performance}
+                        & \textbf{NFR2\newline Reliability}
+                        & \textbf{NFR3\newline Durability}
+                        & \textbf{NFR4\newline Portability}
+                        & \textbf{NFR5\newline Efficiency}
+                        & \textbf{NFR7\newline Privacy}
+                        & \textbf{NFR8\newline Affordability}
                         \\
-
                         \hline
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
+                        
+                        Multiple LEDs
+                        & \cellcolor{pastelGreen} $<100$ ms
+                        & \cellcolor{pastelGreen} very high
+                        & \cellcolor{pastelGreen} $-40$ to $85\,^{\circ}$C
+                        & \cellcolor{pastelGreen} very compact
+                        & \cellcolor{pastelGreen} $<10$ mW
+                        & \cellcolor{pastelGreen} no data
+                        & \cellcolor{pastelGreen} very low
                         \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
+                        
+                        7-seg LED
+                        & \cellcolor{pastelGreen} $<200$ ms
+                        & \cellcolor{pastelGreen} high
+                        & \cellcolor{pastelOrange} $-20$ to $70\,^{\circ}$C
+                        & \cellcolor{pastelGreen} compact
+                        & \cellcolor{pastelOrange} 20--50 mW
+                        & \cellcolor{pastelGreen} no data
+                        & \cellcolor{pastelGreen} low
                         \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
+                        
+                        LCD 16$\times$2
+                        & \cellcolor{pastelOrange} $<500$ ms
+                        & \cellcolor{pastelOrange} medium
+                        & \cellcolor{pastelOrange} $-20$ to $70\,^{\circ}$C
+                        & \cellcolor{pastelOrange} large module
+                        & \cellcolor{pastelOrange} 20--60 mW
+                        & \cellcolor{pastelGreen} no data
+                        & \cellcolor{pastelGreen} low
                         \\
-
-                        XXX
-                        \newline
-                        \texttt{ref}
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
-                        & \cellcolor{white} XXX
+                        
+                        Graphic LCD / OLED
+                        & \cellcolor{pastelGreen} $<300$ ms
+                        & \cellcolor{pastelOrange} medium
+                        & \cellcolor{pastelOrange} $-20$ to $60\,^{\circ}$C
+                        & \cellcolor{pastelOrange} medium
+                        & \cellcolor{pastelRed} 40--100 mW
+                        & \cellcolor{pastelGreen} no data
+                        & \cellcolor{pastelOrange} medium
                         \\
-
+                        
+                        E-paper
+                        & \cellcolor{pastelRed} seconds
+                        & \cellcolor{pastelGreen} high
+                        & \cellcolor{pastelOrange} $-20$ to $60\,^{\circ}$C
+                        & \cellcolor{pastelGreen} thin
+                        & \cellcolor{pastelGreen} $\approx 0$ mW static
+                        & \cellcolor{pastelGreen} no data
+                        & \cellcolor{pastelOrange} medium--high
+                        \\
+                        
                         \hline
                     \end{tabular}
                     }
-
-                    \caption{Comparison of parking spot status display}
-                    \label{tab:fr9_comparison}
-                \end{table}% }}}4
+                    \caption{Status display technology comparison for FR9}
+                    \label{tab:fr9_display_comparison}
+                \end{table}
             \end{indt} %}}}3
 
             \begin{indt}{\subsubsection{Conclusion}} %{{{3
-                XXX
+                Among the considered parking spot status display mechanisms, \textbf{multiple LEDs} provide the best compromise between \textbf{performance, reliability, durability, energy efficiency, portability, and affordability}. This solution fully satisfies the requirements of FR9 while remaining compliant with privacy constraints, as no personal or vehicle-related data is displayed.
+            
+                Display technologies such as segment LEDs and LCDs allow richer information to be presented, but they introduce higher power consumption, increased fragility in outdoor environments, and unnecessary complexity for a three-state status representation. E-paper displays, although energy-efficient, are unsuitable due to their slow refresh times, which conflict with the need for immediate feedback.
+            
+                \textbf{Multiple LEDs are therefore retained} as the preferred solution for implementing FR9, as they offer an immediate, intuitive, low-cost, and robust status indication well adapted to outdoor municipal deployment.
             \end{indt} %}}}3
+
 
             \begin{indt}{\subsubsection{References}} %{{{3
                 \begin{indi}[0pt]{}
@@ -1406,93 +1386,7 @@
 
         % \begin{indt}{\subsection{FR10 -- User registration}} %{{{2
         %     \begin{indt}{\subsubsection{Introduction}} %{{{3
-        %         The objective of this functional requirement is to allow users and administrators to register on the smart parking platform. User registration is a prerequisite for accessing personalized services such as parking availability visualization, advance reservation, and parking session management. For administrators, registration enables system configuration, monitoring, and enforcement oversight.
-        %
-        %         In the context of an IoT-based smart parking system dedicated to people with disabilities, the registration process must be secure, reliable, and compliant with data protection regulations. It must also support role differentiation (user versus administrator) and integrate seamlessly with backend services that manage authorizations, reservations, and notifications.
-        %     \end{indt} %}}}3
-        %
-        %     \begin{indt}{\subsubsection{Comparison of user registration and authentication solutions}} %{{{3
-        %         Several technical approaches can be used to implement user registration and account management.
-        %         \autoref{tab:fr10_comparison} compares the most relevant solutions for this project.
-        %
-        %         \begin{table}[H]% {{{4
-        %             \centering
-        %
-        %             {\small
-        %             \begin{tabular}{p{3cm} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt} p{50pt}}
-        %                 \hline
-        %                 \textbf{Technology}
-        %                 & \textbf{Performan\-ce (NF1)}
-        %                 & \textbf{Reliability (NF2)}
-        %                 & \textbf{Durability (NF3)}
-        %                 & \textbf{Resource efficiency (NF5)}
-        %                 & \textbf{Privacy (NF7)}
-        %                 & \textbf{Afforda\-bi\-lity (NF8)}
-        %                 & \textbf{Compati\-bility (NF9)}
-        %                 \\
-        %
-        %                 \hline
-        %                 XXX
-        %                 \newline
-        %                 \texttt{ref}
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 \\
-        %
-        %                 XXX
-        %                 \newline
-        %                 \texttt{ref}
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 \\
-        %
-        %                 XXX
-        %                 \newline
-        %                 \texttt{ref}
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 \\
-        %
-        %                 XXX
-        %                 \newline
-        %                 \texttt{ref}
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 & \cellcolor{white} XXX
-        %                 \\
-        %
-        %                 \hline
-        %             \end{tabular}
-        %             }
-        %
-        %             \caption{Comparison of user registration and authentication solutions}
-        %             \label{tab:fr10_comparison}
-        %         \end{table}% }}}4
-        %     \end{indt} %}}}3
-        %
-        %     \begin{indt}{\subsubsection{Conclusion}} %{{{3
-        %         XXX
-        %     \end{indt} %}}}3
-        % \end{indt} %}}}2
+
     \end{indt} %}}}1
 
     \newpage
