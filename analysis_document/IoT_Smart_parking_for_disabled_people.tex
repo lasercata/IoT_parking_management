@@ -4,7 +4,7 @@
 %------------------------------------------------------------------------
 %
 % Author                :   Flow, Lasercata
-% Last modification     :   2026.02.03
+% Last modification     :   2026.01.30
 %
 %------------------------------------------------------------------------
 
@@ -53,6 +53,99 @@
 
         In addition, an interface allows authorized users to visualize nearby available parking spaces, reserve a spot up to one hour in advance, and receive feedback on their parking session. 
     \end{indt}% }}}1
+
+    \begin{indt}{\section{State of the Art}}
+        Several existing smart parking projects can be identified. Two different kinds can be distinguished:
+        those relying on user-side or infrastructure-based sensing (such as cameras or smartphones), and
+        those deploying a dedicated device for each parking space.
+        
+        Considering projects based on a dedicated hardware device, several academic and prototype solutions
+        were identified. The following works are particularly relevant and are studied here:
+        
+        \begin{indi}{}
+            \item [1] Priyanshu Bhardwaj, \\
+            "An IoT-Driven Smart Parking Framework with RFID-Based Vehicle Authentication",
+            \textit{International Journal on Science and Technology (IJSAT)}, 2025.\\
+            \url{https://www.researchgate.net/publication/395954332}
+        
+            \item [2] Ramyashree B R, Theerthashree G S, \\
+            "RFID Based Smart Parking Using IOT", 
+            \textit{International Journal of Scientific Research in Engineering and Management (IJSREM)}, 2025.\\
+            \url{https://rjwave.org/ijedr/papers/IJEDR2504423.pdf}
+            
+            \item [3] A. O. Elfaki, W. Messoudi, A. Bushnag, S. Abuzneid and T. Alhmiedat,\\
+            "Smart Real-Time Parking Control and Monitoring System", 
+            \textit{Journal Sensors}, volume 23, Issue 24, 2023.\\
+            \url{https://www.mdpi.com/1424-8220/23/24/9741}
+        
+            \item [4] Gustavo P. C. P. da Luz, Gabriel Massuyoshi Sato, Luis Fernando Gomez Gonzalez and Juliana Freitag Borin,\\
+            "Smart Parking with Pixel-Wise ROI Selection for Vehicle Detection Using YOLOv8, YOLOv9, YOLOv10, and YOLOv11", 
+            \textit{arXiv}, 2024.\\
+            \url{https://arxiv.org/abs/2412.01983}
+        \end{indi}
+        
+        These projects address different aspects of smart parking systems, ranging from identity-based access control to camera-based occupancy detection.
+    \end{indt}
+    
+    \begin{table}[h]
+        \centering
+        \renewcommand{\arraystretch}{1.2}
+        \begin{tabular}{|p{1.5cm}|p{2cm}|p{3cm}|p{3cm}|p{3cm}|p{3cm}|}
+        \hline
+        
+          \textbf{Project}        
+        & \textbf{Sensors}          
+        & \textbf{Detection method}                 
+        & \textbf{Board}                
+        & \textbf{Communication}   
+        & \textbf{Interface} 
+        
+        \\
+        \hline
+        
+        [1]        
+        & IR sensor, RFID reader   
+        & Slot occupancy and RFID authentication   
+        & ESP8266 NodeMCU             
+        & Wi-Fi (HTTP, IoT cloud) 
+        & Web dashboard 
+        
+        \\
+        \hline
+        
+        [2]     
+        & IR sensor, RFID reader       
+        & Slot occupancy and RFID authentication      
+        & Arduino Uno       
+        & None (local wired only) 
+        & LEDs
+        
+        \\
+        \hline
+        
+       [3]   
+        & Ultrasonic sensors       
+        & Distance-based vehicle detection          
+        & Microcontroller (unspecified)
+        & Client-server IoT network 
+        & Web interface 
+        
+        \\
+        \hline
+        
+        [4]   
+        & Cameras                   
+        & Computer vision (CNN, YOLO)              
+        & No embedded device
+        & IP network 
+        & Web monitoring platform 
+        
+        \\
+        \hline
+        
+        \end{tabular}
+        \caption{Comparison of existing smart parking solutions}
+    \end{table}
 
     \begin{indt}{\section{Functional Requirements}} %{{{1
         \begin{table}[H]% {{{2
@@ -292,14 +385,14 @@
                 \hline
                 \hline
                 \textbf{Description}
-                & The solution is able to display its current status (free, reserved, parked)
+                & The solution is able to display its current status
                 \\
                 \hline
                 \textbf{Input}
                 & Sensor data, reservation data
                 \\
                 \textbf{Output}
-                & Status indicator (free / reserved / parked)
+                & Status indicator
                 \\
                 \hline
             \end{tabular}
@@ -824,14 +917,15 @@
                 \begin{table}[H]
                     \centering
                     {\small
-                    \begin{tabular}{p{60pt} p{55pt} p{55pt} p{60pt} p{55pt} p{45pt} p{38pt} p{55pt}}
+                    \begin{tabular}{p{30pt} p{30pt} p{55pt} p{60pt} p{55pt} p{45pt} p{38pt} p{38pt} p{55pt}}
                         \hline
-                        \textbf{Technology}
-                        & \textbf{NFR1\newline Performance}
+                        \textbf{Tech.}
+                        & \textbf{NFR1\newline Perf.}
                         & \textbf{NFR2\newline Reliability}
                         & \textbf{NFR3\newline Durability}
                         & \textbf{NFR4\newline Portability}
                         & \textbf{NFR5\newline Efficiency}
+                        & \textbf{NFR6\newline Security}
                         & \textbf{NFR7\newline Privacy}
                         & \textbf{NFR8\newline Affordability}
                         \\
@@ -844,6 +938,7 @@
                         & \cellcolor{pastelGreen}   Very high
                         & \cellcolor{pastelGreen}   Negligible
                         & \cellcolor{pastelOrange}  Public static identifier
+                        & \cellcolor{pastelGreen}   No personal data
                         & \cellcolor{pastelRed}     User must have a compatible device (1)
                         \\
 
@@ -853,7 +948,8 @@
                         & \cellcolor{pastelOrange}  Outdoor exposure
                         & \cellcolor{pastelOrange}  Larger hardware
                         & \cellcolor{pastelOrange}  Moderate
-                        & \cellcolor{pastelGreen}   Token-based
+                        & \cellcolor{pastelOrange}  Token based
+                        & \cellcolor{pastelGreen}   No personal data
                         & \cellcolor{pastelOrange}  Medium
                         \\
                         
@@ -863,6 +959,7 @@
                         & \cellcolor{pastelGreen} High
                         & \cellcolor{pastelGreen} High
                         & \cellcolor{pastelGreen} Low 
+                        & \cellcolor{pastelOrange} Possible cloning, preventable
                         & \cellcolor{pastelGreen} No personal data
                         & \cellcolor{pastelGreen} Low
                         \\
@@ -873,6 +970,7 @@
                         & \cellcolor{pastelOrange}  Phone dependent
                         & \cellcolor{pastelGreen}   High
                         & \cellcolor{pastelOrange}  Moderate
+                        & \cellcolor{pastelOrange}  Spoofing risk
                         & \cellcolor{pastelOrange}  Device identifier
                         & \cellcolor{pastelRed}     User must have a compatible device (1)
                         \\
@@ -883,16 +981,18 @@
                         & \cellcolor{pastelGreen}   High
                         & \cellcolor{pastelGreen}   High
                         & \cellcolor{pastelGreen}   Low
+                        & \cellcolor{pastelOrange}  Spoofing risk
                         & \cellcolor{pastelGreen}   No personal data
                         & \cellcolor{pastelGreen}   Low
                         \\
                         
-                        Camera / LPR
+                        Camera (LPR)
                         & \cellcolor{pastelGreen}   Fast
                         & \cellcolor{pastelOrange}  Environment-dependent
                         & \cellcolor{pastelOrange}  Outdoor-sensitive
                         & \cellcolor{pastelOrange}  Complex setup
                         & \cellcolor{pastelRed}     High
+                        & \cellcolor{pastelOrange}  Visual spoofing possible
                         & \cellcolor{pastelRed}     Personal data
                         & \cellcolor{pastelOrange}  Medium
                         \\
@@ -1217,7 +1317,7 @@
                         & \cellcolor{pastelOrange} $-10$ to $50\,^{\circ}$C
                         & \cellcolor{pastelGreen} $\sim$50 m
                         & \cellcolor{pastelOrange} 200--400 mW
-                        & \cellcolor{pastelGreen} TLS (WPA2/3)
+                        & \cellcolor{pastelGreen} MAC address exposure
                         & \cellcolor{pastelGreen} very low
                         \\
                         
@@ -1227,7 +1327,7 @@
                         & \cellcolor{pastelGreen} $-40$ to $85\,^{\circ}$C
                         & \cellcolor{pastelGreen} nationwide
                         & \cellcolor{pastelGreen} 50--100 mW
-                        & \cellcolor{pastelGreen} SIM-based
+                        & \cellcolor{pastelGreen} SIM-based identity
                         & \cellcolor{pastelOrange} medium
                         \\
                         
@@ -1237,7 +1337,7 @@
                         & \cellcolor{pastelGreen} $-40$ to $85\,^{\circ}$C
                         & \cellcolor{pastelGreen} nationwide
                         & \cellcolor{pastelGreen} 10--50 mW
-                        & \cellcolor{pastelGreen} SIM-based
+                        & \cellcolor{pastelGreen} SIM-based identity
                         & \cellcolor{pastelGreen} low
                         \\
                         
@@ -1247,7 +1347,7 @@
                         & \cellcolor{pastelGreen} $-40$ to $85\,^{\circ}$C
                         & \cellcolor{pastelGreen} 2--15 km
                         & \cellcolor{pastelGreen} $<10$ mW
-                        & \cellcolor{pastelOrange} AES-128
+                        & \cellcolor{pastelOrange} Device identifier exposed
                         & \cellcolor{pastelGreen} low
                         \\
                         
@@ -1278,11 +1378,66 @@
 
         \end{indt} %}}}2
 
+        % \begin{indt}{\subsection{FR6 -- Parking availability visualization}} %{{{2
+        %     \begin{indt}{\subsubsection{Introduction}} %{{{3
+        %         The objective of this functional requirement is to provide users with a clear and real-time visualization of available disabled parking spaces within a selected geographical area. This functionality directly improves accessibility for people with disabilities by reducing the time and effort required to locate an appropriate parking space, especially in dense urban environments.
+        %
+        %         % Within the IoT-based smart parking system, parking availability visualization serves as the primary user-facing interface. It relies on continuously updated parking spot status data collected from distributed IoT nodes and processed by the centralized backend. Accurate and intuitive visualization is essential to ensure user trust and to enable informed decision-making, particularly when combined with reservation capabilities.
+        %     \end{indt} %}}}3
+        %
+        %     \begin{indt}{\subsubsection{Comparison of visualization and mapping solutions}} %{{{3
+        %         Several technical solutions can be used to visualize parking availability data. \autoref{tab:fr6_comparison} presents a comparison of the most relevant mechanisms for this project.
+        %
+        %
+        %     \begin{indt}{\subsubsection{Conclusion}} %{{{3
+        %         In the light of the \autoref{tab:fr6_comparison}, the \emph{web interface} seems the most appropriate for the user interface as it has the largest compatibility.
+        %         Regarding reliability, in the event of a network outage, no real time data is possible. Even if with a native application, it might possible to cache data, it will become outdated and the visualisation will be wrong.
+        %         We put a stronger emphasis on the compatibility of end user's device.
+        %
+        %         This interface will also be appropriate to implement the multi-level authorizations (admin, user, ...)
+        %     \end{indt} %}}}3
+        % \end{indt} %}}}2
+        %
+        % \begin{indt}{\subsection{FR7 -- Advance reservation}} %{{{2
+        %     \begin{indt}{\subsubsection{Introduction}} %{{{3
+        %         The objective of this functional requirement is to allow authorized users to reserve a disabled parking space up to one hour in advance. This feature significantly improves accessibility and planning for people with disabilities by reducing uncertainty when traveling to areas with limited parking availability.
+        %
+        %         In the context of the IoT-based smart parking system, advance reservation must be tightly integrated with real-time parking availability data to avoid conflicts and ensure fairness. The reservation mechanism must prevent double-booking, enforce time constraints, and remain synchronized with on-site occupancy detection in order to release or confirm reservations accurately.
+        %     \end{indt} %}}}3
+        %
+        %\begin{indt}{\subsection{FR8 -- Reservation timeout management}} %{{{2
+        %    \begin{indt}{\subsubsection{Introduction}} %{{{3
+        %        The objective of this functional requirement is to automatically cancel a parking space reservation if the reserved vehicle does not arrive within a predefined grace period. This functionality is essential to ensure efficient utilization of disabled parking spaces and to prevent situations where a space remains unused due to unfulfilled reservations.
+        %
+        %        In the context of the IoT-based smart parking system, reservation timeout management must operate reliably and autonomously by correlating reservation timestamps with real-time occupancy detection data. By enforcing a grace period, the system balances flexibility for users with the need to maximize availability and fairness for other authorized drivers.
+        %    \end{indt} %}}}3
+        %
+        %    \begin{indt}{\subsubsection{Comparison of reservation timeout approaches}} %{{{3
+        %       Several technical approaches can be used to manage reservation timeout. \autoref{tab:fr8_comparison} compares the most relevant solutions for this project.
+        %            \end{indt} %}}}3
+        %
+        %    \begin{indt}{\subsubsection{Conclusion}} %{{{3
+        %        XXX
+        %    \end{indt} %}}}3
+        %
+        %    \begin{indt}{\subsubsection{References}} %{{{3
+        %        \begin{indi}[0pt]{}
+        %            \item XXX: \\
+        %                \url{https://}
+        %            \item XXX: \\
+        %                \url{https://}
+        %            \item XXX: \\
+        %                \url{https://}
+        %        \end{indi}
+        %    \end{indt} %}}}3
+        %\end{indt} %}}}2
+
         \begin{indt}{\subsection{FR9 -- Parking spot status display}} %{{{2
             \begin{indt}{\subsubsection{Introduction}} %{{{3
-                The objective of this functional requirement is to display the current status of a disabled parking space, namely whether it is \texttt{free}, \texttt{reserved}, or \texttt{occupied}. This information must be directly observable at the parking spot in order to guide users and support reservation enforcement.
-            
-                In the proposed IoT-based smart parking system, the parking spot status is derived from the aggregation of multiple data sources, including real-time occupancy detection at the node level and reservation information managed by the backend. The display mechanism must therefore provide a clear, reliable, and immediate representation of the system state, while remaining compatible with outdoor deployment constraints, low-power operation, and large-scale municipal rollout.
+                The objective of this functional requirement is to display the current status of a disabled parking space, namely whether it is \texttt{free}, \texttt{reserved}, or \texttt{occupied}, as well as the \texttt{outcome of the user authentication process}. This includes clear feedback indicating whether the presented tag has been successfully recognized, rejected, or requires the user to retry. This information must be directly observable from a distance in order to guide users and support reservation enforcement.
+
+                In the proposed IoT-based smart parking system, the displayed status is derived from the aggregation of multiple data sources, including real-time occupancy detection at the node level, reservation information managed by the backend, and local authentication results. The display mechanism must therefore provide a clear, reliable, and immediate representation of both parking and access-control states, while remaining compatible with outdoor deployment constraints, low-power operation, and large-scale municipal rollout.
+
             \end{indt} %}}}3
 
             \begin{indt}{\subsubsection{Comparison of parking spot status display mechanisms}} %{{{3
@@ -1364,28 +1519,14 @@
             \end{indt} %}}}3
 
             \begin{indt}{\subsubsection{Conclusion}} %{{{3
-                Among the considered parking spot status display mechanisms, \textbf{multiple LEDs} provide the best compromise between \textbf{performance, reliability, durability, energy efficiency, portability, and affordability}. This solution fully satisfies the requirements of FR9 while remaining compliant with privacy constraints, as no personal or vehicle-related data is displayed.
-            
-                Display technologies such as segment LEDs and LCDs allow richer information to be presented, but they introduce higher power consumption, increased fragility in outdoor environments, and unnecessary complexity for a three-state status representation. E-paper displays, although energy-efficient, are unsuitable due to their slow refresh times, which conflict with the need for immediate feedback.
-            
-                \textbf{Multiple LEDs are therefore retained} as the preferred solution for implementing FR9, as they offer an immediate, intuitive, low-cost, and robust status indication well adapted to outdoor municipal deployment.
+                Among the considered parking spot status display mechanisms, multiple LEDs provide the best compromise between performance, reliability, durability, energy efficiency, portability, and affordability. This solution fully satisfies the requirements of FR9 by enabling both an immediate visualization of the parking spot state and clear user feedback on authentication outcomes, while remaining compliant with privacy constraints, as no personal or vehicle-related data is displayed.
+
+                Furthermore, the use of a combination of three LEDs (\texttt{red}, \texttt{orange}, and \texttt{green}), each supporting three operating states (\texttt{OFF}, \texttt{ON}, and \texttt{blinking}), provides a sufficiently clear and simple signaling space to convey all required information.
+
+                This approach avoids unnecessary display complexity while ensuring immediate user comprehension, robustness in outdoor environments, and minimal power consumption, making it particularly well suited for large-scale deployment.
             \end{indt} %}}}3
 
-
-            \begin{indt}{\subsubsection{References}} %{{{3
-                \begin{indi}[0pt]{}
-                    \item XXX: \\
-                        \url{https://}
-                    \item XXX: \\
-                        \url{https://}
-                    \item XXX: \\
-                        \url{https://}
-                \end{indi}
-            \end{indt} %}}}3
         \end{indt} %}}}2
-
-        % \begin{indt}{\subsection{FR10 -- User registration}} %{{{2
-        %     \begin{indt}{\subsubsection{Introduction}} %{{{3
 
     \end{indt} %}}}1
 
