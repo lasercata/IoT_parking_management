@@ -196,7 +196,7 @@
                 & Vehicle identifier, authorization ID
                 \\
                 \textbf{Output}
-                & Authorization status (valid / invalid / expired)
+                & Authorization status (valid / invalid / violation)
                 \\
                 \hline
             \end{tabular}
@@ -221,7 +221,7 @@
                 \\
                 \hline
                 \textbf{Input}
-                & Authorization ID, GPS location, timestamps
+                & Authorization ID, Spot ID-
                 \\
                 \textbf{Output}
                 & Cloning alert / None
@@ -498,9 +498,60 @@
 
     \begin{indt}{\section{Analysis}} %{{{1
         \begin{indt}{\subsection{Board selection}} %{{{2
-            TODO (this is a global choice)
+            \begin{tabular}{|p{2cm}|p{1.5cm}|p{1cm}|p{1cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1cm}|p{1.5cm}|}
+                \hline
+                \textbf{Tech.}
+                & \textbf{NFR1\newline Perf.}
+                & \textbf{NFR2\newline Relia.}
+                & \textbf{NFR3\newline Dura.}
+                & \textbf{NFR4\newline Porta.}
+                & \textbf{NFR5\newline Res. eff.}
+                & \textbf{NFR6\newline Secu.}
+                & \textbf{NFR8\newline Affor.}
+                & \textbf{NFR9\newline Compa.}
+                \\
+                \hline
+                
+                NodeMCU ESP8266
+                & \cellcolor{pastelGreen} Wi-Fi, fast response
+                & \cellcolor{pastelOrange} Mid-high
+                & \cellcolor{pastelOrange} $-20$ to $60\,^{\circ}\text{C}$
+                & \cellcolor{pastelGreen} self-contained, easy to deploy
+                & \cellcolor{pastelRed} avg. power $>$100\,mW (Wi-Fi)
+                & \cellcolor{pastelGreen} TLS-supported encrypted links
+                & \cellcolor{pastelGreen} $\sim4$--$6$€
+                & \cellcolor{pastelGreen} Wi-Fi
+                \\
+                \hline
+                
+                Arduino UNO
+                & \cellcolor{pastelOrange} requires external modules
+                & \cellcolor{pastelOrange} Mid-high
+                & \cellcolor{pastelOrange} $-20$ to $60\,^{\circ}\text{C}$
+                & \cellcolor{pastelGreen} modular but hardware-heavy
+                & \cellcolor{pastelGreen} very low power
+                & \cellcolor{pastelRed} no native encryption support
+                & \cellcolor{pastelOrange} $\sim10$€ + shields
+                & \cellcolor{pastelRed} no direct user-device interface
+                \\
+                \hline
+                
+                Raspberry Pi 3
+                & \cellcolor{pastelGreen} high compute, fast response, wifi
+                & \cellcolor{pastelGreen} High
+                & \cellcolor{pastelOrange} $-20$ to $60\,^{\circ}\text{C}$
+                & \cellcolor{pastelRed} bulky, not node-oriented
+                & \cellcolor{pastelRed} $>$2\,W continuous power
+                & \cellcolor{pastelGreen} full Linux security stack
+                & \cellcolor{pastelRed} $\geq35$€
+                & \cellcolor{pastelGreen} Wi-Fi
+                \\
+                \hline
+            \end{tabular}
 
-            Node MCU ESP8266, Arduino UNO, Raspberry Pi 3
+            \begin{indt}{\subsubsection{Conclusion}}
+                Although the power consumption of some platforms is relatively high, it remains manageable since the parking nodes are directly powered. In this context, the ESP8266 offers the best compromise between cost, connectivity, security, and ease of integration. Arduino UNO is limited by the absence of native communication and security features, while Raspberry Pi 3 remains oversized and unnecessarily complex for a parking monitoring and identification node.
+            \end{indt} %}}}2
         \end{indt} %}}}2
 
         \begin{indt}{\subsection{User interface}} %{{{2
@@ -588,11 +639,11 @@
 
             \vspace{6pt}
             
-            $\bullet$ For the case (1), the only relevant option is to use the HTTP client/server protocol, with the platform being the server.
-
-            \vspace{6pt}
-            
             $\bullet$ For (3), the update must be fast in order to have a \emph{real-time} visualization. Here again, the client/server model seems more appropriate: the nodes are clients that connect to the server (the platform) when something occurs. It provides a real-time update and it light for the nodes (that have limited resources).
+
+             \vspace{6pt}
+            
+            $\bullet$ For the case (1), we could either use MQTT or HTTP (client/server protocol and the platform being the server) but since the API already exits HTTP is a more relevant option.
 
             \vspace{6pt}
             
@@ -862,13 +913,11 @@
             \end{indt} %}}}3
 
             \begin{indt}{\subsubsection{Conclusion}} %{{{3
-                The ultrasonic sensor \textbf{JSN-SR04T} emerges as the most suitable ultrasonic solution, achieving a balanced trade-off between detection performance (NFR1), environmental robustness (NFR3), cost-effectiveness (NFR8), and integration simplicity (NFR4). Its waterproof construction enables reliable operation in outdoor parking environments, making it particularly attractive for exposed installations. While ultrasonic sensing remains moderately sensitive to environmental factors such as temperature variations and surface conditions, the JSN-SR04T nonetheless provides acceptable performance for occupancy detection in controlled outdoor scenarios.
+                The \textbf{JSN-SR04T} ultrasonic sensor provides acceptable detection performance with low cost and simple integration, but remains moderately sensitive to environmental conditions, which can affect measurement stability in outdoor use.
                 
-                Within the magnetic sensing category, the \textbf{LIS3MDL} magnetometer clearly outperforms alternative solutions by meeting all critical non-functional requirements. It offers high measurement reliability (NFR2), a wide operating temperature range suitable for harsh outdoor conditions (NFR3), extremely low power consumption (NFR5), a compact footprint facilitating seamless integration (NFR4), and a competitive cost profile (NFR8). Furthermore, as a passive sensor that does not collect identifiable information, it fully complies with privacy and data protection constraints (NFR7).
-
-                Although both sensing technologies are technically viable for parking occupancy detection, the \textbf{LIS3MDL magnetometer} is retained as the primary solution for FR1. Compared to the ultrasonic alternative, it delivers more stable and weather-independent detection, significantly lower energy consumption, and superior scalability for long-term, large-scale municipal deployment. 
-
-                The ultrasonic solution remains a relevant complementary or fallback option in specific deployment contexts; however, considering robustness, efficiency, and sustainability, the LIS3MDL represents the most reliable and future-proof choice for the objectives of this project.
+                The \textbf{LIS3MDL} magnetometer meets all key non-functional requirements, offering reliable detection, low power consumption, compact size, wide operating temperature range, and compliance with privacy constraints. Its passive sensing approach ensures stable and consistent performance.
+                
+                While both technologies are viable, the \textbf{LIS3MDL magnetometer} is selected as the primary solution for FR1 due to its superior robustness, energy efficiency, and scalability for large-scale, long-term deployment. The ultrasonic sensor remains a possible complementary solution in specific scenarios.
 
             \end{indt} %}}}3
 
@@ -1009,14 +1058,12 @@
 
                 % TODO: reliability (NF2) here does not take into account the network (in fact, for security, it should always check the validity from the server.)
             \end{indt} %}}}3
-            
-            \begin{indt}{\subsubsection{Conclusion}} %{{{3
+
                 Among the considered authorization verification mechanisms, the identifier-based approach provides the best compromise between performance, reliability, privacy preservation, energy efficiency, and deployment cost. Solutions based on printed QR codes are simple and inexpensive but remain vulnerable to misuse and replay, while camera-based approaches introduce significant privacy concerns and higher system complexity.
             
                 Identifier-based solutions using NFC or BLE tags allow fast and reliable authorization verification without requiring the collection of personal data, and are well suited for outdoor deployment and large-scale deployment. This approach also enables effective detection of expired or cloned authorizations through backend mechanisms.
-            
-                NFC or BLE-based authorization verification is therefore retained as the preferred solution for implementing FR2, as it satisfies the functional requirement while remaining compliant with the system’s non-functional constraints.
-            \end{indt} %}}}3
+
+                We now proceed to compare NFC and BLE tag technologies in order to identify the solution best suited to the system requirements. 
 
             \begin{table}[H]
                 \centering
@@ -1125,6 +1172,14 @@
                 \label{tab:fr2_ble_comparison}
             \end{table}
             
+            \begin{indt}{\subsubsection{Conclusion}} %{{{3
+                NFC-based authorization verification is retained for implementing FR2, as it meets the functional requirement while best aligning with the system’s non-functional constraints. Its short interaction range ensures controlled and reliable authorization, limiting unintended detections and simplifying system behavior.
+                
+                Compared to BLE, NFC offers lower integration complexity, more predictable energy consumption, and sufficient performance for identifier-based verification. Since extended range and continuous connectivity are not required, the additional flexibility of BLE would introduce unnecessary power and management overhead.
+                
+                NFC therefore represents the most appropriate and efficient solution for secure, low-cost, and scalable authorization verification in the proposed system.
+            \end{indt} %}}}3
+            
             \begin{indt}{\subsubsection{References}} %{{{3
                 \begin{indi}[0pt]{}
                     \item PN532 \\
@@ -1211,13 +1266,13 @@
             \end{indt} %}}}3
         \end{indt} %}}}2
 
-        \begin{indt}{\subsection{FR4 -- Violation identification}} %{{{2
-            \begin{indt}{\subsubsection{Introduction}} %{{{3
-                The objective of this functional requirement is to identify parking violations related to disabled parking spaces, including unauthorized parking, expired authorizations, or the absence of any valid authorization. This functionality represents a critical decision layer within the smart parking system, as it transforms raw detection and verification data into actionable enforcement events.
+        %\begin{indt}{\subsection{FR4 -- Violation identification}} %{{{2
+        %    \begin{indt}{\subsubsection{Introduction}} %{{{3
+        %        The objective of this functional requirement is to identify parking violations related to disabled parking spaces, including unauthorized parking, expired authorizations, or the absence of any valid authorization. This functionality represents a critical decision layer within the smart parking system, as it transforms raw detection and verification data into actionable enforcement events.
                 
-                In the context of an IoT-based smart parking system, violation identification relies on the correlation of occupancy detection results with authorization verification outcomes. By applying predefined decision rules, the system can automatically and consistently determine whether a parking event complies with regulations. This automation reduces the need for manual inspection, improves fairness, and ensures that violations are detected in real time.
-            \end{indt} %}}}3
-        \end{indt} %}}}2
+        %        In the context of an IoT-based smart parking system, violation identification relies on the correlation of occupancy detection results with authorization verification outcomes. By applying predefined decision rules, the system can automatically and consistently determine whether a parking event complies with regulations. This automation reduces the need for manual inspection, improves fairness, and ensures that violations are detected in real time.
+        %    \end{indt} %}}}3
+        %\end{indt} %}}}2
 
         \begin{indt}{\subsection{FR5 -- Authority notification}} %{{{2
             \label{sub:fr5}
@@ -1234,8 +1289,11 @@
 
             \begin{indt}{\subsubsection{Comparison of real-time notification solutions}} %{{{3
 
-                Once the system identifies a violation event (unauthorized parking, expired/missing authorization, or cloning), it must collect the minimum set of information required for enforcement. In practice, this includes a vehicle identifier, a timestamped occupancy context, and the parking space location/ID. Several approaches can be used to associate a violation with a vehicle, each with different impacts on privacy, cost, and deployability. The first step is therefore to compare the main evidence acquisition solutions against the non-functional requirements.
                 
+                Once a violation event  (unauthorized parking or cloning)is identifier, it must be transmitted to law enforcement authorities through an appropriate notification mechanism. Since this communication is performed by the backend infrastructure, Wi-Fi connectivity is assumed.
+
+                The first step is therefore to compare the main evidence acquisition solutions against the non-functional requirements.
+
                 \autoref{tab:fr5_evidence_acquisition} compares several viable approaches to collect information regarding a violation detection. 
 
                 \begin{table}[H]
@@ -1293,87 +1351,63 @@
 
                 (1): This approach is restricted to violations that can be inferred from authorization data (example: cloned identifiers, expired or invalid authorizations). It does not allow direct identification of a vehicle that occupies a reserved parking space without presenting any authorization, since no vehicle-specific identifier is captured.
 
+                The next relevant comparison focuses on the notification and integration methods used to deliver violation events to authorities, in terms of latency, reliability, security, traceability, and operational suitability.
+                
                 \autoref{tab:fr5_communication_comparison} compares several viable approaches to deliver real-time alerts from the system to authorities.
-
+                
                 \begin{table}[H]
                     \centering
                     {\small
-                    \begin{tabular}{p{60pt} p{55pt} p{55pt} p{60pt} p{55pt} p{45pt} p{38pt} p{55pt}}
+                    \begin{tabular}{p{70pt} p{70pt} p{70pt} p{70pt} p{70pt} p{70pt} p{70pt} p{70pt}}
                         \hline
-                        \textbf{Technology}
+                        \textbf{Method}
                         & \textbf{NFR1\newline Performance}
                         & \textbf{NFR2\newline Reliability}
-                        & \textbf{NFR3\newline Durability}
-                        & \textbf{NFR4\newline Portability}
                         & \textbf{NFR5\newline Efficiency}
-                        & \textbf{NFR7\newline Privacy}
+                        & \textbf{NFR6\newline Security}
                         & \textbf{NFR8\newline Affordability}
                         \\
                         \hline
                         
-                         Wi-Fi
-                        & \cellcolor{pastelGreen} $<100$ ms
-                        & \cellcolor{pastelOrange} local infrastructure dependent
-                        & \cellcolor{pastelOrange} $-10$ to $50\,^{\circ}$C
-                        & \cellcolor{pastelGreen} $\sim$50 m
-                        & \cellcolor{pastelOrange} 200--400 mW
-                        & \cellcolor{pastelGreen} MAC address exposure
+                        REST API\newline (authority system)
+                        & \cellcolor{pastelGreen} seconds 
+                        & \cellcolor{pastelGreen} guaranteed delivery ????
+                        & \cellcolor{pastelGreen} low overhead
+                        & \cellcolor{pastelGreen} TLS ??? 
+                        & \cellcolor{pastelGreen} low
+                        \\
+                        
+                        Email notification
+                        & \cellcolor{pastelOrange} seconds--minutes
+                        & \cellcolor{pastelOrange} best-effort
+                        & \cellcolor{pastelGreen} negligible
+                        & \cellcolor{pastelOrange} limited 
                         & \cellcolor{pastelGreen} very low
                         \\
                         
-                        LTE-M
-                        & \cellcolor{pastelGreen} 50--150 ms
-                        & \cellcolor{pastelGreen} Managed infrastructure
-                        & \cellcolor{pastelGreen} $-40$ to $85\,^{\circ}$C
-                        & \cellcolor{pastelGreen} nationwide
-                        & \cellcolor{pastelGreen} 50--100 mW
-                        & \cellcolor{pastelGreen} SIM-based identity
+                        SMS alert
+                        & \cellcolor{pastelOrange} seconds
+                        & \cellcolor{pastelOrange} delivery not guaranteed
+                        & \cellcolor{pastelOrange} medium 
+                        & \cellcolor{pastelOrange} limited
                         & \cellcolor{pastelOrange} medium
-                        \\
-                        
-                        NB-IoT
-                        & \cellcolor{pastelOrange} 1--10 s
-                        & \cellcolor{pastelGreen} Managed infrastructure
-                        & \cellcolor{pastelGreen} $-40$ to $85\,^{\circ}$C
-                        & \cellcolor{pastelGreen} nationwide
-                        & \cellcolor{pastelGreen} 10--50 mW
-                        & \cellcolor{pastelGreen} SIM-based identity
-                        & \cellcolor{pastelGreen} low
-                        \\
-                        
-                        LoRaWAN
-                        & \cellcolor{pastelOrange} 5--30 s
-                        & \cellcolor{pastelRed} no guarantees on latency or message delivery
-                        & \cellcolor{pastelGreen} $-40$ to $85\,^{\circ}$C
-                        & \cellcolor{pastelGreen} 2--15 km
-                        & \cellcolor{pastelGreen} $<10$ mW
-                        & \cellcolor{pastelOrange} Device identifier exposed
-                        & \cellcolor{pastelGreen} low
                         \\
                         
                         \hline
                     \end{tabular}
                     }
-                    \caption{Communication technology comparison for authority notification (FR5)}
-                    \label{tab:fr5_communication_comparison}
+                    \caption{Backend-to-authority notification methods comparison (FR5)}
+                    \label{tab:fr5_authority_notification_methods}
                 \end{table}
             \end{indt} %}}}3
-
-            So, we have :
-            \begin{indi}[0pt]{}
-                \item LoRaWAN is an open-standard protocol operating in unlicensed spectrum, well suited for private, low-power, and long-range applications such as agriculture or smart city monitoring, and enabling multi-year battery lifetimes. However, its higher latency make it less appropriate for real-time authority notifications.
-
-                \item NB-IoT (Narrowband IoT) operates on licensed cellular spectrum, providing high reliability, good indoor penetration, and native security mechanisms. While its latency is higher than LTE-M, it remains compatible with the real-time constraints of FR5 and offers very low power consumption, making it particularly suitable for large-scale deployments.
-
-                \item LTE-M also relies on licensed cellular infrastructure and offers lower latency and higher throughput than NB-IoT, which is advantageous for time-critical notifications. This comes at the cost of higher energy consumption and operational expenses, which may limit scalability for dense deployments.
-
-                \item Wi-Fi provides very low latency and high data rates, but its reliability is strongly dependent on the availability and stability of local infrastructure. In outdoor public environments, this dependency reduces robustness and limits its suitability for city-wide authority notification systems.
-            \end{indi}
             
             \begin{indt}{\subsubsection{Conclusion}} %{{{3
-                Overall, among the considered evidence acquisition approaches, the user identifier–based solution (NFC/BLE) provides the best compromise between reliability, privacy preservation, energy efficiency, and deployment cost. Camera-based solutions introduce significant privacy concerns and higher installation and operational costs, while manual reporting does not satisfy real-time requirements. The identifier-based approach is therefore retained for FR5 — violation evidence acquisition. For violations where no identifier can be collected, the parking space location and timestamp are considered sufficient information for on-site enforcement by patrol units.
-                
-                Also, among the considered communication technologies, NB-IoT offers the best trade-off between latency, reliability, energy efficiency, security, and cost, and is therefore retained as the preferred solution for implementing FR5 — Authority notification.
+                Among the considered backend-to-authority notification methods, a REST API–based integration offers the best compromise between performance, reliability, security, and cost. It also be used with mechanisms such as message queuing, retries, and acknowledgement handling. REST-based communication enables near real-time delivery.
+
+                Email and SMS notifications remain suitable but their best-effort delivery guarantees and limited security properties make them less appropriate as primary channels for enforcement-related notifications.
+            
+                A secure REST API is therefore retained as the preferred solution for implementing the backend-to-authority communication in FR5 — Authority notification.
+
             \end{indt} %}}}3
 
         \end{indt} %}}}2
@@ -1567,12 +1601,12 @@
 
                     \hline
                     Backend
-                    & TODO
+                    & Python (flask)
                     \\
                     
                     \hline
                     Frontend
-                    & TODO
+                    & Web interface
                     \\
 
                     \hline
