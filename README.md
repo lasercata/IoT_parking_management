@@ -28,9 +28,15 @@ cd data/
 sudo ./create_mosquitto.sh
 ```
 
-And run only this for development (use let's encrypt for production):
+Create certs (run only this for development, use let's encrypt for production):
 ```
 sudo ./create_self_signed_certs.sh
+```
+
+Create the users `serv` and `node`:
+```
+docker exec -it project-mosquitto mosquitto_passwd -c /mosquitto/config/passwd serv
+docker exec -it project-mosquitto mosquitto_passwd /mosquitto/config/passwd node
 ```
 
 ### Run (production)
