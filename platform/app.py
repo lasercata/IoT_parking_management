@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+##-Imports
 from flask import Flask
 from flask_cors import CORS
 
@@ -10,11 +14,32 @@ from config.config_loader import ConfigLoader
 
 from sys import argv
 
+from dotenv import load_dotenv
+import os
 
+##-Init
+# Construct the path to the .env file in the parent directory
+dotenv_path = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+    '.env'
+)
+
+# Load the .env file from the parent directory
+load_dotenv(dotenv_path)
+
+
+
+##-Main
 class FlaskServer:
     def __init__(self):
         self.app = Flask(__name__)
+
+        # Secret key for JWT
+        # IMPORTANT: use the same secret key as in the backend
+        self.app.config['SECRET_KEY'] = os.environ.get('JWT_SHARED_TOKEN')
+
         CORS(self.app) #TODO: edit this for production
+
         self._init_components()
         self._register_blueprints()
 
@@ -24,7 +49,8 @@ class FlaskServer:
         schema_registry = SchemaRegistry()
 
         # Load database configuration
-        db_config = ConfigLoader.load_database_config()
+        # db_config = ConfigLoader.load_database_config()
+        db_config = ConfigLoader.load_database_config_env()
         connection_string = ConfigLoader.build_connection_string(db_config)
 
         # Initialize DatabaseService with populated schema_registry
@@ -59,11 +85,13 @@ class FlaskServer:
                 self.app.config["DB_SERVICE"].disconnect()
 
 
+server = FlaskServer()
+app = server.app # Needed to run with gunicorn
+
 if __name__ == "__main__":
     if len(argv) > 1:
         port = int(argv[1])
     else:
         port = 5000
 
-    server = FlaskServer()
     server.run(port=port)

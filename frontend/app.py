@@ -37,7 +37,7 @@ mongo_username = os.environ.get('MONGO_USERNAME')
 mongo_password = os.environ.get('MONGO_PASSWORD')
 mongo_database = os.environ.get('MONGO_DATABASE')
 # mongodb_uri = os.environ.get('MONGODB_URI')
-mongodb_uri = f'mongodb://{mongo_username}:{mongo_password}@mongodb:27017/{mongo_database}'
+mongodb_uri = os.environ.get('MONGODB_URI', f'mongodb://{mongo_username}:{mongo_password}@localhost:27017/{mongo_database}')
 
 #TODO: connect to the DB
 # Simulated user store (replace with database in real-world scenario)

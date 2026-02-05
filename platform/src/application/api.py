@@ -1,7 +1,12 @@
-from flask import Blueprint, request, jsonify, current_app
-from datetime import datetime
-from bson import ObjectId
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
+##-Imports
+from flask import Blueprint, request, jsonify, current_app
+# from datetime import datetime
+# from bson import ObjectId
+
+##-Init
 # Create blueprints for different API groups
 dt_api = Blueprint('dt_api', __name__, url_prefix='/api/dt')
 dr_api = Blueprint('dr_api', __name__, url_prefix='/api/dr')
