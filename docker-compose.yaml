@@ -1,0 +1,75 @@
+services:
+  iot-mongodb:
+    image: mongo:latest
+    restart: unless-stopped
+    container_name: iot-mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - iot-network
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DATABASE}
+    volumes:
+      - ./data/mongodb:/data/db
+
+  iot-mosquitto:
+    image: eclipse-mosquitto:latest
+    restart: unless-stopped
+    container_name: iot-mosquitto
+    ports:
+      - "8883:8883"  # TLS MQTT port
+    networks:
+      - iot-network
+    volumes:
+      - ./data/mosquitto/config:/mosquitto/config
+      - ./data/mosquitto/data:/mosquitto/data
+      - ./data/mosquitto/log:/mosquitto/log
+      - ./data/mosquitto/certs:/mosquitto/certs  # TLS certificates
+
+  iot-platform:
+    build:
+      context: ./platform
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    container_name: iot-platform
+    ports:
+      - "5000:5000"
+    networks:
+      - iot-network
+    environment:
+      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/${MONGO_DATABASE}
+      - MONGO_USERNAME=${MONGO_USERNAME}
+      - MONGO_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_DATABASE=${MONGO_DATABASE}
+      - JWT_SHARED_TOKEN=${JWT_SHARED_TOKEN}
+      # - MQTT_BROKER=mosquitto
+    depends_on:
+      - iot-mongodb
+      - iot-mosquitto
+
+  iot-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    container_name: iot-frontend
+    ports:
+      - "3000:3000"
+    networks:
+      - iot-network
+    environment:
+      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/${MONGO_DATABASE}
+      - MONGO_USERNAME=${MONGO_USERNAME}
+      - MONGO_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_DATABASE=${MONGO_DATABASE}
+      - JWT_SHARED_TOKEN=${JWT_SHARED_TOKEN}
+      - PLATFORM_URL=${PLATFORM_URL}
+    # depends_on:
+    #   - iot-backend
+
+networks:
+  iot-network:
+    driver: bridge
+

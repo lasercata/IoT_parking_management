@@ -8,18 +8,36 @@ import jwt
 from datetime import datetime, timedelta, timezone
 import requests
 import os
+from dotenv import load_dotenv
 from sys import argv
 
 ##-Init
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
-# Secret key for JWT
-# IMPORTANT: use the same secret key as in the backend
-app.config['SECRET_KEY'] = 'your-shared-secret-key' #TODO: use .env
+# Construct the path to the .env file in the parent directory
+dotenv_path = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+    '.env'
+)
+
+# Load the .env file from the parent directory
+load_dotenv(dotenv_path)
 
 # Base URL of the IoT platform
-PLATFORM_URL = 'https://localhost:5000' #TODO: use .env
+PLATFORM_URL = os.environ.get('PLATFORM_URL', default='https://localhost:5000')
+
+# Secret key for JWT
+# IMPORTANT: use the same secret key as in the backend
+# app.config['SECRET_KEY'] = 'your-shared-secret-key' #TODO: use .env
+app.config['SECRET_KEY'] = os.environ.get('JWT_SHARED_TOKEN')
+
+# Retrieve MongoDB connection details from environment variables
+mongo_username = os.environ.get('MONGO_USERNAME')
+mongo_password = os.environ.get('MONGO_PASSWORD')
+mongo_database = os.environ.get('MONGO_DATABASE')
+# mongodb_uri = os.environ.get('MONGODB_URI')
+mongodb_uri = f'mongodb://{mongo_username}:{mongo_password}@mongodb:27017/{mongo_database}'
 
 #TODO: connect to the DB
 # Simulated user store (replace with database in real-world scenario)
@@ -90,7 +108,8 @@ def home():
     username, is_admin = tk_data
 
     if is_admin:
-        return render_template('home_admin.html', username=username)
+        # return render_template('home_admin.html', username=username)
+        return render_template('home_admin.html', username=username, test=(mongo_database, mongodb_uri))
     else:
         return render_template('home.html', username=username)
 
