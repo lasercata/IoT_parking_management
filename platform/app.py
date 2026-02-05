@@ -1,22 +1,26 @@
 from flask import Flask
 from flask_cors import CORS
+
 from src.virtualization.digital_replica.schema_registry import SchemaRegistry
 from src.services.database_service import DatabaseService
 from src.digital_twin.dt_factory import DTFactory
 from src.application.api import register_api_blueprints
+
 from config.config_loader import ConfigLoader
 
 
 class FlaskServer:
     def __init__(self):
         self.app = Flask(__name__)
-        CORS(self.app)
+        CORS(self.app) #TODO: edit this for production
         self._init_components()
         self._register_blueprints()
 
     def _init_components(self):
         """Initialize all required components and store them in app config"""
+
         schema_registry = SchemaRegistry()
+
         # Load database configuration
         db_config = ConfigLoader.load_database_config()
         connection_string = ConfigLoader.build_connection_string(db_config)
@@ -39,10 +43,12 @@ class FlaskServer:
 
     def _register_blueprints(self):
         """Register all API blueprints"""
+
         register_api_blueprints(self.app)
 
     def run(self, host="0.0.0.0", port=5000, debug=True):
         """Run the Flask server"""
+
         try:
             self.app.run(host=host, port=port, debug=debug)
         finally:
