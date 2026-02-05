@@ -18,10 +18,13 @@ services:
     image: eclipse-mosquitto:latest
     restart: unless-stopped
     container_name: iot-mosquitto
+    user: 3333:3333
     ports:
       - "8883:8883"  # TLS MQTT port
     networks:
       - iot-network
+    environment:
+      - DOMAIN=${MQTT_DOMAIN}
     volumes:
       - ./data/mosquitto/config:/mosquitto/config
       - ./data/mosquitto/data:/mosquitto/data
@@ -45,9 +48,9 @@ services:
       - MONGO_DATABASE=${MONGO_DATABASE}
       - JWT_SHARED_TOKEN=${JWT_SHARED_TOKEN}
       # - MQTT_BROKER=mosquitto
-    # depends_on:
-    #   - iot-mongodb
-    #   - iot-mosquitto
+    depends_on:
+      - iot-mongodb
+      - iot-mosquitto
 
   iot-frontend:
     build:

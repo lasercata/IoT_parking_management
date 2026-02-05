@@ -13,12 +13,25 @@ IoT_parking_management/
 ```
 
 ## Setup and run
+### Env
 Create `.env`:
 ```
 cp .env.example .env
 ```
 
 Then edit it (set empty variables).
+
+### Mosquitto
+Run:
+```
+cd data/
+sudo ./create_mosquitto.sh
+```
+
+And run only this for development (use let's encrypt for production):
+```
+sudo ./create_self_signed_certs.sh
+```
 
 ### Run (production)
 ```
