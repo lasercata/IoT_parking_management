@@ -8,6 +8,8 @@ from src.application.api import register_api_blueprints
 
 from config.config_loader import ConfigLoader
 
+from sys import argv
+
 
 class FlaskServer:
     def __init__(self):
@@ -58,5 +60,10 @@ class FlaskServer:
 
 
 if __name__ == "__main__":
+    if len(argv) > 1:
+        port = int(argv[1])
+    else:
+        port = 5000
+
     server = FlaskServer()
-    server.run()
+    server.run(port=port)
