@@ -42,12 +42,13 @@ services:
     networks:
       - iot-network
     environment:
-      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@iot-mongodb:27017/${MONGO_DATABASE}
       - MONGO_USERNAME=${MONGO_USERNAME}
       - MONGO_PASSWORD=${MONGO_PASSWORD}
       - MONGO_DATABASE=${MONGO_DATABASE}
+      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@iot-mongodb:27017/${MONGO_DATABASE}
+      - MQTT_DOMAIN=${MQTT_DOMAIN}
+      - MQTT_PORT=${MQTT_PORT}
       - JWT_SHARED_TOKEN=${JWT_SHARED_TOKEN}
-      # - MQTT_BROKER=mosquitto
     depends_on:
       - iot-mongodb
       - iot-mosquitto
@@ -63,10 +64,10 @@ services:
     networks:
       - iot-network
     environment:
-      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@iot-mongodb:27017/${MONGO_DATABASE}
       - MONGO_USERNAME=${MONGO_USERNAME}
       - MONGO_PASSWORD=${MONGO_PASSWORD}
       - MONGO_DATABASE=${MONGO_DATABASE}
+      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@iot-mongodb:27017/${MONGO_DATABASE}
       - JWT_SHARED_TOKEN=${JWT_SHARED_TOKEN}
       - PLATFORM_URL=${PLATFORM_URL}
     depends_on:

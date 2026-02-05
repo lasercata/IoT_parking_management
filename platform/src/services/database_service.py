@@ -5,6 +5,8 @@ from src.virtualization.digital_replica.schema_registry import SchemaRegistry
 
 
 class DatabaseService:
+    """Manages the connection and communication to the MongoDB database"""
+
     def __init__(
         self, connection_string: str, db_name: str, schema_registry: SchemaRegistry
     ):
@@ -31,7 +33,8 @@ class DatabaseService:
         return self.client is not None and self.db is not None
 
     def save_dr(self, dr_type: str, dr_data: Dict) -> str:
-        """Save a Digital Replica"""
+        """Save a Digital Replica in the DB."""
+
         if not self.is_connected():
             raise ConnectionError("Not connected to MongoDB")
 
@@ -45,6 +48,7 @@ class DatabaseService:
 
             result = collection.insert_one(dr_data)
             return str(dr_data["_id"])
+
         except Exception as e:
             raise Exception(f"Failed to save Digital Replica: {str(e)}")
 
@@ -55,16 +59,18 @@ class DatabaseService:
         try:
             collection_name = self.schema_registry.get_collection_name(dr_type)
             return self.db[collection_name].find_one({"_id": dr_id})
+
         except Exception as e:
             raise Exception(f"Failed to get Digital Replica: {str(e)}")
 
-    def query_drs(self, dr_type: str, query: Dict = None) -> List[Dict]:
+    def query_drs(self, dr_type: str, query: Optional[Dict] = None) -> List[Dict]:
         if not self.is_connected():
             raise ConnectionError("Not connected to MongoDB")
 
         try:
             collection_name = self.schema_registry.get_collection_name(dr_type)
             return list(self.db[collection_name].find(query or {}))
+
         except Exception as e:
             raise Exception(f"Failed to query Digital Replicas: {str(e)}")
 
@@ -78,6 +84,7 @@ class DatabaseService:
             # Always update metadata.updated_at
             if "metadata" not in update_data:
                 update_data["metadata"] = {}
+
             update_data["metadata"]["updated_at"] = datetime.utcnow()
 
             # Let SchemaRegistry handle validation through MongoDB schema
@@ -101,5 +108,6 @@ class DatabaseService:
 
             if result.deleted_count == 0:
                 raise ValueError(f"Digital Replica not found: {dr_id}")
+
         except Exception as e:
             raise Exception(f"Failed to delete Digital Replica: {str(e)}")

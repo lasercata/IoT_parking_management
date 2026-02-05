@@ -25,7 +25,7 @@ dotenv_path = os.path.join(
 load_dotenv(dotenv_path)
 
 # Base URL of the IoT platform
-PLATFORM_URL = os.environ.get('PLATFORM_URL', default='https://localhost:5000')
+PLATFORM_URL = os.environ.get('PLATFORM_URL', default='http://localhost:5000')
 
 # Secret key for JWT
 # IMPORTANT: use the same secret key as in the backend
@@ -108,8 +108,7 @@ def home():
     username, is_admin = tk_data
 
     if is_admin:
-        # return render_template('home_admin.html', username=username)
-        return render_template('home_admin.html', username=username, test=(mongo_database, mongodb_uri))
+        return render_template('home_admin.html', username=username)
     else:
         return render_template('home.html', username=username)
 
@@ -127,7 +126,7 @@ def reservation_page():
     try:
         # Make request to IoT platform API
         response = requests.get(
-            f'{PLATFORM_URL}/nodes?status=free',
+            f'{PLATFORM_URL}/api/nodes?status=free',
             headers={'Authorization': f'Bearer {token}'}
         )
         
@@ -165,7 +164,7 @@ def nodes_page():
     try:
         # Make request to IoT platform API
         response = requests.get(
-            f'{PLATFORM_URL}/nodes?status=free',
+            f'{PLATFORM_URL}/api/nodes/',
             headers={'Authorization': f'Bearer {token}'}
         )
         
@@ -206,7 +205,7 @@ def users_page():
     try:
         # Make request to IoT platform API
         response = requests.get(
-            f'{PLATFORM_URL}/users',
+            f'{PLATFORM_URL}/api/users',
             headers={'Authorization': f'Bearer {token}'}
         )
         

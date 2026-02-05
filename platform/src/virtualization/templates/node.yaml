@@ -1,0 +1,37 @@
+schemas:
+  common_fields:
+    _id: str  # Id for the mongoDB
+    type: str # type will be 'node'
+    profile:
+      id: int       # The node id
+      position: str # A string representing the node position
+      token: str    # A secret that is stored in the node and used to authenticate it
+    metadata:
+      created_at: datetime
+      updated_at: datetime
+
+  entity:
+    data:
+      status: str  # The status of the node
+      used_by: str # string representing the UID of the user currently parked. Empty string if free
+
+  validations:
+    mandatory_fields:
+      root:
+        - _id
+      profile:
+        - position
+        - token
+      metadata:
+        - created_at
+        - updated_at
+
+    type_constraints:
+      status:
+        type: str
+        enum: ["free", "reserved", "waiting_for_authentication", "occuped", "violation", "unauthorized"]
+
+    initialization:
+      status: "free"
+      used_by: ""
+

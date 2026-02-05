@@ -2,20 +2,26 @@
 # -*- coding: utf-8 -*-
 
 ##-Imports
+#---External
 from flask import Flask
 from flask_cors import CORS
-
-from src.virtualization.digital_replica.schema_registry import SchemaRegistry
-from src.services.database_service import DatabaseService
-from src.digital_twin.dt_factory import DTFactory
-from src.application.api import register_api_blueprints
-
-from config.config_loader import ConfigLoader
 
 from sys import argv
 
 from dotenv import load_dotenv
 import os
+
+#---Internal
+from src.virtualization.digital_replica.schema_registry import SchemaRegistry
+from src.services.database_service import DatabaseService
+from src.digital_twin.dt_factory import DTFactory
+
+from src.application.api import register_api_blueprints
+from src.application.nodes_api import register_node_blueprint
+from src.application.users_api import register_user_blueprint
+from src.application.mqtt_handler import NodeMQTTHandler
+
+from config.config_loader import ConfigLoader
 
 ##-Init
 # Construct the path to the .env file in the parent directory
@@ -43,10 +49,19 @@ class FlaskServer:
         self._init_components()
         self._register_blueprints()
 
+        # Initialize MQTT handler
+        self.app.config['MQTT_CONFIG'] = {
+            'broker': os.environ.get('MQTT_DOMAIN'),
+            'port': os.environ.get('MQTT_PORT')
+        }
+        self.mqtt_handler = NodeMQTTHandler(self.app)
+
     def _init_components(self):
         """Initialize all required components and store them in app config"""
 
         schema_registry = SchemaRegistry()
+        schema_registry.load_schema('node', 'src/virtualization/templates/node.yaml')
+        schema_registry.load_schema('user', 'src/virtualization/templates/user.yaml')
 
         # Load database configuration
         # db_config = ConfigLoader.load_database_config()
@@ -73,6 +88,8 @@ class FlaskServer:
         """Register all API blueprints"""
 
         register_api_blueprints(self.app)
+        register_node_blueprint(self.app)
+        register_user_blueprint(self.app)
 
     def run(self, host="0.0.0.0", port=5000, debug=True):
         """Run the Flask server"""

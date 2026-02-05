@@ -25,6 +25,7 @@ class DTFactory:
         Returns:
             str: ID of the created Digital Twin
         """
+
         dt_data = {
             "_id": str(ObjectId()),
             "name": name,
@@ -42,6 +43,7 @@ class DTFactory:
             dt_collection = self.db_service.db["digital_twins"]
             result = dt_collection.insert_one(dt_data)
             return str(result.inserted_id)
+
         except Exception as e:
             raise Exception(f"Failed to create Digital Twin: {str(e)}")
 

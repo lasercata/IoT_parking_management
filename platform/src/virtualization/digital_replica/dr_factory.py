@@ -182,9 +182,15 @@ class DRFactory:
         ProfileModel = self._create_profile_model()
         DataModel = self._create_data_model()
 
+        # If the '_id' field is present, use this one
+        if '_id' in initial_data:
+            _id = initial_data['_id']
+        else:
+            _id = str(uuid.uuid4())
+
         # Initialize with required fields and defaults
         dr_dict = {
-            "_id": str(uuid.uuid4()),  # Usiamo _id per MongoDB
+            "_id": _id,
             "type": dr_type,
             "metadata": {
                 "created_at": datetime.utcnow(),

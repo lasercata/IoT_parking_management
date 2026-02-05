@@ -49,6 +49,8 @@ The system is built on a layered architecture that promotes separation of concer
 - pyYAML 6.0+
 
 ### Environment Setup
+Note: as this base of code has been integrated with the rest, those instructions might not be up to date (e.g database connection is managed by env vars)
+
 ```bash
 # Create and activate virtual environment
 python -m venv .venv
