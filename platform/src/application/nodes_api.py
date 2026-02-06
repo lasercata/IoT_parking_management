@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from datetime import datetime
 from src.virtualization.digital_replica.dr_factory import DRFactory
+from src.application.authentication import decode_token, token_required
 
 nodes_api = Blueprint('nodes_api', __name__,url_prefix = '/api/nodes')
 
@@ -8,6 +9,7 @@ def register_node_blueprint(app):
     app.register_blueprint(nodes_api)
 
 @nodes_api.route('/', methods=['GET'])
+@token_required()
 def list_nodes():
     '''Gets all nodes with optional filtering on `status`.'''
 
@@ -25,9 +27,13 @@ def list_nodes():
                 '_id': n['_id'],
                 'status': n['data']['status'],
                 'position': n['profile']['position'],
-                # 'metadata': n['metadata'], #TODO: add this data for admin only
-                # 'used_by': n['used_by'],
             })
+
+            # For admins, add more data
+            token_payload = decode_token()
+            if token_payload['is_admin']:
+                nodes_cleaned[-1]['metadata'] = n['metadata']
+                nodes_cleaned[-1]['used_by'] = n['used_by']
 
         return jsonify({"nodes": nodes_cleaned}), 200
 
@@ -35,6 +41,7 @@ def list_nodes():
         return jsonify({"error": str(e)}), 500
 
 @nodes_api.route('/', methods=['POST'])
+@token_required(only_admins=True)
 def create_node():
     '''
     Creates a new node.
@@ -61,6 +68,7 @@ def create_node():
         return jsonify({"error": str(e)}), 500
 
 @nodes_api.route('/<node_id>', methods=['GET'])
+@token_required()
 def get_node(node_id):
     '''Gets node details'''
 
@@ -74,9 +82,13 @@ def get_node(node_id):
             '_id': node['_id'],
             'status': node['data']['status'],
             'position': node['profile']['position'],
-            # 'metadata': node['metadata'], #TODO: add this data for admin only
-            # 'used_by': node['used_by'],
         }
+
+        # For admins, add more data
+        token_payload = decode_token()
+        if token_payload['is_admin']:
+            node_cleaned['metadata'] = node['metadata']
+            node_cleaned['used_by'] = node['used_by']
 
         return jsonify(node_cleaned), 200
 
@@ -112,7 +124,7 @@ def authentication_request(node_id):
         return jsonify({"error":str(e)}),500
 
 @nodes_api.route("/<node_id>", methods=['PATCH'])
-def update_node(node_id):
+def update_node(node_id): #TODO: authentication
     '''
     Updates node details, especially status.
 
@@ -122,7 +134,7 @@ def update_node(node_id):
             "status": str
         }
     }
-    '''
+    ''' #TODO: add 'from' in data (frontend|node) and `token` (for node)
 
     try:
         data = request.get_json()
@@ -151,6 +163,7 @@ def update_node(node_id):
         return jsonify({"error": str(e)}), 500
 
 @nodes_api.route("/<node_id>", methods=['DELETE'])
+@token_required(only_admins=True)
 def delete_node(node_id):
     '''Deletes a node.'''
 

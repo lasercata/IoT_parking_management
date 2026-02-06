@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from datetime import datetime
 from src.virtualization.digital_replica.dr_factory import DRFactory
+from src.application.authentication import decode_token, token_required
 
 users_api = Blueprint('users_api', __name__,url_prefix = '/api/users')
 
@@ -8,7 +9,8 @@ def register_user_blueprint(app):
     app.register_blueprint(users_api)
 
 @users_api.route('/', methods=['GET'])
-def list_users(): #TODO: restrict to admin
+@token_required(only_admins=True)
+def list_users():
     '''
     Get all users with optional filtering.
 
@@ -38,7 +40,8 @@ def list_users(): #TODO: restrict to admin
         return jsonify({"error": str(e)}), 500
 
 @users_api.route('/', methods=['POST'])
-def create_user(): #TODO: restrict to admin
+@token_required(only_admins=True)
+def create_user():
     '''
     Creates a new user.
 
@@ -65,7 +68,8 @@ def create_user(): #TODO: restrict to admin
         return jsonify({"error": str(e)}), 500
 
 @users_api.route("/<user_id>", methods=['GET'])
-def get_user(user_id): #TODO: restrict to admin
+@token_required(only_admins=True)
+def get_user(user_id):
     '''Gets user details'''
 
     try:
@@ -79,6 +83,7 @@ def get_user(user_id): #TODO: restrict to admin
         return jsonify({"error": str(e)}), 500
 
 @users_api.route("/<user_id>", methods=['PATCH'])
+@token_required()
 def update_user(user_id):
     '''
     Updates user details.
@@ -90,6 +95,11 @@ def update_user(user_id):
         - By admin:
             + change is_disabled, is_admin, email
     '''
+
+    token_payload = decode_token()
+
+    if user_id != token_payload['uid']:
+        return jsonify({'message', 'Impossible to edit an other user'}), 401
 
     raise NotImplementedError('TODO')
 
@@ -115,6 +125,7 @@ def update_user(user_id):
         return jsonify({"error":str(e)}),500
 
 @users_api.route("/<user_id>", methods=['DELETE'])
+@token_required(only_admins=True)
 def delete_user(user_id):
     '''Deletes a user'''
 
