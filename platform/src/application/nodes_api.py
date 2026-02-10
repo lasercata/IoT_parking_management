@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify, current_app
 from datetime import datetime
 from src.virtualization.digital_replica.dr_factory import DRFactory
-from src.application.authentication import decode_token, token_required
+from src.application.authentication import token_required, is_admin, authenticate_node
+from src.application.user_management import UserCheck
 
 nodes_api = Blueprint('nodes_api', __name__,url_prefix = '/api/nodes')
 
@@ -30,8 +31,7 @@ def list_nodes():
             })
 
             # For admins, add more data
-            token_payload = decode_token()
-            if token_payload['is_admin']:
+            if is_admin():
                 nodes_cleaned[-1]['metadata'] = n['metadata']
                 nodes_cleaned[-1]['used_by'] = n['used_by']
 
@@ -85,8 +85,7 @@ def get_node(node_id):
         }
 
         # For admins, add more data
-        token_payload = decode_token()
-        if token_payload['is_admin']:
+        if is_admin():
             node_cleaned['metadata'] = node['metadata']
             node_cleaned['used_by'] = node['used_by']
 
@@ -111,17 +110,86 @@ def authentication_request(node_id):
     }
 
     It first authenticates the node by checking if `token` matches.
+
+    Out:
+        Always returns a json in the form:
+            {status: str, message: str}
+
+        `status` indicates the type of return, and `message` gives more details
+
+        Status values:
+            - error: request error (payload form) or node authentication error
+            - invalid: unkown user, badge expired, already parked, parking reserved by an other
+            - violation: badge cloning detected
+            - success: all checks passed, user is legally parked
     '''
 
-    raise NotImplementedError('TODO') #TODO
-
     try:
+        #---Init
         data = request.get_json()
 
-        return jsonify({"status": "success", "message": "node updated successfully"}), 200
+        #---Node authentication
+        # Check that node exists
+        node = current_app.config['DB_SERVICE'].get_dr('node', node_id)
+        if not node:
+            return jsonify({'status': 'error', 'message': 'node not found'}), 404
+
+        # Authenticate the node
+        if 'token' not in data:
+            return jsonify({'status': 'error', 'message': 'Missing authentication token (node secret token)'}), 401
+
+        if not authenticate_node(current_app.config['DB_SERVICE'], node_id, data['token']):
+            return jsonify({'status': 'error', 'message': 'Wrong authentication token (node secret token)'}), 403
+
+        #---Check payload integrity
+        if 'user_data' not in data:
+            return jsonify({'status': 'error', 'message': 'Malformed request: missing "user_data" field'}), 400
+
+        if any(field not in data['user_data'] for field in ('UID', 'AUTH_BYTES', 'NEW_AUTH_BYTES')):
+            return jsonify({'status': 'error', 'message': 'Malformed request: the field "user_data" should contain { UID: str, AUTH_BYTES: str, NEW_AUTH_BYTES: str }'}), 400
+
+        #---Check user
+        # Init
+        user_data = data['user_data']
+        uid = user_data['UID']
+        user_checker = UserCheck(current_app.config["DB_SERVICE"], uid)
+
+        # Check that user exists
+        if not user_checker.is_uid_valid():
+            return jsonify({'status': 'invalid', 'message': 'invalid UID'}), 404
+
+        # Check user authentication
+        if not user_checker.is_authenticated(user_data['AUTH_BYTES'], user_data['NEW_AUTH_BYTES']):
+            user_checker.send_cloning_event()
+            return jsonify({'status': 'violation', 'message': 'Wrong authentication token'}), 403
+
+        # Check user authorization (badge expiration)
+        if not user_checker.is_authorized():
+            return jsonify({'status': 'invalid', 'mesasge': 'User not authorized (badge expired)'}), 403
+
+        # Check multi parking
+        if user_checker.is_already_parked():
+            return jsonify({'status': 'invalid', 'message': 'User already parked'}), 403
+
+        #---Check parking spot reservation
+        if node['data']['status'] == 'reserved':
+            if node['used_by'] != uid:
+                return jsonify({'status': 'invalid', 'message': 'Parking reserved by an other user'}), 403
+
+        elif node['data']['status'] != 'free':
+            return jsonify({'status': 'error', 'message': 'Parking not in free state'}), 403
+
+        #---All the check passed!
+        # Set user.is_parked = True
+        current_app.config['DB_SERVICE'].update_dr('user', uid, {'is_parked': True})
+
+        # Set `node.status = occupied` and `node.used_by = UID`
+        current_app.config['DB_SERVICE'].update_dr('node', node_id, {'data': {'status': 'occupied'}, 'used_by': uid})
+
+        return jsonify({'status': 'success', 'message': 'User is legally parked'}), 200
 
     except Exception as e:
-        return jsonify({"error":str(e)}),500
+        return jsonify({"error": str(e)}), 500
 
 @nodes_api.route("/<node_id>", methods=['PATCH'])
 def update_node(node_id): #TODO: authentication

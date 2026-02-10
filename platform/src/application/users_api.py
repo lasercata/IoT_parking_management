@@ -17,12 +17,12 @@ def list_users():
     Filters on:
         - is_admin (bool)
         - is_parked (bool)
-        - is_disabled (bool)
+        - violation_detected (bool)
     '''
 
     try:
         filters = {}
-        for filter_name in ('is_parked', 'is_disabled'):
+        for filter_name in ('is_parked', 'violation_detected'):
             f = request.args.get(filter_name)
             if f:
                 filters[f'{filter_name}'] = f.lower() == 'true'
@@ -84,7 +84,7 @@ def get_user(user_id):
 
 @users_api.route("/<user_id>", methods=['PATCH'])
 @token_required()
-def update_user(user_id):
+def update_user(user_id): #TODO
     '''
     Updates user details.
 
@@ -93,7 +93,7 @@ def update_user(user_id):
             + change password
 
         - By admin:
-            + change is_disabled, is_admin, email
+            + change violation_detected, is_admin, email
     '''
 
     token_payload = decode_token()

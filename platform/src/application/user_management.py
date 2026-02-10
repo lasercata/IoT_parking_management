@@ -1,0 +1,112 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+'''Implements functions to manage user data'''
+
+##-Imports
+from src.services.database_service import DatabaseService
+from datetime import datetime
+
+##-User check
+class UserCheck:
+    '''Class handling user authentication and authorization verification'''
+
+    def __init__(self, db_service: DatabaseService, uid: str):
+        '''
+        Initiates the class
+
+        In:
+            - db_service: the DB controller
+            - uid: the UID of the user
+        '''
+
+        self._db_service = db_service
+        self._uid = uid
+
+        self._user: dict[str, str] | None = None # Will be set by self.is_uid_valid in order to minimise calls to the DB
+
+    def is_uid_valid(self) -> bool:
+        '''
+        Checks if the UID is present in the database
+
+        Out:
+            True   if the user's UID is present in the DB
+            False  otherwise
+        '''
+    
+        self._user = self._db_service.get_dr('user', self._uid)
+        return self._user is not None
+
+    def is_authenticated(self, auth: str, new_auth: str) -> bool:
+        '''
+        Checks the authentication bytes from the RFID card.
+        It also updates the AUTH_BYTES in the DB if the user is authenticated.
+
+        In:
+            - auth: the authentication bytes from the badge
+            - new_auth: the freshly written authentication bytes by the node
+
+        Out:
+            True        if the user UID has the correct authentication bytes
+            False       otherwise
+            ValueError  if UID not in DB
+        '''
+
+        # Check if user exists
+        if not self.is_uid_valid():
+            raise ValueError('User not found')
+
+        # If violation flag already raised, stop here
+        if self._user['violation_detected']:
+            return False
+
+        # Check for authentication bytes and update them
+        if self._user['auth_bytes'] == auth:
+            self._db_service.update_dr('user', self._uid, {'auth_bytes': new_auth}) # Update the auth bytes
+            return True
+
+        else:
+            self._db_service.update_dr('user', self._uid, {'violation_detected': True}) # Set the violation flag
+            return False # It is the responsibility of the caller to call the authority notification method
+
+    def is_authorized(self) -> bool:
+        '''
+        Checks that the user is authorized to park (checks the badge expiration date).
+
+        Out:
+            True        if the user is authorized (badge not yet expired)
+            False       otherwise
+            ValueError  if UID not in DB
+        '''
+    
+        # Check if user exists
+        if not self.is_uid_valid():
+            raise ValueError('User not found')
+
+        return datetime.utcnow() <= self._user['profile']['badge_expiration']
+
+    def is_already_parked(self) -> bool:
+        '''
+        Checks if the user is already parked somewhere else.
+
+        Out:
+            False       if the user is NOT already parked
+            True        otherwise
+            ValueError  if UID not in DB
+        '''
+    
+        # Check if user exists
+        if not self.is_uid_valid():
+            raise ValueError('User not found')
+
+        return self._user['is_parked']
+
+    def send_cloning_event(self):
+        '''
+        Called when cloning is detected.
+
+        Sends notification to authorities and an email to the concerned user.
+        '''
+    
+        raise NotImplementedError('send_cloning_event: Not implemented') #TODO
+

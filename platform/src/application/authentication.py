@@ -11,6 +11,8 @@ import jwt
 import os
 from dotenv import load_dotenv
 
+from src.services.database_service import DatabaseService
+
 
 ##-Init
 # Construct the path to the .env file in the parent directory
@@ -55,6 +57,19 @@ def decode_token() -> dict[str, str]:
     except jwt.InvalidTokenError:
         raise ValueError('Invalid token!')
 
+def is_admin() -> bool:
+    '''
+    Tries to decode the token (using `decode_token`) and checks if it is from an admin.
+
+    Out:
+        True       if token is owned by an admin
+        False      if not
+        ValueError if error while decoding
+    '''
+
+    token_payload = decode_token()
+    return token_payload['is_admin']
+
 ##-Decorator
 def token_required(only_admins: bool = False):
     '''
@@ -83,4 +98,24 @@ def token_required(only_admins: bool = False):
         return decorated
 
     return decorator
+
+##-Node authentication
+def authenticate_node(db_service: DatabaseService, node_id: str, secret: str) -> bool:
+    '''
+    Authenticates the node `node_id` by comparing the given secret with the one stored in the database.
+
+    In:
+        - db_service: `current_app.config['DB_SERVICE']`
+        - node_id: the ID of the node requesting authentication
+        - secret: the secret token saved in the node
+    Out:
+        True   if the node is authenticated
+        False  otherwise
+    '''
+
+    # Get the node secret from DB
+    node = db_service.get_dr('node', node_id)
+    db_token = node['profile']['token']
+
+    return db_token == secret
 
