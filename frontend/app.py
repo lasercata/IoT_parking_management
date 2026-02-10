@@ -127,7 +127,7 @@ def reservation_page():
         # Make request to IoT platform API
         response = requests.get(
             f'{PLATFORM_URL}/api/nodes?status=free',
-            headers={'Authorization': f'Bearer {token}'}
+            headers={'Authorization': token}
         )
         
         # Check response from IoT platform
@@ -165,7 +165,7 @@ def nodes_page():
         # Make request to IoT platform API
         response = requests.get(
             f'{PLATFORM_URL}/api/nodes/',
-            headers={'Authorization': f'Bearer {token}'}
+            headers={'Authorization': token}
         )
         
         # Check response from IoT platform
@@ -206,7 +206,7 @@ def users_page():
         # Make request to IoT platform API
         response = requests.get(
             f'{PLATFORM_URL}/api/users',
-            headers={'Authorization': f'Bearer {token}'}
+            headers={'Authorization': token}
         )
         
         # Check response from IoT platform

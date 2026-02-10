@@ -38,9 +38,7 @@ def decode_token() -> dict[str, str]:
 
     token = None
     if 'Authorization' in request.headers:
-        # Bearer TOKEN
-        auth_header = request.headers['Authorization']
-        token = auth_header.split(" ")[1] if len(auth_header.split(" ")) > 1 else None
+        token = request.headers['Authorization']
     
     # If no token, return unauthorized
     if not token:
@@ -108,13 +106,18 @@ def authenticate_node(db_service: DatabaseService, node_id: str, secret: str) ->
         - db_service: `current_app.config['DB_SERVICE']`
         - node_id: the ID of the node requesting authentication
         - secret: the secret token saved in the node
+
     Out:
-        True   if the node is authenticated
-        False  otherwise
+        True        if the node is authenticated
+        False       otherwise
+        ValueError  if node not found
     '''
 
     # Get the node secret from DB
     node = db_service.get_dr('node', node_id)
+    if node is None:
+        raise ValueError('node not found')
+
     db_token = node['profile']['token']
 
     return db_token == secret

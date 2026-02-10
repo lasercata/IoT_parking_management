@@ -4,7 +4,7 @@ token=$(tail -n 1 ../../frontend/test_with_curl/cookies.txt | awk -F '\t' '{prin
 
 curl \
     -X PATCH \
-    -H "Authorization: Bearer $token" \
+    -H "Authorization: $token" \
     -H "Content-Type: application/json" \
     -d '{
             "data": {

@@ -5,12 +5,12 @@ token=$(tail -n 1 ../../frontend/test_with_curl/cookies.txt | awk -F '\t' '{prin
 # Delete it first if it exists
 curl \
     -X DELETE \
-    -H "Authorization: Bearer $token" \
+    -H "Authorization: $token" \
     http://localhost:5000/api/nodes/c7e99b8b-fb48-4e62-b418-c2002c25f968
 
 curl \
     -X POST \
-    -H "Authorization: Bearer $token" \
+    -H "Authorization: $token" \
     -H "Content-Type: application/json" \
     -d '{
             "_id": "c7e99b8b-fb48-4e62-b418-c2002c25f968",

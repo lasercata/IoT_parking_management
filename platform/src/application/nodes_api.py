@@ -192,7 +192,7 @@ def authentication_request(node_id):
         return jsonify({"error": str(e)}), 500
 
 @nodes_api.route("/<node_id>", methods=['PATCH'])
-def update_node(node_id): #TODO: authentication
+def update_node(node_id): #TODO
     '''
     Updates node details, especially status.
 
@@ -200,9 +200,11 @@ def update_node(node_id): #TODO: authentication
     {
         "data": {
             "status": str
-        }
+        },
+        "from": str,       # ("node" | "UI")
+        "token": str       # Only needed when "from": "node"
     }
-    ''' #TODO: add 'from' in data (frontend|node) and `token` (for node)
+    '''
 
     try:
         data = request.get_json()
