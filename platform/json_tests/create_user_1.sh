@@ -11,8 +11,8 @@ curl \
 # Create it
 curl \
     -X POST \
-    -H "Content-Type: application/json" \
     -H "Authorization: Bearer $token" \
+    -H "Content-Type: application/json" \
     -d '{
         "_id": "DEADBEEF",
         "profile": {
