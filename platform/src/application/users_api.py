@@ -31,8 +31,6 @@ def list_users():
         if f:
             filters['profile.is_admin'] = f.lower() == 'true'
 
-        print(filters)
-
         users = current_app.config["DB_SERVICE"].query_drs('user', filters)
         return jsonify({"users": users}), 200
 
