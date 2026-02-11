@@ -9,10 +9,29 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.utils import formatdate
 
+import requests
+
 from dotenv import load_dotenv
 import os
 
-##-Init
+##-Util
+def load_env_vars():
+    '''Load environment variables'''
+
+    # Define potential paths to check for .env files (because we are in platform/src/application/, so .env is at ../../../.env)
+    potential_paths = [
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'),  # current directory
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'),  # parent directory
+        os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), '.env'),  # grandparent directory
+        os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), '.env')  # great-grandparent directory
+    ]
+
+    # Load the first existing .env file
+    for path in potential_paths:
+        if os.path.exists(path):
+            load_dotenv(path)
+            print(f'Loaded environment variables from: {path}')
+            break
 
 ##-Email
 class Emailer:
@@ -121,23 +140,10 @@ class Emailer:
     def create() -> Emailer:
         '''Creates an instance of this class by reading environment variables (and .env file).'''
 
-        #---Load .env file
-        # Define potential paths to check for .env files (because we are in platform/src/application/, so .env is at ../../../.env)
-        potential_paths = [
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'),  # current directory
-            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'),  # parent directory
-            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), '.env'),  # grandparent directory
-            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), '.env')  # great-grandparent directory
-        ]
+        # Load .env file
+        load_env_vars()
 
-        # Load the first existing .env file
-        for path in potential_paths:
-            if os.path.exists(path):
-                load_dotenv(path)
-                print(f"Loaded environment variables from: {path}")
-                break
-
-        #---Get env vars
+        # Get env vars
         sender_addr = os.environ.get('MX_SENDER_ADDR')
         sender_pwd = os.environ.get('MX_SENDER_PWD')
         smtp_url = os.environ.get('MX_SMTP_URL')
@@ -146,6 +152,54 @@ class Emailer:
         emailer = Emailer(sender_addr, sender_pwd, smtp_url, smtp_port)
 
         return emailer
+
+##-Discord
+class Discorder:
+    '''Defines an object that sends discord messages'''
+
+    def __init__(self, webhook_url: str):
+        '''
+        Initiates the object
+
+        In:
+            - webhook_url: the webhook url
+        '''
+
+        self._webhook_url = webhook_url
+
+    def send(self, msg: str, username: str = 'IoT_platform') -> bool:
+        '''
+        Sends `msg` to discord
+
+        In:
+            - msg: the message to send
+            - username: the bot username
+        Out:
+            True   if message successfully delivered
+            False  otherwise
+        '''
+    
+        data = {
+            'username': username,
+            'content': msg
+        }
+
+        response = requests.post(self._webhook_url, json=data)
+
+        return response.status_code == 204
+
+    @staticmethod
+    def create() -> Discorder:
+        '''Creates an instance of this class by reading environment variables (and .env file).'''
+    
+        # Load .env file
+        load_env_vars()
+
+        # Create discorder
+        webhook_url = os.environ.get('DISCORD_WEBHOOK')
+        discorder = Discorder(webhook_url)
+
+        return discorder
 
 
 ##-Test
@@ -157,4 +211,9 @@ if __name__ == '__main__':
 
     # print('send test email...')
     # emailer.send('test@example.com', 'test from python', 'Test from python!')
+
+    print('Testing discord')
+
+    discorder = Discorder.create()
+    discorder.send('Test message from python!')
 
