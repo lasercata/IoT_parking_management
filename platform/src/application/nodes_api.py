@@ -160,7 +160,13 @@ def authentication_request(node_id):
 
         # Check user authentication
         if not user_checker.is_authenticated(user_data['AUTH_BYTES'], user_data['NEW_AUTH_BYTES']):
-            user_checker.send_cloning_event()
+            # Send cloning notification
+            user_checker.send_cloning_event(node_id)
+
+            # Set node status to violation
+            current_app.config['DB_SERVICE'].update_dr('node', node_id, {'data': {'status': 'violation'}})
+
+            # Return
             return jsonify({'status': 'violation', 'message': 'Wrong authentication token'}), 403
 
         # Check user authorization (badge expiration)

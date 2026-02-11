@@ -209,8 +209,8 @@ if __name__ == '__main__':
     emailer = Emailer.create()
     print(emailer)
 
-    # print('send test email...')
-    # emailer.send('test@example.com', 'test from python', 'Test from python!')
+    print('send test email...')
+    emailer.send('test@lasercata.com', 'test from python', 'Test from python!')
 
     print('Testing discord')
 

@@ -17,7 +17,7 @@ curl \
         "_id": "DEADBEEF",
         "profile": {
             "username": "usr1",
-            "email": "usr1@example.com",
+            "email": "test@lasercata.com",
             "is_admin": false,
             "badge_expiration": "2027-01-01"
         }

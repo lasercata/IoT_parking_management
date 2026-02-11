@@ -4,6 +4,7 @@
 '''Implements functions to manage user data'''
 
 ##-Imports
+from src.application.notification_handlers import Discorder, Emailer
 from src.services.database_service import DatabaseService
 from datetime import datetime
 
@@ -101,12 +102,46 @@ class UserCheck:
 
         return self._user['is_parked']
 
-    def send_cloning_event(self):
+    def send_cloning_event(self, node_id: str):
         '''
         Called when cloning is detected.
 
         Sends notification to authorities and an email to the concerned user.
+
+        In:
+            - node_id: the ID of the node where cloning was detected
         '''
-    
-        raise NotImplementedError('send_cloning_event: Not implemented') #TODO
+
+        #---Init
+        timestamp = datetime.utcnow()
+
+        #---First, send notification to authorities
+        authorities_messenger = Discorder.create()
+        msg_authorities = '# Cloning detected!\n'
+        msg_authorities += f'UTC time: `{timestamp}`\n'
+        msg_authorities += f'Parking (node id): `{node_id}`\n'
+        msg_authorities += f'User (UID): `{self._uid}`'
+
+        success = authorities_messenger.send(msg_authorities)
+
+        if not success:
+            pass #TODO: (log notification)
+
+        #---Then email the concerned user
+        # Check if user exists
+        if not self.is_uid_valid():
+            raise ValueError('User not found')
+
+        user_email_addr = self._user['profile']['email']
+        user_username = self._user['profile']['username']
+
+        msg_user = f'Hello {user_username},\n\n'
+        msg_user += f'Suspicious activity has been detected at {timestamp} with your badge ID (badge cloning).\n'
+        msg_user += 'Your account has been suspended.\n'
+        msg_user += 'For more details and if you are not at the origin of this, please contact the parking service.\n\n'
+        msg_user += 'This is an automated email. Please do not reply to it; your message would not be read.\n'
+        msg_user += 'This email has been sent to you because you have an account on the parking service.'
+
+        emailer = Emailer.create()
+        emailer.send(user_email_addr, 'Parking service - account suspended after suspicious activity', msg_user)
 
