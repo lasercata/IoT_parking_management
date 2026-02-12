@@ -38,6 +38,19 @@ class UserCheck:
         self._user = self._db_service.get_dr('user', self._uid)
         return self._user is not None
 
+    def get(self) -> dict:
+        '''
+        Gets the json representing the user from the database.
+
+        :raise ValueError: if not found
+        '''
+
+        # Check if user exists
+        if not self.is_uid_valid():
+            raise ValueError('User not found')
+
+        return self._user
+
     def update_content(self, update_data: dict):
         '''
         Updates the data of the user in the database.

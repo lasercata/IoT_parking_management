@@ -1,8 +1,10 @@
 from flask import Blueprint, request, jsonify, current_app
 from datetime import datetime
+import secrets
+from src.application.notification_handlers import Emailer
+from src.application.authentication import decode_token, is_admin, token_required
 from src.application.user_management import UserCheck
 from src.virtualization.digital_replica.dr_factory import DRFactory
-from src.application.authentication import decode_token, is_admin, token_required
 
 users_api = Blueprint('users_api', __name__,url_prefix = '/api/users')
 
@@ -56,16 +58,37 @@ def create_user():
     '''
 
     try:
+        # Init
         data = request.get_json()
-        dr_factory = DRFactory("src/virtualization/templates/user.yaml")
+
+        # Create user with factory
+        dr_factory = DRFactory('src/virtualization/templates/user.yaml')
         user = dr_factory.create_dr('user', data)
-        user_id = current_app.config["DB_SERVICE"].save_dr("user", user)
 
-        #TODO: create a password init link
-        # Return the link
-        # And email it to the user
+        user_id = current_app.config['DB_SERVICE'].save_dr('user', user)
 
-        return jsonify({"status": "success", "message": "user created successfully", "user_id": user_id}), 201
+        # Set a random token for password reset
+        # pwd_reset_tk = secrets.token_urlsafe(32)
+        pwd_reset_tk = ''.join(secrets.choice('0123456789') for _ in range(10))
+        current_app.config['DB_SERVICE'].update_dr('user', user_id, {'pwd_reset_tk': pwd_reset_tk})
+
+        # Email user the activation page
+        url = current_app.config['FRONTEND_URL'] + '/pwd_reset'
+        username = data['profile']['username']
+        email_addr = data['profile']['email']
+        emailer = Emailer.create()
+
+        body = f'Hello {username},\n\n'
+        body += 'Your account on the Parking Service has been created!\n'
+        body += 'To activate your account, please follow this link:\n'
+        body += f'{url}\n'
+        body += 'Have a nice day and see you soon in our parkings,\n'
+        body += 'The parking team\n\n'
+        body += 'This is an automated email. Do not reply.'
+
+        emailer.send(email_addr, 'Parking Service - Account created', body)
+
+        return jsonify({'status': 'success', 'message': 'user created successfully', 'user_id': user_id, 'pwd_reset_tk': pwd_reset_tk}), 201
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -130,8 +153,25 @@ def update_user(user_id):
         token_uid = decode_token()['uid']
 
         if 'pwd_hash' in data:
+            # Check that it is the same user
             if user_id != token_uid:
                 return jsonify({'status': 'error', 'message': 'Impossible to change the password of an other user'}), 403
+
+            # Check the password reset token
+            pwd_reset_tk__from_db = user_checker.get()['pwd_reset_tk']
+
+            if pwd_reset_tk__from_db == '':
+                return jsonify({'status': 'error', 'message': 'Password reset has not been asked.'}), 403
+
+            if 'pwd_reset_tk' not in data:
+                return jsonify({'status': 'error', 'message': 'Missing field "pwd_reset_tk" to change the password'}), 401
+
+            if data['pwd_reset_tk'] != pwd_reset_tk__from_db:
+                return jsonify({'status': 'error', 'message': 'Field "pwd_reset_tk" is incorrect'}), 401
+
+            # All checks passed for password reset.
+            # So deactivate the password reset (only usable once)
+            user_checker.update_content({'pwd_reset_tk': ''})
 
         #---Select the data to update
         update_data = {}

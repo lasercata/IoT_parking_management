@@ -59,6 +59,8 @@ services:
 
       - DISCORD_WEBHOOK=${DISCORD_WEBHOOK}
 
+      - FRONTEND_URL=${FRONTEND_URL}
+
       - JWT_SHARED_TOKEN=${JWT_SHARED_TOKEN}
     depends_on:
       - iot-mongodb

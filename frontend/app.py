@@ -243,6 +243,32 @@ def login():
     
     return render_template('login.html')
 
+@app.route('/pwd_reset', methods=['GET', 'POST'])
+def pwd_reset(): #TODO
+    '''Password reset route handling both GET and POST requests.'''
+
+    raise NotImplementedError('TODO')
+
+    # if request.method == 'POST':
+    #     username = request.form['username']
+    #     pwd_reset_tk = request.form['code']
+    #     password = request.form['password']
+    #     
+    #     # Check if user exists and password is correct
+    #     if username in USERS and bcrypt.check_password_hash(USERS[username]['password'], password):
+    #         usr = USERS[username]
+    #         token = generate_token(username, usr['uid'], usr['is_admin'])
+    #         
+    #         # Create response with token as cookie
+    #         response = make_response(redirect(url_for('home')))
+    #         response.set_cookie('token', token, httponly=True, secure=True, samesite='Strict')
+    #         
+    #         return response
+    #     
+    #     return render_template('login.html', error='Invalid credentials')
+    # 
+    # return render_template('login.html')
+
 @app.route('/logout')
 def logout():
     '''Logout route to clear token.'''

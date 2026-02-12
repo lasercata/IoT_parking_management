@@ -82,10 +82,12 @@ class FlaskServer:
         mqtt_handler = NodeMQTTHandler(self.app)
 
         # Store references
-        self.app.config["SCHEMA_REGISTRY"] = schema_registry
-        self.app.config["DB_SERVICE"] = db_service
-        self.app.config["DT_FACTORY"] = dt_factory
-        self.app.config["MQTT_HANDLER"] = mqtt_handler
+        self.app.config['SCHEMA_REGISTRY'] = schema_registry
+        self.app.config['DB_SERVICE'] = db_service
+        self.app.config['DT_FACTORY'] = dt_factory
+        self.app.config['MQTT_HANDLER'] = mqtt_handler
+
+        self.app.config['FRONTEND_URL'] = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
     def _register_blueprints(self):
         """Register all API blueprints"""

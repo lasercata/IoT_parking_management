@@ -43,6 +43,19 @@ class NodeManagement:
         self._node = self._db_service.get_dr('node', self._node_id)
         return self._node is not None
 
+    def get(self) -> dict:
+        '''
+        Gets the json representing the node from the database.
+
+        :raise ValueError: if not found
+        '''
+
+        # Check if exists
+        if not self.is_id_valid():
+            raise ValueError('User not found')
+
+        return self._node
+
     def update_content(self, update_data: dict):
         '''
         Updates the data of the node in the database.
