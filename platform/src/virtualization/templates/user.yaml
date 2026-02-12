@@ -1,0 +1,54 @@
+schemas:
+  common_fields:
+    _id: str  # Id for the mongoDB. Will correspond to the UID from the RFID tag
+    type: str # type will be 'user'
+    profile:
+      username: str  # username for the web interface
+      email: str     # user's e-mail address
+      is_admin: bool # True if user has administration rights
+      badge_expiration: datetime # The date of expiration of the badge
+    metadata:
+      created_at: datetime
+      updated_at: datetime
+
+  entity:
+    data:
+      pwd_hash: str        # hash of the password for the web interface
+      auth_bytes: str      # the 16 auth bytes from the rfid tag
+      is_parked: bool      # set to True when user is parked
+      pwd_reset_tk: str    # token used to authenticate user when reseting password. Empty means not allowed to change password
+      nb_reservations: int # number of reservations held by the user. Used to set a maximum
+      violation_detected: bool # set to True if cloning is detected
+
+  validations:
+    mandatory_fields:
+      root:
+        - _id
+      profile:
+        - username
+        - email
+        - is_admin
+      metadata:
+        - created_at
+        - updated_at
+
+    # type_constraints:
+    #   birth_year:
+    #     type: int
+    #     min: 1900
+    #     max: 2024
+    #   gender:
+    #     type: str
+    #     enum: ["male", "female", "other"]
+    #   status:
+    #     type: str
+    #     enum: ["active", "inactive"]
+
+    initialization:
+      pwd_hash: ""
+      auth_bytes: "0000000000000000" # 16 zeros (blank card)
+      is_parked: false
+      pwd_reset_tk: ""
+      nb_reservations: 0
+      violation_detected: false
+

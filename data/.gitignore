@@ -1,0 +1,5 @@
+*
+!.gitignore
+!create_mosquitto.sh
+!create_self_signed_certs.sh
+!mosquitto/config/mosquitto.conf
