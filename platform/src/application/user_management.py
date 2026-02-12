@@ -38,6 +38,20 @@ class UserCheck:
         self._user = self._db_service.get_dr('user', self._uid)
         return self._user is not None
 
+    def update_content(self, update_data: dict):
+        '''
+        Updates the data of the user in the database.
+        Does not perform any check.
+
+        In:
+            - update_data: the data to update, shaped as in the database.
+        '''
+
+        # Always update the 'updated at' time stamp
+        update_data['metadata'] = {'updated_at': datetime.utcnow()}
+    
+        self._db_service.update_dr('user', self._uid, update_data)
+
     def is_authenticated(self, auth: str, new_auth: str) -> bool:
         '''
         Checks the authentication bytes from the RFID card.
@@ -101,6 +115,50 @@ class UserCheck:
             raise ValueError('User not found')
 
         return self._user['is_parked']
+
+    def can_reserve(self) -> bool:
+        '''
+        Checks the current number of reservation of the user.
+        A user can have at most 1 reservation.
+
+        Out:
+            True        if the user has 0 reservation (he can reserve)
+            False       otherwise
+            ValueError  if UID not in DB
+        '''
+    
+        # Check if user exists
+        if not self.is_uid_valid():
+            raise ValueError('User not found')
+
+        return self._user['nb_reservations'] == 0
+
+    def get_nb_reservations(self) -> int:
+        '''Retrieves the number of reservations from the database'''
+    
+        # Check if user exists
+        if not self.is_uid_valid():
+            raise ValueError('User not found')
+
+        return self._user['nb_reservations']
+
+    def increase_nb_reservations(self):
+        '''nb_reservations += 1 in database'''
+    
+        # Check if user exists
+        if not self.is_uid_valid():
+            raise ValueError('User not found')
+
+        self.update_content({'nb_reservations': self.get_nb_reservations() + 1})
+
+    def decrease_nb_reservations(self):
+        '''nb_reservations -= 1 in database'''
+    
+        # Check if user exists
+        if not self.is_uid_valid():
+            raise ValueError('User not found')
+
+        self.update_content({'nb_reservations': self.get_nb_reservations() - 1})
 
     def send_cloning_event(self, node_id: str):
         '''

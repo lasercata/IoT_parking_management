@@ -29,7 +29,7 @@ schemas:
     type_constraints:
       status:
         type: str
-        enum: ["free", "reserved", "waiting_for_authentication", "occuped", "violation", "unauthorized"]
+        enum: ["free", "reserved", "waiting_for_authentication", "occupied", "violation", "unauthorized"]
 
     initialization:
       status: "free"
