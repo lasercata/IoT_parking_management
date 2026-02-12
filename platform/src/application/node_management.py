@@ -199,7 +199,7 @@ class NodeManagement:
         authorities_messenger = Discorder.create()
         msg_authorities = '# Illegal parking detected!\n'
         msg_authorities += f'UTC time: `{timestamp}`\n'
-        msg_authorities += f'Parking (node id): `{self._node_id}`\n\n'
+        msg_authorities += f'Parking (node id): `{self._node_id}`, location: `{self._node["profile"]["position"]}`\n\n'
         msg_authorities += 'Details: someone parked on this parking spot but did not validate its badge (if he has one)'
 
         success = authorities_messenger.send(msg_authorities)
