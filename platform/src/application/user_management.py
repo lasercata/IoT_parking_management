@@ -183,7 +183,13 @@ class UserCheck:
         success = authorities_messenger.send(msg_authorities)
 
         if not success:
-            pass #TODO: (log notification)
+            print('===================================')
+            print('Notification to authorities failed!')
+            print(f'Timestamp: {timestamp}')
+            print('===================================')
+            print('The message:')
+            print(msg_authorities)
+            print('===================================')
 
         #---Then email the concerned user
         # Check if user exists

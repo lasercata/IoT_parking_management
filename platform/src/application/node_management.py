@@ -214,7 +214,13 @@ class NodeManagement:
         success = authorities_messenger.send(msg_authorities)
 
         if not success:
-            pass #TODO: (log notification)
+            print('===================================')
+            print('Notification to authorities failed!')
+            print(f'Timestamp: {timestamp}')
+            print('===================================')
+            print('The message:')
+            print(msg_authorities)
+            print('===================================')
 
     def _send_reservation_timeout_event(self, uid: str):
         '''
