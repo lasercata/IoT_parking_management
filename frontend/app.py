@@ -149,7 +149,7 @@ def nodes_page():
     '''
 
     # Check that there is a token, and that it is an admin one
-    token = request.cookies.get('token')
+    token = request.cookies.get('token') #TODO: move this to a decorator, in an other file (like in platform)
     if token is None:
         return jsonify({'error': 'No authentication token'}), 401
 

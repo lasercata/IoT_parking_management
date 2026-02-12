@@ -13,10 +13,11 @@ schemas:
 
   entity:
     data:
-      pwd_hash: str        # hash of the password for the web interface
-      auth_bytes: str      # the 16 auth bytes from the rfid tag
-      is_parked: bool      # set to True when user is parked
-      nb_reservations: int # number of reservations
+      pwd_hash: str          # hash of the password for the web interface
+      auth_bytes: str        # the 16 auth bytes from the rfid tag
+      is_parked: bool        # set to True when user is parked
+      first_connection: bool # used to force password change at first login
+      nb_reservations: int   # number of reservations held by the user. Used to set a maximum
       violation_detected: bool # set to True if cloning is detected
 
   validations:
@@ -47,6 +48,7 @@ schemas:
       pwd_hash: ""
       auth_bytes: "0000000000000000" # 16 zeros (blank card)
       is_parked: false
+      first_connection: true
       nb_reservations: 0
       violation_detected: false
 

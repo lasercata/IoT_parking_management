@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify, current_app
 from datetime import datetime
+from src.application.user_management import UserCheck
 from src.virtualization.digital_replica.dr_factory import DRFactory
-from src.application.authentication import decode_token, token_required
+from src.application.authentication import decode_token, is_admin, token_required
 
 users_api = Blueprint('users_api', __name__,url_prefix = '/api/users')
 
@@ -60,6 +61,10 @@ def create_user():
         user = dr_factory.create_dr('user', data)
         user_id = current_app.config["DB_SERVICE"].save_dr("user", user)
 
+        #TODO: create a password init link
+        # Return the link
+        # And email it to the user
+
         return jsonify({"status": "success", "message": "user created successfully", "user_id": user_id}), 201
 
     except Exception as e:
@@ -82,45 +87,71 @@ def get_user(user_id):
 
 @users_api.route("/<user_id>", methods=['PATCH'])
 @token_required()
-def update_user(user_id): #TODO
+def update_user(user_id):
     '''
     Updates user details.
 
-    Usages:
-        - By user itself:
-            + change password
+    Who can hit this endpoint?
+        - user: change his password
+        - admin: change (nearly) anything
 
-        - By admin:
-            + change violation_detected, is_admin, email
+    Note: the request for the user password change is proxied by the frontend server (that hashes the password before sending it here).
+
+    User payload format (user changes its password):
+    {
+        "pwd_hash": str
+    }
+
+    Admin payload format:
+    {
+        "pwd_hash": str,       # Note that this is only allowed if the target user is the user sending the query (i.e admins cannot directly choose a password for a user)
+        "auth_bytes": str,
+        "first_connection": bool,
+        "violation_detected": bool,
+        "profile": {
+            "badge_expiration": datetime,
+            "email": str,
+            "username": str,
+            "is_admin": bool
+        }
+    }
     '''
 
-    token_payload = decode_token()
-
-    if user_id != token_payload['uid']:
-        return jsonify({'message', 'Impossible to edit an other user'}), 401
-
-    raise NotImplementedError('TODO')
-
     try:
+        #---Check that node exists
+        user_checker = UserCheck(current_app.config['DB_SERVICE'], user_id)
+        if not user_checker.is_uid_valid():
+            return jsonify({'status': 'error', 'message': 'user not found'}), 404
+
+        #---Init
         data = request.get_json()
+
+        #---Authorization
+        token_uid = decode_token()['uid']
+
+        if 'pwd_hash' in data:
+            if user_id != token_uid:
+                return jsonify({'status': 'error', 'message': 'Impossible to change the password of an other user'}), 403
+
+        #---Select the data to update
         update_data = {}
 
-        #Handle profile updates
-        if "profile" in data:
-            update_data["profile"] = data["profile"]
+        if is_admin():
+            updatable_fiels = ('pwd_hash', 'auth_bytes', 'first_connection', 'violation_detected', 'profile')
 
-        #Handle data updates
-        if "data" in data:
-            update_data["data"] = data["data"]
+            for field in updatable_fiels:
+                if field in data:
+                    update_data[field] = data[field]
 
-        #Always update the 'updated at' timestamp
-        update_data["metadata"] = {"updated_at":datetime.utcnow()}
+        else:
+            if 'pwd_hash' in data:
+                update_data['pwd_hash'] = data['pwd_hash']
 
-        current_app.config["DB_SERVICE"].update_dr("user",user_id,update_data)
-        return jsonify({"status": "success", "message": "user updated successfully"}), 200
+        user_checker.update_content(update_data)
+        return jsonify({'status': 'success', 'message': 'user updated successfully'}), 200
 
     except Exception as e:
-        return jsonify({"error":str(e)}),500
+        return jsonify({'error': str(e)}), 500
 
 @users_api.route("/<user_id>", methods=['DELETE'])
 @token_required(only_admins=True)
