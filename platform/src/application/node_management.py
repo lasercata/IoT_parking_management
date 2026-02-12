@@ -100,12 +100,15 @@ class NodeManagement:
         elif old_status in ('free', 'reserved') and new_status == 'violation':
             self._send_violation_event()
         
-        elif old_status == 'violation':
+        elif old_status == 'violation' and new_status in ('free', 'reserved'):
             pass # Nothing to do here
 
         elif old_status == 'reserved' and new_status == 'free': # Reservation timeout
             uid = self._node['used_by']
+
+            UserCheck(self._db_service, uid).decrease_nb_reservations()
             self.update_content({'used_by': ''})
+
             self._send_reservation_timeout_event(uid)
 
         elif old_status == 'occupied' and new_status == 'free': # Car left
@@ -196,7 +199,7 @@ class NodeManagement:
         authorities_messenger = Discorder.create()
         msg_authorities = '# Illegal parking detected!\n'
         msg_authorities += f'UTC time: `{timestamp}`\n'
-        msg_authorities += f'Parking (node id): `{node_id}`\n\n'
+        msg_authorities += f'Parking (node id): `{self._node_id}`\n\n'
         msg_authorities += 'Details: someone parked on this parking spot but did not validate its badge (if he has one)'
 
         success = authorities_messenger.send(msg_authorities)
@@ -220,8 +223,8 @@ class NodeManagement:
         user_username = user['profile']['username']
 
         msg_user = f'Hello {user_username},\n\n'
-        msg_user += 'You reserved a parking spot (location: {self._node["profile"]["position"]}) earlier today.\n'
-        msg_user += 'As you did not come to park one hour after the reservation was made, the parking is not any more reserved.\n\n'
+        msg_user += f'You reserved a parking spot (location: {self._node["profile"]["position"]}) earlier today.\n'
+        msg_user += 'As you did not come to park one hour after the reservation was made, the parking is not reserved anymore.\n\n'
         msg_user += 'Thank you for your understanding.\n\n'
         msg_user += 'This is an automated email. Please do not reply to it; your message would not be read.\n'
         msg_user += 'This email has been sent to you because you have an account on the parking service.'

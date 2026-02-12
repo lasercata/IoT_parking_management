@@ -48,7 +48,7 @@ USERS = {
         'password': bcrypt.generate_password_hash('azer').decode('utf-8')
     },
     'usr1': {
-        'uid': '39ac70e4',
+        'uid': 'DEADBEEF',
         'is_admin': False,
         'password': bcrypt.generate_password_hash('azer').decode('utf-8')
     },
