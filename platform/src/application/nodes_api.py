@@ -131,7 +131,7 @@ def authentication_request(node_id):
 
         #---Node authentication
         # Check that node exists
-        node_management = NodeManagement(current_app.config['DB_SERVICE'], node_id)
+        node_management = NodeManagement(node_id, current_app.config['DB_SERVICE'], current_app.config['MQTT_HANDLER'])
         if node_management.is_id_valid():
             return jsonify({'status': 'error', 'message': 'node not found'}), 404
 
@@ -217,7 +217,7 @@ def update_node(node_id):
             "status": str
         },
         "source": str,     # ("node" | "ui")
-        "token": str       # Only needed when "from": "node"
+        "token": str       # Only needed when "source": "node"
     }
 
     Payload format (complete, note that only admin can edit some fields):
@@ -231,7 +231,7 @@ def update_node(node_id):
             }
         },
         "source": str,     # ("node" | "ui")
-        "token": str       # Only needed when "from": "node"
+        "token": str       # Only needed when "source": "node"
     }
 
     Out:
@@ -250,7 +250,7 @@ def update_node(node_id):
 
     try:
         #---Check that node exists
-        node_management = NodeManagement(current_app.config['DB_SERVICE'], node_id)
+        node_management = NodeManagement(node_id, current_app.config['DB_SERVICE'], current_app.config['MQTT_HANDLER'])
         if not node_management.is_id_valid():
             return jsonify({'status': 'error', 'message': 'node not found'}), 404
 

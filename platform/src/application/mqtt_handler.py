@@ -1,9 +1,8 @@
-from flask import current_app
+# from flask import current_app
 import paho.mqtt.client as mqtt
-from datetime import datetime
-import json
 import logging
 import time
+import ssl
 from threading import Thread, Event
 
 logger = logging.getLogger(__name__)
@@ -30,9 +29,19 @@ class NodeMQTTHandler:
 
         config = self.app.config.get('MQTT_CONFIG', {})
         self.broker = config.get('broker', 'broker.mqttdashboard.com')
-        self.port = config.get('port', 1883)
+        self.port = int(config.get('port', 1883))
 
-        # self.topic = "winery/+/+/temperature"  # floor/room/temperature
+        if 'username' in config and config['username'] not in (None, ''):
+            self.client.username_pw_set(config['username'], config['password'])
+
+        if self.port == 8883: # Over TLS
+            self.client.tls_set(
+                # ca_certs='../data/mosquitto/certs/ca.crt',
+                ca_certs=None,
+                cert_reqs=ssl.CERT_NONE, #TODO: remove this in production! It bypasses the certificate verification! (Use `ssl.CERT_REQUIRED`)
+                tls_version=ssl.PROTOCOL_TLS,
+                ciphers=None # let the system choose secure ciphers
+            )
 
     def start(self):
         """Start MQTT client in non-blocking way"""
@@ -52,8 +61,8 @@ class NodeMQTTHandler:
             logger.info("MQTT handler started")
 
         except Exception as e:
-            logger.error(f"Error starting MQTT handler: {e}")
             # Don't raise the exception - allow the application to continue
+            logger.error(f"Error starting MQTT handler: {e}")
 
     def stop(self):
         """Stop MQTT client"""
@@ -100,10 +109,6 @@ class NodeMQTTHandler:
             self.connected = True
             logger.info("Connected to MQTT broker")
 
-            # # Subscribe to temperature topics
-            # client.subscribe(self.topic)
-            # logger.info(f"Subscribed to {self.topic}")
-
         else:
             self.connected = False
             logger.error(f"Failed to connect to MQTT broker with code: {rc}")
@@ -125,3 +130,29 @@ class NodeMQTTHandler:
         """Check if client is currently connected"""
 
         return self.connected
+
+    def reserve_node(self, node_id: str) -> bool:
+        '''
+        Reserves the node `node_id` by publishing 'reserved' on `nodes/<node_id>`
+
+        In:
+            - node_id: the node to reserve
+        '''
+    
+        topic = f'nodes/{node_id}'
+        res = self.client.publish(topic, 'reserved', qos=1, retain=False)
+
+        return res[0] == 0
+
+    def cancel_reservation(self, node_id: str) -> bool:
+        '''
+        Cancels the reservation the node `node_id` by publishing 'free' on `nodes/<node_id>`
+
+        In:
+            - node_id: the node to reserve
+        '''
+    
+        topic = f'nodes/{node_id}'
+        res = self.client.publish(topic, 'free', qos=1, retain=False)
+
+        return res[0] == 0

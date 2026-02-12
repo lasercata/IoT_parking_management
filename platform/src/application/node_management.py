@@ -4,6 +4,7 @@
 '''Handles nodes updates'''
 
 ##-Imports
+from src.application.mqtt_handler import NodeMQTTHandler
 from src.application.notification_handlers import Discorder, Emailer
 from src.application.user_management import UserCheck
 from src.services.database_service import DatabaseService
@@ -14,17 +15,19 @@ from datetime import datetime
 class NodeManagement:
     '''Class handling node management (status update, reservation, ...)'''
 
-    def __init__(self, db_service: DatabaseService, node_id: str):
+    def __init__(self, node_id: str, db_service: DatabaseService, mqtt_handler: NodeMQTTHandler):
         '''
         Initiates the class
 
         In:
-            - db_service: the DB controller
             - node_id: the ID of the node
+            - db_service: the DB controller
+            - mqtt_handler: the MQTT handler
         '''
 
-        self._db_service = db_service
         self._node_id = node_id
+        self._db_service = db_service
+        self._mqtt_handler = mqtt_handler
 
         self._node: dict[str, str] | None = None # Will be set by self.is_id_valid in order to minimise calls to the DB
 
@@ -151,6 +154,9 @@ class NodeManagement:
         user_check.increase_nb_reservations()
         self.update_content({'used_by': uid})
 
+        # Send reservation to the node (MQTT)
+        self._mqtt_handler.reserve_node(self._node_id)
+
         return True
     
     def cancel_reservation(self, uid: str):
@@ -182,6 +188,9 @@ class NodeManagement:
         # Cancel reservation
         user_check.decrease_nb_reservations()
         self.update_content({'used_by': ''})
+
+        # Send cancellation to the node (MQTT)
+        self._mqtt_handler.cancel_reservation(self._node_id)
 
         return True
 

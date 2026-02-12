@@ -49,13 +49,6 @@ class FlaskServer:
         self._init_components()
         self._register_blueprints()
 
-        # Initialize MQTT handler
-        self.app.config['MQTT_CONFIG'] = {
-            'broker': os.environ.get('MQTT_DOMAIN'),
-            'port': os.environ.get('MQTT_PORT')
-        }
-        self.mqtt_handler = NodeMQTTHandler(self.app)
-
     def _init_components(self):
         """Initialize all required components and store them in app config"""
 
@@ -79,10 +72,20 @@ class FlaskServer:
         # Initialize DTFactory
         dt_factory = DTFactory(db_service, schema_registry)
 
+        # Initialize MQTT handler
+        self.app.config['MQTT_CONFIG'] = {
+            'broker': os.environ.get('MQTT_DOMAIN'),
+            'port': os.environ.get('MQTT_PORT'),
+            'username': os.environ.get('MQTT_USERNAME'),
+            'password': os.environ.get('MQTT_PWD')
+        }
+        mqtt_handler = NodeMQTTHandler(self.app)
+
         # Store references
         self.app.config["SCHEMA_REGISTRY"] = schema_registry
         self.app.config["DB_SERVICE"] = db_service
         self.app.config["DT_FACTORY"] = dt_factory
+        self.app.config["MQTT_HANDLER"] = mqtt_handler
 
     def _register_blueprints(self):
         """Register all API blueprints"""
@@ -95,11 +98,15 @@ class FlaskServer:
         """Run the Flask server"""
 
         try:
+            self.app.config['MQTT_HANDLER'].start()
             self.app.run(host=host, port=port, debug=debug)
+
         finally:
             # Cleanup on server shutdown
             if "DB_SERVICE" in self.app.config:
                 self.app.config["DB_SERVICE"].disconnect()
+
+            self.app.config['MQTT_HANDLER'].stop()
 
 
 server = FlaskServer()
