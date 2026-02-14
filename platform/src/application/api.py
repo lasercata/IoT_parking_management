@@ -3,8 +3,11 @@
 
 ##-Imports
 from flask import Blueprint, request, jsonify, current_app
+
 # from datetime import datetime
 # from bson import ObjectId
+
+from src.application.authentication import token_required
 
 ##-Init
 # Create blueprints for different API groups
@@ -18,6 +21,7 @@ dt_management_api = Blueprint('dt_management_api', __name__, url_prefix='/api/dt
 
 # Digital Twin APIs
 @dt_api.route('/', methods=['POST'])
+@token_required(only_admins=True)
 def create_digital_twin():
     """Create a new Digital Twin"""
     try:
@@ -36,6 +40,7 @@ def create_digital_twin():
 
 
 @dt_api.route('/<dt_id>', methods=['GET'])
+@token_required(only_admins=True)
 def get_digital_twin(dt_id):
     """Get Digital Twin details"""
     try:
@@ -48,6 +53,7 @@ def get_digital_twin(dt_id):
 
 
 @dt_api.route('/', methods=['GET'])
+@token_required(only_admins=True)
 def list_digital_twins():
     """List all Digital Twins"""
     try:
@@ -59,6 +65,7 @@ def list_digital_twins():
 
 # Generic Digital Replica APIs
 @dr_api.route('/<dr_type>/<dr_id>', methods=['GET'])
+@token_required(only_admins=True)
 def get_digital_replica(dr_type, dr_id):
     """Get Digital Replica details"""
     try:
@@ -72,6 +79,7 @@ def get_digital_replica(dr_type, dr_id):
 
 # Digital Twin Management APIs
 @dt_management_api.route('/assign/<dt_id>', methods=['POST'])
+@token_required(only_admins=True)
 def assign_dr_to_dt(dt_id):
     """Assign a Digital Replica to a Digital Twin"""
     try:
@@ -92,6 +100,7 @@ def assign_dr_to_dt(dt_id):
 
 
 @dt_management_api.route('/stats/<dt_id>', methods=['GET'])
+@token_required(only_admins=True)
 def get_dt_stats(dt_id):
     """Get statistics from a Digital Twin's services"""
     try:
@@ -115,6 +124,7 @@ def get_dt_stats(dt_id):
 
 
 @dt_api.route('/<dt_id>/services', methods=['POST'])
+@token_required(only_admins=True)
 def add_service_to_dt(dt_id):
     """Add a service to Digital Twin"""
     try:
