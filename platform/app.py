@@ -34,7 +34,6 @@ dotenv_path = os.path.join(
 load_dotenv(dotenv_path)
 
 
-
 ##-Main
 class FlaskServer:
     def __init__(self):
@@ -109,7 +108,6 @@ class FlaskServer:
                 self.app.config["DB_SERVICE"].disconnect()
 
             self.app.config['MQTT_HANDLER'].stop()
-
 
 server = FlaskServer()
 app = server.app # Needed to run with gunicorn
