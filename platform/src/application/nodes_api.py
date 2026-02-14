@@ -39,7 +39,7 @@ def list_nodes():
         return jsonify({"nodes": nodes_cleaned}), 200
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @nodes_api.route('/', methods=['POST'])
 @token_required(only_admins=True)
@@ -66,7 +66,7 @@ def create_node():
         return jsonify({"status": "success", "message": "Node created successfully", "node_id": node_id}), 201
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @nodes_api.route('/<node_id>', methods=['GET'])
 @token_required()
@@ -93,7 +93,7 @@ def get_node(node_id):
         return jsonify(node_cleaned), 200
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @nodes_api.route('/<node_id>', methods=['POST'])
 def authentication_request(node_id):
@@ -199,7 +199,7 @@ def authentication_request(node_id):
         return jsonify({'status': 'success', 'message': 'User is legally parked'}), 200
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @nodes_api.route("/<node_id>", methods=['PATCH'])
 def update_node(node_id):
@@ -339,7 +339,7 @@ def update_node(node_id):
         return jsonify({'status': 'success', 'message': 'node updated successfully'}), 200
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @nodes_api.route("/<node_id>", methods=['DELETE'])
 @token_required(only_admins=True)
@@ -357,4 +357,4 @@ def delete_node(node_id):
         return jsonify({"status": "success", "message": "node deleted successfully"}), 200
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({'status': 'error', 'message': str(e)}), 500

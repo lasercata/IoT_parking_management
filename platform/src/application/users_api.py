@@ -34,7 +34,7 @@ def list_users():
         return jsonify({"users": users}), 200
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @users_api.route('/', methods=['POST'])
 @token_required(only_admins=True)
@@ -71,7 +71,7 @@ def create_user():
             return jsonify({'status': 'error', 'message': str(e)}), 400
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @users_api.route("/<user_id>", methods=['GET'])
 @token_required(only_admins=True)
@@ -86,7 +86,7 @@ def get_user(user_id):
         return jsonify(user), 200
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @users_api.route("/<user_id>", methods=['PATCH'])
 @token_required()
@@ -171,7 +171,7 @@ def update_user(user_id):
         return jsonify({'status': 'success', 'message': 'user updated successfully'}), 200
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @users_api.route("/<user_id>", methods=['DELETE'])
 @token_required(only_admins=True)
@@ -189,4 +189,27 @@ def delete_user(user_id):
         return jsonify({"status": "success", "message": "user deleted successfully"}), 200
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@users_api.route("/pwd_reset", methods=['GET'])
+@token_required()
+def send_pwd_reset():
+    '''Ask to send a password reset link+code by email'''
+
+    try:
+        # Get user id (UID) from its token
+        user_id = decode_token()['uid']
+
+        # Check that user exists
+        user = current_app.config['DB_SERVICE'].get_dr('user', user_id)
+        if not user:
+            return jsonify({'error': 'user not found'}), 404
+
+        # Send email
+        account_manager = AccountManagement(user_id, current_app.config['FRONTEND_URL'], current_app.config['DB_SERVICE'])
+        account_manager.send_pwd_reset(creation=False)
+
+        return jsonify({'status': 'success', 'message': 'email sent'}), 200
+
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500

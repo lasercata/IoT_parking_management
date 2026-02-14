@@ -16,7 +16,7 @@ curl \
         "_id": "2c18f1f8-5b8f-43a8-8f03-68ef1486453e",
         "profile": {
             "username": "admin",
-            "email": "admin@example.com",
+            "email": "admin@lasercata.com",
             "is_admin": true
         }
     }' \
