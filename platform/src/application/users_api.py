@@ -1,10 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app
-from datetime import datetime
-import secrets
-from src.application.notification_handlers import Emailer
 from src.application.authentication import decode_token, is_admin, token_required
-from src.application.user_management import UserCheck
-from src.virtualization.digital_replica.dr_factory import DRFactory
+from src.application.user_management import UserCheck, AccountManagement
 
 users_api = Blueprint('users_api', __name__,url_prefix = '/api/users')
 
@@ -61,34 +57,18 @@ def create_user():
         # Init
         data = request.get_json()
 
-        # Create user with factory
-        dr_factory = DRFactory('src/virtualization/templates/user.yaml')
-        user = dr_factory.create_dr('user', data)
+        if '_id' not in data:
+            return jsonify({'status': 'error', 'message': 'malformed payload: missing field "_id"'}), 400
 
-        user_id = current_app.config['DB_SERVICE'].save_dr('user', user)
+        user_id = data['_id']
+        account_manager = AccountManagement(user_id, current_app.config['FRONTEND_URL'], current_app.config['DB_SERVICE'])
 
-        # Set a random token for password reset
-        # pwd_reset_tk = secrets.token_urlsafe(32)
-        pwd_reset_tk = ''.join(secrets.choice('0123456789') for _ in range(10))
-        current_app.config['DB_SERVICE'].update_dr('user', user_id, {'pwd_reset_tk': pwd_reset_tk})
+        try:
+            pwd_reset_tk = account_manager.create(data)
+            return jsonify({'status': 'success', 'message': 'user created successfully', 'user_id': user_id, 'pwd_reset_tk': pwd_reset_tk}), 201
 
-        # Email user the activation page
-        url = current_app.config['FRONTEND_URL'] + '/pwd_reset'
-        username = data['profile']['username']
-        email_addr = data['profile']['email']
-        emailer = Emailer.create()
-
-        body = f'Hello {username},\n\n'
-        body += 'Your account on the Parking Service has been created!\n'
-        body += 'To activate your account, please follow this link:\n'
-        body += f'{url}\n'
-        body += 'Have a nice day and see you soon in our parkings,\n'
-        body += 'The parking team\n\n'
-        body += 'This is an automated email. Do not reply.'
-
-        emailer.send(email_addr, 'Parking Service - Account created', body)
-
-        return jsonify({'status': 'success', 'message': 'user created successfully', 'user_id': user_id, 'pwd_reset_tk': pwd_reset_tk}), 201
+        except ValueError as e:
+            return jsonify({'status': 'error', 'message': str(e)}), 400
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

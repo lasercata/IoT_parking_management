@@ -4,9 +4,13 @@
 '''Implements functions to manage user data'''
 
 ##-Imports
+import secrets
+from typing import Any
+from datetime import datetime
+
 from src.application.notification_handlers import Discorder, Emailer
 from src.services.database_service import DatabaseService
-from datetime import datetime
+from src.virtualization.digital_replica.dr_factory import DRFactory
 
 ##-User check
 class UserCheck:
@@ -221,4 +225,139 @@ class UserCheck:
 
         emailer = Emailer.create()
         emailer.send(user_email_addr, 'Parking service - account suspended after suspicious activity', msg_user)
+
+##-Account management
+class AccountManagement:
+    '''Class handling the account management'''
+
+    def __init__(self, uid: str, frontend_url: str, db_service: DatabaseService):
+        '''
+        Initiates the class.
+
+        In:
+            - uid: the user's UID (for the account).
+            - frontend_url: the base URL of the frontend server
+            - db_service: the DB controller
+        '''
+
+        self._uid = uid
+        self._frontend_url = frontend_url
+        self._db_service = db_service
+
+        self._user_checker = UserCheck(db_service, uid)
+
+    def create(self, data: dict[str, Any]) -> str:
+        '''
+        Creates a new user account from the given data.
+
+        In:
+            - data: the data to initiate the account values.
+            Of the shape (note that "_id" is not provided here, because it is `self._uid`):
+            {
+                "profile": {
+                    "username": str,
+                    "email": str,
+                    "is_admin": bool
+                }
+            }
+
+        Out:
+            str: the activation code
+
+        Raises:
+            ValueError if `data` is malformed
+        '''
+
+        # Validate input format
+        if 'profile' not in data:
+            raise ValueError('Field "profile" is missing from `data`')
+
+        for field in {'username', 'email', 'is_admin'}:
+            if field not in data['profile']:
+                raise ValueError(f'Field "{field}" is missing from `data["profile"]`')
+
+        # Add id to data
+        data['_id'] = self._uid
+
+        # Ensure uniqueness of username
+        if self._db_service.query_drs('user', {'username': data['profile']['username']}) != []:
+            raise ValueError('Field "username" is already used by an other user.')
+
+        # Create user with factory
+        dr_factory = DRFactory('src/virtualization/templates/user.yaml')
+        user = dr_factory.create_dr('user', data)
+
+        user_id = self._db_service.save_dr('user', user)
+        assert user_id == self._uid
+
+        # Set a random token for password reset
+        pwd_reset_tk = ''.join(secrets.choice('0123456789') for _ in range(10))
+        self._user_checker.update_content({'pwd_reset_tk': pwd_reset_tk})
+
+        # Send email to user with the code to activate the account
+        self.send_pwd_reset(creation=True)
+
+        return pwd_reset_tk
+
+    def send_pwd_reset(self, creation: bool):
+        '''
+        Sends an email to the user with the information needed to reset password / activate account.
+
+        In:
+            - creation: True for account creation, False for password reset
+        '''
+
+        emailer = Emailer.create()
+        email_addr = self._user_checker.get()['profile']['email']
+
+        if creation:
+            subject = 'Parking Service - Account created'
+            body = self._get_email_body_for_account_creation()
+        else:
+            subject = 'Parking Service - Password reset'
+            body = self._get_email_body_for_pwd_reset()
+
+        emailer.send(email_addr, subject, body)
+
+    def _get_email_body_for_account_creation(self) -> str:
+        '''Creates the email body to send for account creation'''
+
+        user = self._user_checker.get()
+
+        url = self._frontend_url + '/pwd_reset'
+        username = user['profile']['username']
+        pwd_reset_tk = user['pwd_reset_tk']
+
+        body = f'Hello {username},\n\n'
+        body += 'Your account on the Parking Service has been created!\n'
+        body += 'To activate your account, please follow this link:\n'
+        body += f'{url}\n'
+        body += 'And your one-time code is:\n'
+        body += f'{pwd_reset_tk}\n\n'
+        body += 'Have a nice day and see you soon in our parkings,\n'
+        body += 'The parking team\n\n'
+        body += 'This is an automated email. Do not reply.'
+
+        return body
+
+    def _get_email_body_for_pwd_reset(self) -> str:
+        '''Creates the email body to send for password reset'''
+
+        user = self._user_checker.get()
+
+        url = self._frontend_url + '/pwd_reset'
+        username = user['profile']['username']
+        pwd_reset_tk = user['pwd_reset_tk']
+
+        body = f'Hello {username},\n\n'
+        body += 'Someone (hopefully you) has started a password reset procedure. If you did not initiated the action, you can safely ignore this email (but you might want to change your password).\n'
+        body += 'To change your password, please follow this link:\n'
+        body += f'{url}\n'
+        body += 'And your one-time code is:\n'
+        body += f'{pwd_reset_tk}\n\n'
+        body += 'Have a nice day and see you soon in our parkings,\n'
+        body += 'The parking team\n\n'
+        body += 'This is an automated email. Do not reply.'
+
+        return body
 

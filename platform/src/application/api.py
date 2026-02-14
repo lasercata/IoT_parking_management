@@ -13,6 +13,9 @@ dr_api = Blueprint('dr_api', __name__, url_prefix='/api/dr')
 dt_management_api = Blueprint('dt_management_api', __name__, url_prefix='/api/dt-management')
 
 
+#TODO: restrict access to admin
+
+
 # Digital Twin APIs
 @dt_api.route('/', methods=['POST'])
 def create_digital_twin():
