@@ -1,14 +1,27 @@
 # IoT parking management project
 
-## Code structure
+This project aims to create a *prototype* of an automatic **parking control system** dedicated to people with disabilities.
+
+Each parking spot is equipped with an IoT node, that detects car presence and reads user's authentication card.
+The user can reserve a parking spot up to one hour in advance, via a secure web interface.
+There is a backend, called *platform*, that links nodes and user interface and implement the core logic.
+
+This project was realised in the frame of an IoT course.
+
+## Architecture
+### Project architecture
+![Project architecture diagram](analysis_document/pics/archi.png)
+
+### Code structure
 ```
 IoT_parking_management/
-├── analysis_document/  report
-├── frontend/           Frontend code
-├── platform/           Backend (IoT platform) code
-├── node/               Hardware code (parking nodes)
+├── analysis_document/   Documentation of the analysis and design phases
+├── frontend/            Frontend code
+├── platform/            Backend (IoT platform) code
+├── node/                Hardware code (parking nodes)
 │
 ├── docker-compose.yaml
+├── .env.example         Environment variables + secrets example file
 └── README.md
 ```
 
@@ -123,13 +136,17 @@ docker compose up iot-mongodb iot-mosquitto -d
 - Platform:
 ```
 cd platform/
+source .venv/bin/activate
 python app.py
 ```
 
 - Frontend (in an other terminal):
 ```
 cd frontend/
+source .venv/bin/activate
 python app.py
 ```
 
 Then go to [`localhost:3000`](http://localhost:3000/)
+
+You can also test the APIs using the scripts in [`frontend/api_tests`](frontend/api_tests) and [`platform/api_tests`](platform/api_tests).
