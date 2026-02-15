@@ -31,34 +31,39 @@ This it the description of the API of the Platform (cf folder [`platform/`](plat
 
 Endpoints:
 
-| Endpoint               | Allowed methods                  | Description       |
-| ---------------------- | -------------------------------- | ----------------- |
-| `/api/nodes`           | `GET`, `POST`                    | List of all nodes |
-| `/api/nodes/<node_id>` | `GET`, `POST`, `PATCH`, `DELETE` | A specific node   |
-|                        |                                  |                   |
-| `/api/users`           | `GET`, `POST`                    | List of all users |
-| `/api/users/<user_id>` | `GET`, `PATCH`, `DELETE`         | A specific user   |
+| Endpoint               | Allowed methods                  | Description         |
+| ---------------------- | -------------------------------- | ------------------- |
+| `/api/nodes`           | `GET`, `POST`                    | List of all nodes   |
+| `/api/nodes/<node_id>` | `GET`, `POST`, `PATCH`, `DELETE` | A specific node     |
+|                        |                                  |                     |
+| `/api/users`           | `GET`, `POST`                    | List of all users   |
+| `/api/users/<user_id>` | `GET`, `PATCH`, `DELETE`         | A specific user     |
+| `/api/users/pwd_reset` | `GET`                            | Send pwd reset link |
 
 Detailed description:
 
 | Method   | Endpoint               | Authorized entity | Description |
 | -------- | ---------------------- | ----------------- | ----------- |
-| `GET`    | `/api/nodes`           | user, admin       | get list of all nodes  |
-| `POST`   | `/api/nodes`           | admin             | create a new node      |
-|          |                        |                   |                        |
+| `GET`    | `/api/nodes`           | user, admin       | get list of all nodes   |
+| `POST`   | `/api/nodes`           | admin             | create a new node       |
+|          |                        |                   |                         |
 | `GET`    | `/api/nodes/<node_id>` | user, admin       | get node details (id, pos, status) |
 | `POST`   | `/api/nodes/<node_id>` | node              | node scanned a badge and asks platform if authorized |
-| `PATCH`  | `/api/nodes/<node_id>` | user, admin, node | update node status (1) |
-| `DELETE` | `/api/nodes/<node_id>` | admin             | delete the node        |
-|          |                        |                   |                        |
-| `GET`    | `/api/users`           | admin             | get user list          |
-| `POST`   | `/api/users`           | admin             | create a new user      |
-|          |                        |                   |                        |
-| `GET`    | `/api/users/<user_id>` | admin             | get user details       |
-| `PATCH`  | `/api/users/<user_id>` | admin             | edit user details      |
-| `DELETE` | `/api/users/<user_id>` | admin             | delete user            |
+| `PATCH`  | `/api/nodes/<node_id>` | user, admin, node | update node status (1)  |
+| `DELETE` | `/api/nodes/<node_id>` | admin             | delete the node         |
+|          |                        |                   |                         |
+| `GET`    | `/api/users`           | admin             | get user list           |
+| `POST`   | `/api/users`           | admin             | create a new user       |
+|          |                        |                   |                         |
+| `GET`    | `/api/users/<user_id>` | admin             | get user details        |
+| `PATCH`  | `/api/users/<user_id>` | admin             | edit user details       |
+| `DELETE` | `/api/users/<user_id>` | admin             | delete user             |
+|          |                        |                   |                         |
+| `GET`    | `/api/users/pwd_reset` | user, admin       | Send pwd reset link (2) |
 
 (1): There is more control implemented here. The admin can edit any field, the node can only change the status field, and the user can only change status to `reserved`. This is how the platform receives the user's reservation request.
+
+(2): The user's token is used to determine the ID.
 
 ### Frontend
 This it the description of the API of the Platform (cf folder [`frontend/`](frontend/)).
