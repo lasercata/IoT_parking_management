@@ -129,8 +129,9 @@ def token_required(secret_key: str, only_admins: bool = False):
 
             # Privilege check
             if only_admins and not payload['is_admin']:
+                # return '', 403
                 # return render_template('login.html', error='Only admins can access this resource')
-                return redirect(url_for('invalid_token'))
+                return redirect(url_for('not_allowed'))
 
             # If we get here, token is valid
             return f(*args, **kwargs)

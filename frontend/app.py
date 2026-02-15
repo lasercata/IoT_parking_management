@@ -230,6 +230,12 @@ def logout():
     response.delete_cookie('token')
     return response
 
+@app.route('/not_allowed')
+def not_allowed():
+    '''Route for not allowed page'''
+
+    return render_template('not_allowed.html')
+
 @app.route('/invalid_token')
 def invalid_token():
     '''Route for invalid token'''
