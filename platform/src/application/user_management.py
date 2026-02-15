@@ -290,10 +290,6 @@ class AccountManagement:
         user_id = self._db_service.save_dr('user', user)
         assert user_id == self._uid
 
-        # Set a random token for password reset
-        pwd_reset_tk = ''.join(secrets.choice('0123456789') for _ in range(10))
-        self._user_checker.update_content({'pwd_reset_tk': pwd_reset_tk})
-
         # Send email to user with the code to activate the account
         self.send_pwd_reset(creation=True)
 
@@ -303,10 +299,17 @@ class AccountManagement:
         '''
         Sends an email to the user with the information needed to reset password / activate account.
 
+        It also generates the code (and write it into the DB).
+
         In:
             - creation: True for account creation, False for password reset
         '''
 
+        # Set a random token for password reset
+        pwd_reset_tk = ''.join(secrets.choice('0123456789') for _ in range(10))
+        self._user_checker.update_content({'pwd_reset_tk': pwd_reset_tk})
+
+        # Send email
         emailer = Emailer.create()
         email_addr = self._user_checker.get()['profile']['email']
 
@@ -314,7 +317,7 @@ class AccountManagement:
             subject = 'Parking Service - Account created'
             body = self._get_email_body_for_account_creation()
         else:
-            subject = 'Parking Service - Password reset'
+            subject = f'Parking Service - Password reset - code: {pwd_reset_tk}'
             body = self._get_email_body_for_pwd_reset()
 
         emailer.send(email_addr, subject, body)
@@ -332,8 +335,8 @@ class AccountManagement:
         body += 'Your account on the Parking Service has been created!\n'
         body += 'To activate your account, please follow this link:\n'
         body += f'{url}\n'
-        body += 'And your one-time code is:\n'
-        body += f'{pwd_reset_tk}\n\n'
+        body += f'Your one-time code is: {pwd_reset_tk}\n'
+        body += f'Your username is: {username}.\n\n'
         body += 'Have a nice day and see you soon in our parkings,\n'
         body += 'The parking team\n\n'
         body += 'This is an automated email. Do not reply.'
@@ -353,8 +356,7 @@ class AccountManagement:
         body += 'Someone (hopefully you) has started a password reset procedure. If you did not initiated the action, you can safely ignore this email (but you might want to change your password).\n'
         body += 'To change your password, please follow this link:\n'
         body += f'{url}\n'
-        body += 'And your one-time code is:\n'
-        body += f'{pwd_reset_tk}\n\n'
+        body += f'And your one-time code is: {pwd_reset_tk}\n\n'
         body += 'Have a nice day and see you soon in our parkings,\n'
         body += 'The parking team\n\n'
         body += 'This is an automated email. Do not reply.'

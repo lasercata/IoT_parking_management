@@ -102,7 +102,8 @@ def update_user(user_id):
 
     User payload format (user changes its password):
     {
-        "pwd_hash": str
+        "pwd_hash": str,
+        "pwd_reset_tk": str    # Not to change; used to authentify the user
     }
 
     Admin payload format:
@@ -194,7 +195,7 @@ def delete_user(user_id):
 @users_api.route("/pwd_reset", methods=['GET'])
 @token_required()
 def send_pwd_reset():
-    '''Ask to send a password reset link+code by email'''
+    '''Send a password reset link+code by email'''
 
     try:
         # Get user id (UID) from its token

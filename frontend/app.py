@@ -5,38 +5,26 @@
 from flask import Flask, render_template, request, jsonify, make_response, redirect, url_for
 from flask_bcrypt import Bcrypt
 import requests
-import os
-from dotenv import load_dotenv
 from sys import argv
 
-from src.authentication import TokenManager, token_required
+from src.load_config import get_db_service, get_vars
+from src.authentication import TokenManager, token_required, UserAuthentication
 
 ##-Init
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
-# Construct the path to the .env file in the parent directory
-dotenv_path = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
-    '.env'
-)
+var_dict = get_vars()
+SECRET_KEY = var_dict['SECRET_KEY']
+PLATFORM_URL = var_dict['PLATFORM_URL']
 
-# Load the .env file from the parent directory
-load_dotenv(dotenv_path)
+db_service = get_db_service()
 
-# Base URL of the IoT platform
-PLATFORM_URL = os.environ.get('PLATFORM_URL', default='http://localhost:5000')
+app.config['SECRET_KEY'] = SECRET_KEY
 
-# Secret key for JWT (IMPORTANT: use the same secret key as in the backend)
-app.config['SECRET_KEY'] = os.environ.get('JWT_SHARED_TOKEN')
-SECRET_KEY = app.config['SECRET_KEY']
 
-# Retrieve MongoDB connection details from environment variables
-mongo_username = os.environ.get('MONGO_USERNAME')
-mongo_password = os.environ.get('MONGO_PASSWORD')
-mongo_database = os.environ.get('MONGO_DATABASE')
-# mongodb_uri = os.environ.get('MONGODB_URI')
-mongodb_uri = os.environ.get('MONGODB_URI', f'mongodb://{mongo_username}:{mongo_password}@localhost:27017/{mongo_database}')
+token_manager = TokenManager(SECRET_KEY)
+user_authentication = UserAuthentication(db_service, bcrypt, token_manager, PLATFORM_URL)
 
 #TODO: connect to the DB
 # Simulated user store (replace with database in real-world scenario)
@@ -58,8 +46,6 @@ USERS = {
     }
 }
 
-token_manager = TokenManager(app.config['SECRET_KEY'])
-
 ##-Routes
 @app.route('/')
 def home():
@@ -73,13 +59,16 @@ def home():
     except RuntimeError:
         return redirect(url_for('login'))
 
+    src = request.args.get('src')
+    info = 'Password changed successfully!' if src == 'pwd_reset' else ''
+
     tk_payload = token_manager.decode_token(token)
 
     if token_manager.is_admin(token):
-        return render_template('home_admin.html', username=tk_payload['username'])
+        return render_template('home_admin.html', username=tk_payload['username'], info=info)
 
     else:
-        return render_template('home.html', username=tk_payload['username'])
+        return render_template('home.html', username=tk_payload['username'], info=info)
 
 @app.route('/reservation_page')
 @token_required(SECRET_KEY)
@@ -167,60 +156,101 @@ def users_page():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    '''Login route handling both GET and POST requests.'''
+    '''
+    Login route handling both GET and POST requests.
 
-    if request.method == 'POST':
+    GET: serve the HTML page
+    POST: try to log in
+    '''
+
+    if request.method == 'GET':
+        src = request.args.get('src')
+
+        try:
+            token = token_manager.retrieve_token('cookies') # Check if token is present
+
+        except RuntimeError: # No token -> go to login
+            if src == 'pwd_reset':
+                return render_template('login.html', info='Password successfully changed. Please log in')
+            else:
+                return render_template('login.html')
+
+        else: # token found -> go to home page
+            if src == 'pwd_reset':
+                return redirect(url_for('home', src='pwd_reset'))
+            else:
+                return redirect(url_for('home'))
+    
+    # POST
+    else:
         username = request.form['username']
         password = request.form['password']
         
         # Check if user exists and password is correct
-        if username in USERS and bcrypt.check_password_hash(USERS[username]['password'], password):
-            usr = USERS[username]
-            token = token_manager.generate_token(username, usr['uid'], usr['is_admin'])
-            
-            # Create response with token as cookie
-            response = make_response(redirect(url_for('home')))
-            response.set_cookie('token', token, httponly=True, secure=True, samesite='Strict')
-            
-            return response
+        # if username in USERS and bcrypt.check_password_hash(USERS[username]['password'], password):
+        token = user_authentication.test_credentials(username, password)
+
+        if token is None:
+            return render_template('login.html', error='Invalid credentials')
+
+        # Create response with token as cookie
+        response = make_response(redirect(url_for('home')))
+        response.set_cookie('token', token, httponly=True, secure=True, samesite='Strict')
         
-        return render_template('login.html', error='Invalid credentials')
-    
-    else:
-        try:
-            token = token_manager.retrieve_token('cookies') # Check if token is present
-        except RuntimeError:
-            return render_template('login.html') # No token -> go to login
-        else:
-            return redirect(url_for('home')) # token found -> go to home page
+        return response
 
 @app.route('/pwd_reset', methods=['GET', 'POST'])
+def pwd_reset():
+    '''
+    Password reset route handling both GET and POST requests.
+
+    GET: serve the HTML page
+    POST: send the new password
+    '''
+
+
+    if request.method == 'GET':
+        return render_template('pwd_reset.html')
+
+    # POST
+    else:
+        username = request.form['username']
+        pwd_reset_tk = request.form['pwd_reset_tk']
+        new_pwd = request.form['password']
+        pwd_repeat = request.form['password_2']
+
+        if new_pwd != pwd_repeat:
+            return render_template('pwd_reset.html', error='Passwords do not correspond')
+        
+        try:
+            response = user_authentication.set_new_password(username, new_pwd, pwd_reset_tk)
+
+            if response.ok:
+                return redirect(url_for('login', src='pwd_reset'))
+                # return render_template('login.html', info='Password updated. Please login')
+            else:
+                return render_template('pwd_reset.html', error='Something went wrong. Please retry later')
+
+        except RuntimeError: # User not found
+            return render_template('pwd_reset.html', error='Wrong username')
+
+        except ValueError: # Wrong code
+            return render_template('pwd_reset.html', error='Wrong username or code')
+
+@app.route('/send_pwd_reset')
 @token_required(SECRET_KEY)
-def pwd_reset(): #TODO
-    '''Password reset route handling both GET and POST requests.'''
+def send_pwd_reset():
+    '''Sends a request to the backend to send an email to the user in order to change its password'''
 
-    raise NotImplementedError('TODO')
+    token = token_manager.retrieve_token('cookies')
 
-    # if request.method == 'POST':
-    #     username = request.form['username']
-    #     pwd_reset_tk = request.form['code']
-    #     password = request.form['password']
-    #     
-    #     # Check if user exists and password is correct
-    #     if username in USERS and bcrypt.check_password_hash(USERS[username]['password'], password):
-    #         usr = USERS[username]
-    #         token = token_manager.generate_token(username, usr['uid'], usr['is_admin'])
-    #         
-    #         # Create response with token as cookie
-    #         response = make_response(redirect(url_for('home')))
-    #         response.set_cookie('token', token, httponly=True, secure=True, samesite='Strict')
-    #         
-    #         return response
-    #     
-    #     return render_template('login.html', error='Invalid credentials')
-    # 
-    # return render_template('login.html')
-    pass
+    # Send new password
+    response = requests.get(
+        f'{PLATFORM_URL}/api/users/pwd_reset',
+        headers={'Authorization': token}
+    )
+
+    return redirect(url_for('pwd_reset'))
 
 @app.route('/logout')
 def logout():
@@ -241,7 +271,6 @@ def invalid_token():
     '''Route for invalid token'''
 
     return render_template('invalid_token.html')
-
 
 ##-Run
 if __name__ == '__main__':

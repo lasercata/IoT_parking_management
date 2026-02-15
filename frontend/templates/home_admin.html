@@ -8,6 +8,11 @@
     <a href="/nodes_page">Nodes</a>
     <a href="/users_page">Users</a>
     <br>
+    <a href="/send_pwd_reset">change password</a>
+    {% if info %}
+    <p style="color: green;">{{ info }}</p>
+    {% endif %}
+    <br>
     <p>TODO.</p>
     <a href="/logout">Logout</a>
 </body>
