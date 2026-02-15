@@ -2,19 +2,53 @@
 <html>
 <head>
     <title>Change password</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h2>Login</h2>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <h2>Change password</h2>
+    <p>You should have received an email from the parking service (check your spams)</p>
+
     {% if error %}
     <p style="color: red;">{{ error }}</p>
     {% endif %}
-    <form method="POST">
-        <input type="text" name="username" placeholder="Username" required><br>
-        <input type="text" name="pwd_reset_tk" placeholder="Email code" required><br>
-        <input type="password" name="password" placeholder="Password" required><br>
-        <input type="password" name="password_2" placeholder="Repeat password" required><br>
-        <input type="submit" value="Change password">
-    </form>
+
+    <div class="login-body">
+        <div class="form-container">
+            <form method="POST">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input class="form-input" type="text" name="username" placeholder="Username" required><br>
+                </div>
+
+                <div class="form-group">
+                    <label for="pwd_reset_tk" class="form-label">Email code</label>
+                    <input class="form-input" type="text" name="pwd_reset_tk" placeholder="Email code" required><br>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">New password</label>
+                    <input class="form-input" type="password" name="password" placeholder="Password" required><br>
+                    <input class="form-input" type="password" name="password_2" placeholder="Repeat password" required><br>
+                </div>
+
+                <div class="form-group">
+                    <input class="form-submit" type="submit" value="Change password">
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>Parking Service System</p>
+    </footer>
 </body>
 </html>
 

@@ -1,15 +1,9 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Users</title>
-</head>
-<body>
+{% extends "base_admin.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
     <h2>Users:</h2>
     <p>{{ users }}</p>
-    <br>
-    <p>This is a protected page.</p>
-    <a href="/logout">Logout</a>
-</body>
-</html>
-
+{% endblock %}
 

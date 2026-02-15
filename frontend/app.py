@@ -68,7 +68,7 @@ def home():
         return render_template('home_admin.html', username=tk_payload['username'], info=info)
 
     else:
-        return render_template('home.html', username=tk_payload['username'], info=info)
+        return render_template('home_user.html', username=tk_payload['username'], info=info)
 
 @app.route('/reservation_page')
 @token_required(SECRET_KEY)

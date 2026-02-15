@@ -1,14 +1,9 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Reservation</title>
-</head>
-<body>
+{% extends "base_user.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
     <h2>Available parking sports:</h2>
     <p>{{ nodes }}</p>
-    <br>
-    <a href="/logout">Logout</a>
-</body>
-</html>
-
+{% endblock %}
 
