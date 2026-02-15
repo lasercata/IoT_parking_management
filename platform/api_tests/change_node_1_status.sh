@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-token=$(tail -n 1 ../../frontend/test_with_curl/cookies.txt | awk -F '\t' '{print $NF}')
+token=$(tail -n 1 ../../frontend/api_tests/cookies.txt | awk -F '\t' '{print $NF}')
 
 # By node (status: free)
 curl \
