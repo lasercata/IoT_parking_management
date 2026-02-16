@@ -45,7 +45,9 @@ services:
       - MONGO_USERNAME=${MONGO_USERNAME}
       - MONGO_PASSWORD=${MONGO_PASSWORD}
       - MONGO_DATABASE=${MONGO_DATABASE}
-      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@iot-mongodb:27017/${MONGO_DATABASE}
+      - MONGO_PORT=27017
+      - MONGO_IP=iot-mongodb
+      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@iot-mongodb:27017/
 
       - MQTT_DOMAIN=${MQTT_DOMAIN}
       - MQTT_PORT=${MQTT_PORT}
@@ -80,7 +82,9 @@ services:
       - MONGO_USERNAME=${MONGO_USERNAME}
       - MONGO_PASSWORD=${MONGO_PASSWORD}
       - MONGO_DATABASE=${MONGO_DATABASE}
-      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@iot-mongodb:27017/${MONGO_DATABASE}
+      - MONGO_PORT=27017
+      - MONGO_IP=iot-mongodb
+      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@iot-mongodb:27017/
       - JWT_SHARED_TOKEN=${JWT_SHARED_TOKEN}
       - PLATFORM_URL=${PLATFORM_URL}
     depends_on:
@@ -88,5 +92,6 @@ services:
 
 networks:
   iot-network:
+    name: iot-network
     driver: bridge
 

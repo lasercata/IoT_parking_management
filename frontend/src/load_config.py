@@ -73,11 +73,11 @@ def get_db_config() -> dict[str, str]:
     ret['username'] = os.environ.get('MONGO_USERNAME')
     ret['password'] = os.environ.get('MONGO_PASSWORD')
     ret['database'] = os.environ.get('MONGO_DATABASE')
-    ret['port'] = 27017
+    ret['ip'] = os.environ.get('MONGO_IP', 'localhost')
+    ret['port'] = int(os.environ.get('MONGO_PORT', 27017))
 
-    # mongodb_uri = os.environ.get('MONGODB_URI')
     # ret['uri'] = os.environ.get('MONGODB_URI', f'mongodb://{ret["username"]}:{ret["password"]}@localhost:27017/{ret["database"]}')
-    ret['uri'] = os.environ.get('MONGODB_URI', f'mongodb://{ret["username"]}:{ret["password"]}@localhost:27017')
+    ret['uri'] = os.environ.get('MONGODB_URI', f'mongodb://{ret["username"]}:{ret["password"]}@{ret["ip"]}:{ret["port"]}')
 
     return ret
 
