@@ -132,7 +132,7 @@ docker compose up iot-mongodb
 
 Then, connect to it using `mongosh` (replace with your values):
 ```
-mongosh mongodb://MONGODB_USERNAME:MONGODB_PASSWORD@localhost:27017/
+docker exec -it iot-mongodb mongosh mongodb://MONGODB_USERNAME:MONGODB_PASSWORD@localhost:27017/
 ```
 
 Then, in the console, select the right database and create the admin user:
