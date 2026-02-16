@@ -1,9 +1,73 @@
 {% extends "base_admin.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Nodes management{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/reservation_style.css') }}">
+    <script src="{{ url_for('static', filename='scripts/nodes_script.js') }}"></script>
+{% endblock %}
 
 {% block content %}
-    <h2>Nodes:</h2>
-    <p>{{ nodes }}</p>
+<h2>Nodes:</h2>
+<div class="node-table-container">
+    <table class="node-table">
+        <thead>
+            <tr>
+                <th>Select</th>
+                <th>Node ID</th>
+                <th>Position</th>
+                <th>Status</th>
+                <th>Used by</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for node in nodes.nodes %}
+            <tr class="node-row" data-node-id="{{ node._id }}">
+                <td>
+                    <input type="radio" name="selected_node" 
+                           value="{{ node._id }}" 
+                           id="node-{{ node._id }}"
+                           class="node-selector">
+                </td>
+                <td>{{ node._id }}</td>
+                <td>{{ node.position }}</td>
+                <td>{{ node.status }}</td>
+                <td>{{ node.used_by }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="action-buttons">
+        <button id="delete-bt" class="btn btn-primary" disabled>
+            Delete selected node
+        </button>
+    </div>
+</div>
+
+<h2>Node creation:</h2>
+
+<form id="node-creation-form">
+    <div class="form-group">
+        <label for="node_id" class="form-label">Node ID</label>
+        <input class="form-input" type="text" name="node_id" placeholder="Node ID" required><br>
+    </div>
+
+    <div class="form-group">
+        <label for="node_position" class="form-label">Node position</label>
+        <input class="form-input" type="text" name="node_position" placeholder="Node position" required><br>
+    </div>
+
+    <div class="form-group">
+        <label for="node_token" class="form-label">Node token</label>
+        <input class="form-input" type="password" name="node_token" placeholder="Node token" required><br>
+    </div>
+</form>
+
+<div class="action-buttons">
+    <button id="create-bt" class="btn btn-primary" disabled>
+        Create a new node
+    </button>
+</div>
 {% endblock %}
 

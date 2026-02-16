@@ -178,33 +178,119 @@ def reservation_page():
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-@app.route('/nodes_page')
+@app.route('/nodes_page', methods=['GET', 'POST'])
 @token_required(SECRET_KEY, only_admins=True)
 def nodes_page():
     '''
     Fetch nodes from IoT platform API.
     Access restricted to admins.
+
+    GET: render the HTML page
+    POST: create/delete a node
+
+    For POST, the payload should have the form:
+    {
+        "action": str,      # "delete" | "create"
+        "node_data": json   # the data of the node. See below
+    }
+
+    If "action" is delete, "node_data" should have the following shape:
+    "node_data": {
+        "node_id": str
+    }
+
+    Otherwise, for node creation:
+    "node_data": {
+        "node_id": str,
+        "profile": {
+            "position": str,
+            "token": str
+        }
+    }
     '''
 
-    try:
-        token = token_manager.retrieve_token('cookies')
+    if request.method == 'GET':
+        try:
+            token = token_manager.retrieve_token('cookies')
 
-        # Make request to IoT platform API
-        response = requests.get(
-            f'{PLATFORM_URL}/api/nodes/',
-            headers={'Authorization': token}
-        )
+            # Request nodes to IoT platform API
+            response = requests.get(
+                f'{PLATFORM_URL}/api/nodes/',
+                headers={'Authorization': token}
+            )
+            
+            # Check response from IoT platform
+            if response.status_code == 200:
+                nodes = response.json()
+                return render_template('nodes_page.html', nodes=nodes)
+            else:
+                # Handle authentication or other errors
+                return jsonify({'error': 'Failed to fetch nodes'}), response.status_code
         
-        # Check response from IoT platform
-        if response.status_code == 200:
-            nodes = response.json()
-            return render_template('nodes_page.html', nodes=nodes)
-        else:
-            # Handle authentication or other errors
-            return jsonify({'error': 'Failed to fetch nodes'}), response.status_code
-    
-    except requests.RequestException as e:
-        return jsonify({'error': str(e)}), 500
+        except requests.RequestException as e:
+            return jsonify({'error': str(e)}), 500
+
+    # POST
+    else:
+        try:
+            # First, check payload format
+            data = request.get_json()
+
+            if 'action' not in data:
+                return jsonify({'status': 'error', 'message': 'missing field "action"'}), 400
+            if data['action'] not in ('delete', 'create'):
+                return jsonify({'status': 'error', 'message': 'field "action": should be either "delete" or "create"'}), 400
+
+            if 'node_data' not in data:
+                return jsonify({'status': 'error', 'message': 'missing field "node_data"'}), 400
+            if 'node_id' not in data['node_data']:
+                return jsonify({'status': 'error', 'message': 'missing field "node_data.node_id"'}), 400
+
+            if data['action'] == 'create':
+                if 'profile' not in data['node_data']:
+                    return jsonify({'status': 'error', 'message': 'missing field "node_data.profile" (for creation)'}), 400
+                if 'position' not in data['node_data']['profile']:
+                    return jsonify({'status': 'error', 'message': 'missing field "node_data.profile.position" (for creation)'}), 400
+                if 'token' not in data['node_data']['profile']:
+                    return jsonify({'status': 'error', 'message': 'missing field "node_data.profile.token" (for creation)'}), 400
+
+            # Prepare the request for the platform
+            token = token_manager.retrieve_token('cookies')
+
+            # Make the action
+            if data['action'] == 'delete':
+                response = requests.delete(
+                    f'{PLATFORM_URL}/api/nodes/{data["node_data"]["node_id"]}',
+                    headers={'Authorization': token}
+                )
+                
+                # Check response from IoT platform
+                if response.status_code == 200:
+                    return jsonify({'status': 'success', 'message': 'node successfully deleted'}), 200
+                else:
+                    return jsonify(response.json()), response.status_code
+
+            else:
+                payload = {
+                    "_id": data['node_data']['node_id'],
+                    "profile": data['node_data']['profile']
+                }
+
+                response = requests.post(
+                    f'{PLATFORM_URL}/api/nodes/',
+                    headers={'Authorization': token, 'Content-Type': 'application/json'},
+                    json=payload
+                )
+                
+                # Check response from IoT platform
+                if response.status_code == 200:
+                    nodes = response.json()
+                    return jsonify({'status': 'success', 'message': 'node successfully created'}), 201
+                else:
+                    return jsonify(response.json()), response.status_code
+        
+        except Exception as e:
+            return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @app.route('/users_page')
 @token_required(SECRET_KEY, only_admins=True)
