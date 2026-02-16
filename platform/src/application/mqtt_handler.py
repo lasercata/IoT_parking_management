@@ -40,8 +40,7 @@ class NodeMQTTHandler:
                 ca_certs=None,
                 certfile=None,
                 keyfile=None,
-                cert_reqs=ssl.CERT_NONE, #TODO: remove this in production! It bypasses the certificate verification! (Use `ssl.CERT_REQUIRED`)
-                # cert_reqs=ssl.CERT_REQUIRED,
+                cert_reqs=ssl.CERT_REQUIRED,
                 tls_version=ssl.PROTOCOL_TLS,
                 ciphers=None # let the system choose secure ciphers
             )

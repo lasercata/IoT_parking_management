@@ -23,6 +23,7 @@ services:
       - "8883:8883"  # TLS MQTT port
     networks:
       - iot-network
+      - docker-network
     environment:
       - DOMAIN=${MQTT_DOMAIN}
     volumes:
@@ -41,6 +42,7 @@ services:
       - "5000:5000"
     networks:
       - iot-network
+      - docker-network
     environment:
       - MONGO_USERNAME=${MONGO_USERNAME}
       - MONGO_PASSWORD=${MONGO_PASSWORD}
@@ -78,6 +80,7 @@ services:
       - "3000:3000"
     networks:
       - iot-network
+      - docker-network
     environment:
       - MONGO_USERNAME=${MONGO_USERNAME}
       - MONGO_PASSWORD=${MONGO_PASSWORD}
@@ -95,4 +98,7 @@ networks:
   iot-network:
     name: iot-network
     driver: bridge
+
+  docker-network:
+    external: true
 
