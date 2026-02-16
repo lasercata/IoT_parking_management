@@ -359,14 +359,26 @@ def delete_node(node_id):
     '''Deletes a node.'''
 
     try:
-        node = current_app.config["DB_SERVICE"].get_dr("node", node_id)
-
+        # Find node
+        node = current_app.config['DB_SERVICE'].get_dr('node', node_id)
         if not node:
-            return jsonify({"error": "node not found"}), 404
+            return jsonify({'status': 'error', 'message': 'node not found'}), 404
 
-        current_app.config["DB_SERVICE"].delete_dr("node", node_id)
+        # If node is used by a user, update the corresponding user
+        if node['used_by'] != '':
+            user_checker = UserCheck(current_app.config['DB_SERVICE'], node['used_by'])
 
-        return jsonify({"status": "success", "message": "node deleted successfully"}), 200
+            if user_checker.is_uid_valid():
+                if user_checker.get_nb_reservations() == 1: # It is a reservation
+                    user_checker.decrease_nb_reservations()
+
+                elif user_checker.get()['is_parked']: # The user is parked on the node
+                    user_checker.update_content({'is_parked': False})
+
+        # Delete node
+        current_app.config['DB_SERVICE'].delete_dr('node', node_id)
+
+        return jsonify({'status': 'success', 'message': 'node deleted successfully'}), 200
 
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
