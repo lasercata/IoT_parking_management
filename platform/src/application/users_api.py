@@ -48,7 +48,8 @@ def create_user():
         "profile": {
             "username": str,
             "email": str,
-            "is_admin": bool
+            "is_admin": bool,
+            "badge_expiration": date
         }
     }
     '''
@@ -205,14 +206,23 @@ def delete_user(user_id):
     '''Deletes a user'''
 
     try:
-        user = current_app.config["DB_SERVICE"].get_dr("user", user_id)
-
+        # Find user
+        user = current_app.config['DB_SERVICE'].get_dr('user', user_id)
         if not user:
-            return jsonify({"error": "user not found"}), 404
+            return jsonify({'status': 'error', 'message': 'user not found'}), 404
 
-        current_app.config["DB_SERVICE"].delete_dr("user", user_id)
+        # If user uses a node (either reservation or parking), update the corresponding node
+        if user['nb_reservations'] > 0 or user['is_parked']:
+            # Find nodes
+            nodes = current_app.config['DB_SERVICE'].query_drs('node', {'used_by': user_id})
 
-        return jsonify({"status": "success", "message": "user deleted successfully"}), 200
+            for node_data in nodes:
+                current_app.config['DB_SERVICE'].update_dr('node', node_data['_id'], {'data.status': 'free', 'used_by': ''})
+
+        # Delete user
+        current_app.config['DB_SERVICE'].delete_dr('user', user_id)
+
+        return jsonify({'status': 'success', 'message': 'user deleted successfully'}), 200
 
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
