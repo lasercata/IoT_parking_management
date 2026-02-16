@@ -3,7 +3,7 @@ services:
     image: mongo:latest
     restart: unless-stopped
     container_name: iot-mongodb
-    ports:
+    expose:
       - "27017:27017"
     networks:
       - iot-network
@@ -19,7 +19,7 @@ services:
     restart: unless-stopped
     container_name: iot-mosquitto
     user: 3333:3333
-    ports:
+    expose:
       - "8883:8883"  # TLS MQTT port
     networks:
       - iot-network
@@ -38,7 +38,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     container_name: iot-platform
-    ports:
+    expose:
       - "5000:5000"
     networks:
       - iot-network
@@ -76,7 +76,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     container_name: iot-frontend
-    ports:
+    expose:
       - "3000:3000"
     networks:
       - iot-network
