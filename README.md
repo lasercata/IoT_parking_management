@@ -118,8 +118,8 @@ sudo ./create_self_signed_certs.sh
 
 Create the users `serv` and `node`:
 ```
-docker exec -it project-mosquitto mosquitto_passwd -c /mosquitto/config/passwd serv
-docker exec -it project-mosquitto mosquitto_passwd /mosquitto/config/passwd node
+docker exec -it iot-mosquitto mosquitto_passwd /mosquitto/config/passwd serv
+docker exec -it iot-mosquitto mosquitto_passwd /mosquitto/config/passwd node
 ```
 
 ### Create first user
