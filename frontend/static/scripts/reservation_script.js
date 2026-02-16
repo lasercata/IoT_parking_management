@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert('Error while reserving node.\nNote that you can only reserve one node max.\nPlease refresh and retry otherwise.');
                 }
                 else {
-                    alert(`Error. Status: ${data.status}, message: ${data.message}`);
+                    alert(`Error.\nStatus: ${data.status}\nMessage: ${data.message}`);
                 }
             })
             .catch(error => {
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert('Error while canceling reservation. Please retry (and refresh page)');
                 }
                 else {
-                    alert(`Error. Status: ${data.status}, message: ${data.message}`);
+                    alert(`Error.\nStatus: ${data.status}\nMessage: ${data.message}`);
                 }
             })
             .catch(error => {

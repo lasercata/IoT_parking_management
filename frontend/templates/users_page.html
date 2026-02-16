@@ -2,8 +2,93 @@
 
 {% block title %}Users management{% endblock %}
 
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/reservation_style.css') }}">
+    <script src="{{ url_for('static', filename='scripts/users_script.js') }}"></script>
+{% endblock %}
+
 {% block content %}
-    <h2>Users:</h2>
-    <p>{{ users }}</p>
+<h2>Users:</h2>
+<div class="node-table-container">
+    <table class="node-table">
+        <thead>
+            <tr>
+                <th>Select</th>
+                <th>User ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Admin?</th>
+                <th>Parked?</th>
+                <th>Nb reservations</th>
+                <th>Violation?</th>
+                <th>Badge expiration</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users.users %}
+            <tr class="node-row" data-user-id="{{ user._id }}">
+                <td>
+                    <input type="radio" name="selected_user" 
+                           value="{{ user._id }}" 
+                           id="user-{{ user._id }}"
+                           class="user-selector">
+                </td>
+                <td>{{ user._id }}</td>
+                <td>{{ user.profile.username }}</td>
+                <td>{{ user.profile.email }}</td>
+                <td>{{ user.profile.is_admin }}</td>
+                <td>{{ user.is_parked }}</td>
+                <td>{{ user.nb_reservations }}</td>
+                <td>{{ user.violation_detected }}</td>
+                <td>{{ user.profile.badge_expiration }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="action-buttons">
+        <button id="delete-bt" class="btn btn-primary" disabled>
+            Delete selected user
+        </button>
+    </div>
+</div>
+
+<h2>User creation:</h2>
+
+<form id="user-creation-form">
+    <div class="form-group">
+        <label for="uid" class="form-label">Badge UID</label>
+        <input class="form-input" type="text" name="user_id" placeholder="Badge UID" required><br>
+        <button type="button" id="read-badge" class="btn btn-primary">
+            Read badge from card
+        </button>
+    </div>
+
+    <div class="form-group">
+        <label for="username" class="form-label">Username</label>
+        <input class="form-input" type="text" name="username" placeholder="Username" required><br>
+    </div>
+
+    <div class="form-group">
+        <label for="email" class="form-label">Email</label>
+        <input class="form-input" type="email" name="email" placeholder="Email" required><br>
+    </div>
+
+    <div class="form-group">
+        <label for="is_admin" class="form-label">Admin rights</label>
+        <input class="form-input" type="checkbox" name="is_admin"><br>
+    </div>
+
+    <div class="form-group">
+        <label for="badge_expiration" class="form-label">Badge expiration date</label>
+        <input class="form-input" type="date" name="badge_expiration" placeholder="Badge expiration date" required><br>
+    </div>
+</form>
+
+<div class="action-buttons">
+    <button id="create-bt" class="btn btn-primary">
+        Create a new user
+    </button>
+</div>
 {% endblock %}
 

@@ -1,15 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const nodeRows = document.querySelectorAll('.node-row');
+    const userRows = document.querySelectorAll('.node-row');
     const deleteBt = document.getElementById('delete-bt');
 
-    const createForm = document.getElementById('node-creation-form');
+    const createForm = document.getElementById('user-creation-form');
     const createBt = document.getElementById('create-bt');
 
-    nodeRows.forEach(row => {
+    userRows.forEach(row => {
         // Add click event to the entire row
         row.addEventListener('click', function(event) {
             // Find the radio button in this row
-            const radioBtn = this.querySelector('.node-selector');
+            const radioBtn = this.querySelector('.user-selector');
             
             if (radioBtn.checked) {
                 // Prevent multiple selections if clicking on the radio button itself
@@ -33,26 +33,26 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     deleteBt.addEventListener('click', function() {
-        // Find the selected node
-        const selectedNode = document.querySelector('.node-selector:checked');
+        // Find the selected user
+        const selectedUser = document.querySelector('.user-selector:checked');
         
-        if (selectedNode) {
-            const nodeId = selectedNode.value;
+        if (selectedUser) {
+            const userId = selectedUser.value;
 
-            if (!confirm(`Are you sure you want to delete the node ${nodeId}?`)) {
+            if (!confirm(`Are you sure you want to delete the user ${userId}?`)) {
                 return;
             }
             
-            // Delete the node
-            fetch('/nodes_page', {
+            // Delete the user
+            fetch('/users_page', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     "action": "delete",
-                    "node_data": {
-                        "node_id": nodeId
+                    "user_data": {
+                        "user_id": userId
                     }
                 })
             })
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Failed to delete the node');
+                alert('Failed to delete the user');
             });
         }
     });
@@ -77,19 +77,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData(createForm);
         const data = Object.fromEntries(formData.entries())
 
-        // Send the query to create the node
-        fetch('/nodes_page', {
+        // Send the query to create the user
+        fetch('/users_page', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 "action": "create",
-                "node_data": {
-                    "node_id": data.node_id,
+                "user_data": {
+                    "user_id": data.user_id,
                     "profile": {
-                        "position": data.node_position,
-                        "token": data.node_token
+                        "username": data.username,
+                        "email": data.email,
+                        "is_admin": data.is_admin == 'on',
+                        "badge_expiration": data.badge_expiration
                     }
                 }
             })
@@ -105,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Failed to create the node');
+            alert('Failed to create the user');
         });
     });
 });

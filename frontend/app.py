@@ -7,6 +7,8 @@ from flask_bcrypt import Bcrypt
 import requests
 from sys import argv
 
+import re # To check email
+
 from src.load_config import get_db_service, get_vars
 from src.authentication import TokenManager, token_required, UserAuthentication
 
@@ -24,6 +26,15 @@ app.config['SECRET_KEY'] = SECRET_KEY
 
 token_manager = TokenManager(SECRET_KEY)
 user_authentication = UserAuthentication(db_service, bcrypt, token_manager, PLATFORM_URL)
+
+
+##-Utils
+def is_valid_email(email: str) -> bool:
+    '''Checks if the `email` is a valid one'''
+
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+
+    return re.match(pattern, email) is not None
 
 
 ##-Routes
@@ -52,6 +63,9 @@ def home():
         f'{PLATFORM_URL}/api/users/{tk_payload["uid"]}',
         headers={'Authorization': token}
     )
+
+    if response.status_code == 404: # Unknown user. Probably deleted
+        return redirect(url_for('logout'))
     
     if response.status_code != 200:
         return jsonify(response.json()), response.status_code
@@ -245,6 +259,8 @@ def nodes_page():
                 return jsonify({'status': 'error', 'message': 'missing field "node_data"'}), 400
             if 'node_id' not in data['node_data']:
                 return jsonify({'status': 'error', 'message': 'missing field "node_data.node_id"'}), 400
+            if data['node_data']['node_id'] == '':
+                return jsonify({'status': 'error', 'message': 'field "node_data.node_id" cannot be empty'}), 400
 
             if data['action'] == 'create':
                 if 'profile' not in data['node_data']:
@@ -284,7 +300,6 @@ def nodes_page():
                 
                 # Check response from IoT platform
                 if response.status_code == 200:
-                    nodes = response.json()
                     return jsonify({'status': 'success', 'message': 'node successfully created'}), 201
                 else:
                     return jsonify(response.json()), response.status_code
@@ -292,33 +307,125 @@ def nodes_page():
         except Exception as e:
             return jsonify({'status': 'error', 'message': str(e)}), 500
 
-@app.route('/users_page')
+@app.route('/users_page', methods=['GET', 'POST'])
 @token_required(SECRET_KEY, only_admins=True)
 def users_page():
     '''
     Fetch users from IoT platform API.
     Access restricted to admin.
+
+    GET: render the HTML page
+    POST: create/delete a user
+
+    For POST, the payload should have the form:
+    {
+        "action": str,      # "delete" | "create"
+        "user_data": json   # the data of the user. See below
+    }
+
+    If "action" is delete, "user_data" should have the following shape:
+    "user_data": {
+        "user_id": str
+    }
+
+    Otherwise, for user creation:
+    "user_data": {
+        "user_id": str,
+        "profile": {
+            "username": str,
+            "email": str,
+            "is_admin": bool,
+            "badge_expiration": date
+        }
+    }
     '''
     
-    try:
-        token = token_manager.retrieve_token('cookies')
+    if request.method == 'GET':
+        try:
+            token = token_manager.retrieve_token('cookies')
 
-        # Make request to IoT platform API
-        response = requests.get(
-            f'{PLATFORM_URL}/api/users',
-            headers={'Authorization': token}
-        )
+            # Make request to IoT platform API
+            response = requests.get(
+                f'{PLATFORM_URL}/api/users',
+                headers={'Authorization': token}
+            )
+            
+            # Check response from IoT platform
+            if response.status_code == 200:
+                users = response.json()
+                return render_template('users_page.html', users=users)
+            else:
+                # Handle authentication or other errors
+                return jsonify({'error': 'Failed to fetch users'}), response.status_code
         
-        # Check response from IoT platform
-        if response.status_code == 200:
-            users = response.json()
-            return render_template('users_page.html', users=users)
-        else:
-            # Handle authentication or other errors
-            return jsonify({'error': 'Failed to fetch users'}), response.status_code
-    
-    except requests.RequestException as e:
-        return jsonify({'error': str(e)}), 500
+        except requests.RequestException as e:
+            return jsonify({'status': 'error', 'message': str(e)}), 500
+
+    # POST
+    else:
+        try:
+            # First, check payload format
+            data = request.get_json()
+
+            if 'action' not in data:
+                return jsonify({'status': 'error', 'message': 'missing field "action"'}), 400
+            if data['action'] not in ('delete', 'create'):
+                return jsonify({'status': 'error', 'message': 'field "action": should be either "delete" or "create"'}), 400
+
+            if 'user_data' not in data:
+                return jsonify({'status': 'error', 'message': 'missing field "user_data"'}), 400
+            if 'user_id' not in data['user_data']:
+                return jsonify({'status': 'error', 'message': 'missing field "user_data.user_id"'}), 400
+            if data['user_data']['user_id'] == '':
+                return jsonify({'status': 'error', 'message': 'field "user_data.user_id" cannot be empty'}), 400
+
+            if data['action'] == 'create':
+                if 'profile' not in data['user_data']:
+                    return jsonify({'status': 'error', 'message': 'missing field "user_data.profile" (for creation)'}), 400
+
+                for field in {'username', 'email', 'is_admin', 'badge_expiration'}:
+                    if field not in data['user_data']['profile']:
+                        return jsonify({'status': 'error', 'message': f'missing field "user_data.profile.{field}" (for creation)'}), 400
+
+                if not is_valid_email(data['user_data']['profile']['email']):
+                    return jsonify({'status': 'error', 'message': 'Invalid email'}), 400
+
+            # Prepare the request for the platform
+            token = token_manager.retrieve_token('cookies')
+
+            # Make the action
+            if data['action'] == 'delete':
+                response = requests.delete(
+                    f'{PLATFORM_URL}/api/users/{data["user_data"]["user_id"]}',
+                    headers={'Authorization': token}
+                )
+                
+                # Check response from IoT platform
+                if response.status_code == 200:
+                    return jsonify({'status': 'success', 'message': 'user successfully deleted'}), 200
+                else:
+                    return jsonify(response.json()), response.status_code
+
+            else:
+                payload = {
+                    "_id": data['user_data']['user_id'],
+                    "profile": data['user_data']['profile']
+                }
+
+                response = requests.post(
+                    f'{PLATFORM_URL}/api/users/',
+                    headers={'Authorization': token, 'Content-Type': 'application/json'},
+                    json=payload
+                )
+                
+                # Check response from IoT platform
+                if response.status_code == 200:
+                    return jsonify({'status': 'success', 'message': 'user successfully created'}), 201
+                else:
+                    return jsonify(response.json()), response.status_code
+        
+        except Exception as e:
+            return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
