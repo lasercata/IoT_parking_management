@@ -4,7 +4,7 @@
 %------------------------------------------------------------------------
 %
 % Author                :   Flow, Lasercata
-% Last modification     :   2026.01.30
+% Last modification     :   2026.02.16
 %
 %------------------------------------------------------------------------
 
@@ -39,8 +39,8 @@
     
     \setcounter{tocdepth}{2} % hide subsubsections from the table of contents
     \tableofcontents
-    %\listoffigures
-    \listoftables
+    % \listoffigures
+    % \listoftables
     %\listofalgorithms
     %\lstlistoflistings
     \newpage
@@ -54,7 +54,7 @@
         In addition, an interface allows authorized users to visualize nearby available parking spaces, reserve a spot up to one hour in advance, and receive feedback on their parking session. 
     \end{indt}% }}}1
 
-    \begin{indt}{\section{State of the Art}}
+    \begin{indt}{\section{State of the Art}}% {{{1
         Several existing smart parking projects can be identified. Two different kinds can be distinguished:
         those relying on user-side or infrastructure-based sensing (such as cameras or smartphones), and
         those deploying a dedicated device for each parking space.
@@ -85,67 +85,67 @@
         \end{indi}
         
         These projects address different aspects of smart parking systems, ranging from identity-based access control to camera-based occupancy detection.
-    \end{indt}
-    
-    \begin{table}[h]
-        \centering
-        \renewcommand{\arraystretch}{1.2}
-        \begin{tabular}{|p{1.5cm}|p{2cm}|p{3cm}|p{3cm}|p{3cm}|p{3cm}|}
-        \hline
-        
-          \textbf{Project}        
-        & \textbf{Sensors}          
-        & \textbf{Detection method}                 
-        & \textbf{Board}                
-        & \textbf{Communication}   
-        & \textbf{Interface} 
-        
-        \\
-        \hline
-        
-        [1]        
-        & IR sensor, RFID reader   
-        & Slot occupancy and RFID authentication   
-        & ESP8266 NodeMCU             
-        & Wi-Fi (HTTP, IoT cloud) 
-        & Web dashboard 
-        
-        \\
-        \hline
-        
-        [2]     
-        & IR sensor, RFID reader       
-        & Slot occupancy and RFID authentication      
-        & Arduino Uno       
-        & None (local wired only) 
-        & LEDs
-        
-        \\
-        \hline
-        
-       [3]   
-        & Ultrasonic sensors       
-        & Distance-based vehicle detection          
-        & Microcontroller (unspecified)
-        & Client-server IoT network 
-        & Web interface 
-        
-        \\
-        \hline
-        
-        [4]   
-        & Cameras                   
-        & Computer vision (CNN, YOLO)              
-        & No embedded device
-        & IP network 
-        & Web monitoring platform 
-        
-        \\
-        \hline
-        
-        \end{tabular}
-        \caption{Comparison of existing smart parking solutions}
-    \end{table}
+
+        \begin{table}[h]% {{{2
+            \centering
+            \renewcommand{\arraystretch}{1.2}
+            \begin{tabular}{|p{1.5cm}|p{2cm}|p{3cm}|p{3cm}|p{3cm}|p{3cm}|}
+            \hline
+            
+              \textbf{Project}        
+            & \textbf{Sensors}          
+            & \textbf{Detection method}                 
+            & \textbf{Board}                
+            & \textbf{Communication}   
+            & \textbf{Interface} 
+            
+            \\
+            \hline
+            
+            [1]        
+            & IR sensor, RFID reader   
+            & Slot occupancy and RFID authentication   
+            & ESP8266 NodeMCU             
+            & Wi-Fi (HTTP, IoT cloud) 
+            & Web dashboard 
+            
+            \\
+            \hline
+            
+            [2]     
+            & IR sensor, RFID reader       
+            & Slot occupancy and RFID authentication      
+            & Arduino Uno       
+            & None (local wired only) 
+            & LEDs
+            
+            \\
+            \hline
+            
+           [3]   
+            & Ultrasonic sensors       
+            & Distance-based vehicle detection          
+            & Microcontroller (unspecified)
+            & Client-server IoT network 
+            & Web interface 
+            
+            \\
+            \hline
+            
+            [4]   
+            & Cameras                   
+            & Computer vision (CNN, YOLO)              
+            & No embedded device
+            & IP network 
+            & Web monitoring platform 
+            
+            \\
+            \hline
+            
+            \end{tabular}
+            \caption{Comparison of existing smart parking solutions}
+        \end{table}% }}}2
+    \end{indt}% }}}1
 
     \begin{indt}{\section{Functional Requirements}} %{{{1
         \begin{table}[H]% {{{2
@@ -1616,6 +1616,149 @@
                 \label{tab:selected}
             \end{table}% }}}3
         \end{indt} %}}}2
+
+        \begin{indt}{\subsection{Architecture}} %{{{2
+            \begin{figure}[H]
+                \centering
+            
+                \includegraphics[width=.9\textwidth]{pics/archi.png}
+            
+                \caption{General architecture -- data flow view}
+                \label{fig:}
+            \end{figure}
+
+            \begin{figure}[H]
+                \centering
+            
+                \includegraphics[width=.9\textwidth]{pics/archi_view_2.png}
+            
+                \caption{General architecture -- IoT layers view}
+                \label{fig:}
+            \end{figure}
+        \end{indt} %}}}2
+
+        \begin{indt}{\subsection{Node Automaton}} %{{{2
+            \begin{figure}[H]
+                \centering
+            
+                \includegraphics[width=.9\textwidth]{pics/FSM.png}
+            
+                \caption{State machine (automaton) of the hardware node}
+                \label{fig:}
+            \end{figure}
+        \end{indt} %}}}2
+
+        \begin{indt}{\subsection{Flow charts}} %{{{2
+            \begin{indt}{\subsubsection{FR1}} %{{{3
+                \begin{figure}[H]
+                    \centering
+                
+                    \includegraphics[width=.63\textwidth]{pics/fr1.png}
+                
+                    \caption{Flow chart of FR1}
+                    \label{fig:}
+                \end{figure}
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{FR2}} %{{{3
+                \begin{figure}[H]
+                    \centering
+                
+                    \includegraphics[width=.63\textwidth]{pics/fr2.png}
+                
+                    \caption{Flow chart of FR2}
+                    \label{fig:}
+                \end{figure}
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{FR3}} %{{{3
+                \begin{figure}[H]
+                    \centering
+                
+                    \includegraphics[width=.5\textwidth]{pics/fr3.png}
+                
+                    \caption{Flow chart of FR3}
+                    \label{fig:}
+                \end{figure}
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{FR4}} %{{{3
+                \begin{figure}[H]
+                    \centering
+                
+                    \includegraphics[width=.75\textwidth]{pics/fr4.png}
+                
+                    \caption{Flow chart of FR4}
+                    \label{fig:}
+                \end{figure}
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{FR5}} %{{{3
+                \begin{figure}[H]
+                    \centering
+                
+                    \includegraphics[width=.75\textwidth]{pics/fr5.png}
+                
+                    \caption{Flow chart of FR5}
+                    \label{fig:}
+                \end{figure}
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{FR6}} %{{{3
+                \begin{figure}[H]
+                    \centering
+                
+                    \includegraphics[width=.51\textwidth]{pics/fr6.png}
+                
+                    \caption{Flow chart of FR6}
+                    \label{fig:}
+                \end{figure}
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{FR7}} %{{{3
+                \begin{figure}[H]
+                    \centering
+                
+                    \includegraphics[width=.39\textwidth]{pics/fr7.png}
+                
+                    \caption{Flow chart of FR7}
+                    \label{fig:}
+                \end{figure}
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{FR8}} %{{{3
+                \begin{figure}[H]
+                    \centering
+                
+                    \includegraphics[width=.75\textwidth]{pics/fr8.png}
+                
+                    \caption{Flow chart of FR8}
+                    \label{fig:}
+                \end{figure}
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{FR9}} %{{{3
+                \begin{figure}[H]
+                    \centering
+                
+                    \includegraphics[width=.9\textwidth]{pics/fr9.png}
+                
+                    \caption{Flow chart of FR9}
+                    \label{fig:}
+                \end{figure}
+            \end{indt} %}}}3
+
+            \begin{indt}{\subsubsection{FR10}} %{{{3
+                \begin{figure}[H]
+                    \centering
+                
+                    \includegraphics[width=.6\textwidth]{pics/fr10.png}
+                
+                    \caption{Flow chart of FR10}
+                    \label{fig:}
+                \end{figure}
+            \end{indt} %}}}3
+        \end{indt} %}}}2
     \end{indt} %}}}1
 
     \begin{indt}{\section{Conclusion}} %{{{1
@@ -1634,7 +1777,14 @@
             \item HC-SR04 Ultrasonic Distance Sensor Datasheet: 
                 \url{https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf}
 
+            \item Implementation repository (GitHub):
+                \url{https://github.com/lasercata/IoT_parking_management}
         \end{itemize}
+    \end{indt} %}}}1
+
+    \begin{indt}{\section{Appendice}} %{{{1
+        \listoftables
+        \listoffigures
     \end{indt} %}}}1
     
 \end{document}

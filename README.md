@@ -10,7 +10,7 @@ This project was realised in the frame of an IoT course.
 
 ## Architecture
 ### Project architecture
-![Project architecture diagram](analysis_document/pics/archi.png)
+![Project architecture diagram](analysis_document/pics/archi_dark.png)
 
 ### Code structure
 ```
