@@ -338,6 +338,8 @@ def users_page():
             "badge_expiration": date
         }
     }
+
+    Note: it is prevented to delete its own account.
     '''
     
     if request.method == 'GET':
@@ -395,6 +397,11 @@ def users_page():
 
             # Make the action
             if data['action'] == 'delete':
+                # Check that the admin is not deleting its own account
+                if token_manager.decode_token(token)['uid'] == data['user_data']['user_id']:
+                    return jsonify({'status': 'error', 'message': 'You cannot delete your own account'}), 401
+
+                # Delete account
                 response = requests.delete(
                     f'{PLATFORM_URL}/api/users/{data["user_data"]["user_id"]}',
                     headers={'Authorization': token}
