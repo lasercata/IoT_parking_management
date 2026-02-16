@@ -291,11 +291,11 @@ class AccountManagement:
         assert user_id == self._uid
 
         # Send email to user with the code to activate the account
-        self.send_pwd_reset(creation=True)
+        pwd_reset_tk = self.send_pwd_reset(creation=True)
 
         return pwd_reset_tk
 
-    def send_pwd_reset(self, creation: bool):
+    def send_pwd_reset(self, creation: bool) -> str:
         '''
         Sends an email to the user with the information needed to reset password / activate account.
 
@@ -303,6 +303,9 @@ class AccountManagement:
 
         In:
             - creation: True for account creation, False for password reset
+
+        Out:
+            str: the activation code
         '''
 
         # Set a random token for password reset
@@ -321,6 +324,8 @@ class AccountManagement:
             body = self._get_email_body_for_pwd_reset()
 
         emailer.send(email_addr, subject, body)
+
+        return pwd_reset_tk
 
     def _get_email_body_for_account_creation(self) -> str:
         '''Creates the email body to send for account creation'''

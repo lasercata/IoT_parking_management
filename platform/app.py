@@ -43,8 +43,6 @@ class FlaskServer:
         # IMPORTANT: use the same secret key as in the backend
         self.app.config['SECRET_KEY'] = os.environ.get('JWT_SHARED_TOKEN')
 
-        CORS(self.app) #TODO: edit this for production
-
         self._init_components()
         self._register_blueprints()
 
@@ -87,6 +85,15 @@ class FlaskServer:
         self.app.config['MQTT_HANDLER'] = mqtt_handler
 
         self.app.config['FRONTEND_URL'] = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+
+        CORS(self.app, resources={
+            r'/*': {
+                'origins': self.app.config['FRONTEND_URL'],
+                'methods': ['GET', 'POST', 'PATCH', 'DELETE'],
+                'allow_headers': ['Content-Type', 'Authorization'],
+                'supports_credentials': True
+            }
+        })
 
     def _register_blueprints(self):
         """Register all API blueprints"""

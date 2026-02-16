@@ -13,12 +13,24 @@ def register_node_blueprint(app):
 @nodes_api.route('/', methods=['GET'])
 @token_required()
 def list_nodes():
-    '''Gets all nodes with optional filtering on `status`.'''
+    '''
+    Gets all nodes with optional filtering on `status`.
+    It is also possible to list the nodes reserved by self (from token) with `used_by_me`
+
+    E.g
+        GET /api/nodes/
+        GET /api/nodes/?status=free
+        GET /api/nodes/?used_by_me
+        GET /api/nodes/?status=free&used_by_me
+    '''
 
     try:
         filters = {}
         if request.args.get('status'):
-            filters["data.status"] = request.args.get('status')
+            filters['data.status'] = request.args.get('status')
+
+        if 'used_by_me' in request.args:
+            filters['used_by'] = decode_token()['uid']
 
         nodes = current_app.config["DB_SERVICE"].query_drs('node', filters)
 

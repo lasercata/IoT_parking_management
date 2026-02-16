@@ -1,9 +1,78 @@
 {% extends "base_user.html" %}
 
-{% block title %}Home{% endblock %}
-
-{% block content %}
-    <h2>Available parking sports:</h2>
-    <p>{{ nodes }}</p>
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/reservation_style.css') }}">
+    <script src="{{ url_for('static', filename='scripts/reservation_script.js') }}"></script>
 {% endblock %}
 
+{% block content %}
+<h2>Free nodes:</h2>
+<div class="node-table-container">
+    <table class="node-table">
+        <thead>
+            <tr>
+                <th>Select</th>
+                <th>Node ID</th>
+                <th>Position</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for node in free_nodes.nodes %}
+            <tr class="free-node-row" data-node-id="{{ node._id }}">
+                <td>
+                    <input type="radio" name="selected_node" 
+                           value="{{ node._id }}" 
+                           id="node-{{ node._id }}"
+                           class="free-node-selector">
+                </td>
+                <td>{{ node._id }}</td>
+                <td>{{ node.position }}</td>
+                <td>{{ node.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="action-buttons">
+        <button id="reserve-bt" class="btn btn-primary" disabled>
+            Reserve selected node
+        </button>
+    </div>
+</div>
+
+<h2>Reserved nodes:</h2>
+<div class="node-table-container">
+    <table class="node-table">
+        <thead>
+            <tr>
+                <th>Select</th>
+                <th>Node ID</th>
+                <th>Position</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for node in reserved_nodes.nodes %}
+            <tr class="reserved-node-row" data-node-id="{{ node._id }}">
+                <td>
+                    <input type="radio" name="selected_node" 
+                           value="{{ node._id }}" 
+                           id="node-{{ node._id }}"
+                           class="reserved-node-selector">
+                </td>
+                <td>{{ node._id }}</td>
+                <td>{{ node.position }}</td>
+                <td>{{ node.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="action-buttons">
+        <button id="cancel-bt" class="btn btn-primary" disabled>
+            Cancel reservation
+        </button>
+    </div>
+</div>
+{% endblock %}

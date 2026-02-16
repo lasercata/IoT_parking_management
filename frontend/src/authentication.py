@@ -185,8 +185,12 @@ class UserAuthentication:
 
         pwd_hash_db = user['pwd_hash']
 
-        if self._bcrypt.check_password_hash(pwd_hash_db, password):
-            return self._token_manager.generate_token(username, user['_id'], user['profile']['is_admin'], token_duration)
+        try:
+            if self._bcrypt.check_password_hash(pwd_hash_db, password):
+                return self._token_manager.generate_token(username, user['_id'], user['profile']['is_admin'], token_duration)
+
+        except ValueError: # Invalid salt
+            return
 
     def set_new_password(self, username: str, new_password: str, pwd_reset_tk: str) -> requests.Response:
         '''

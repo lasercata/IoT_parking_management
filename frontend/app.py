@@ -70,33 +70,99 @@ def home():
     else:
         return render_template('home_user.html', username=tk_payload['username'], info=info)
 
-@app.route('/reservation_page')
+@app.route('/reservation_page', methods=['GET', 'POST'])
 @token_required(SECRET_KEY)
 def reservation_page():
     '''
     Fetch nodes from IoT platform API and load the user reservation page
     Access restricted to logged users.
+
+    GET: render the HTML page
+    POST: make/cancel a reservation
+
+    For POST, the payload should have the form:
+    {
+        "action": str,   # "reserve" | "cancel"
+        "node_id": str   # the id of the concerned node
+    }
     '''
 
-    try:
-        token = token_manager.retrieve_token('cookies')
+    if request.method == 'GET':
+        try:
+            token = token_manager.retrieve_token('cookies')
 
-        # Make request to IoT platform API
-        response = requests.get(
-            f'{PLATFORM_URL}/api/nodes?status=free',
-            headers={'Authorization': token}
-        )
+            # Request free nodes to IoT platform API
+            response_1 = requests.get(
+                f'{PLATFORM_URL}/api/nodes?status=free',
+                headers={'Authorization': token}
+            )
+
+            # Request nodes reserved by the user IoT platform API
+            response_2 = requests.get(
+                f'{PLATFORM_URL}/api/nodes?status=reserved&used_by_me',
+                headers={'Authorization': token}
+            )
+            
+            # Check response from IoT platform
+            if response_1.status_code == 200 and response_2.status_code == 200:
+                free_nodes = response_1.json()
+                reserved_nodes = response_2.json()
+
+                return render_template(
+                    'reservation_page.html',
+                    free_nodes=free_nodes,
+                    reserved_nodes=reserved_nodes
+                )
+            else:
+                # Handle authentication or other errors
+                c1, c2 = response_1.status_code, response_2.status_code
+                c = c1 if c1 != 200 else c2
+
+                return jsonify({'error': 'Failed to fetch nodes'}), c
         
-        # Check response from IoT platform
-        if response.status_code == 200:
-            nodes = response.json()
-            return render_template('reservation_page.html', nodes=nodes)
-        else:
-            # Handle authentication or other errors
-            return jsonify({'error': 'Failed to fetch nodes'}), response.status_code
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    # POST
+    else:
+        try:
+            # First, check payload format
+            data = request.get_json()
+
+            if 'action' not in data:
+                return jsonify({'status': 'error', 'message': 'missing field "action"'}), 400
+            if data['action'] not in ('reserve', 'cancel'):
+                return jsonify({'status': 'error', 'message': 'field "action": should be either "reserve" or "cancel"'}), 400
+
+            if 'node_id' not in data:
+                return jsonify({'status': 'error', 'message': 'missing field "node_id"'}), 400
     
-    except requests.RequestException as e:
-        return jsonify({'error': str(e)}), 500
+            # Prepare the request
+            token = token_manager.retrieve_token('cookies')
+
+            payload = {
+                "data_to_update": {
+                    "status": 'reserved' if data['action'] == 'reserve' else 'free'
+                },
+                "source": 'ui'
+            }
+
+            # Make request to IoT platform API
+            response = requests.patch(
+                f'{PLATFORM_URL}/api/nodes/{data["node_id"]}',
+                headers={'Authorization': token, 'Content-Type': 'application/json'},
+                json=payload
+            )
+            
+            # Check response from IoT platform
+            if response.status_code == 200:
+                nodes = response.json()
+                return jsonify({'status': 'success', 'message': 'node successfully updated'}), 200
+            else:
+                return jsonify(response.json()), response.status_code
+        
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
 
 @app.route('/nodes_page')
 @token_required(SECRET_KEY, only_admins=True)
