@@ -22,29 +22,9 @@ db_service = get_db_service()
 
 app.config['SECRET_KEY'] = SECRET_KEY
 
-
 token_manager = TokenManager(SECRET_KEY)
 user_authentication = UserAuthentication(db_service, bcrypt, token_manager, PLATFORM_URL)
 
-#TODO: connect to the DB
-# Simulated user store (replace with database in real-world scenario)
-USERS = {
-    'admin': {
-        'uid': '0',
-        'is_admin': True,
-        'password': bcrypt.generate_password_hash('azer').decode('utf-8')
-    },
-    'usr1': {
-        'uid': 'DEADBEEF',
-        'is_admin': False,
-        'password': bcrypt.generate_password_hash('azer').decode('utf-8')
-    },
-    'usr2': {
-        'uid': '1c25d917',
-        'is_admin': False,
-        'password': bcrypt.generate_password_hash('azer').decode('utf-8')
-    }
-}
 
 ##-Routes
 @app.route('/')
@@ -54,21 +34,55 @@ def home():
     Access restricted to logged users.
     '''
 
+    # If not logged in, redirect to login page
     try:
         token = token_manager.retrieve_token('cookies')
     except RuntimeError:
         return redirect(url_for('login'))
 
+    # If comming from pwd_reset page and logged in, it means that the password has been changed.
     src = request.args.get('src')
     info = 'Password changed successfully!' if src == 'pwd_reset' else ''
 
+    # Get token
     tk_payload = token_manager.decode_token(token)
 
+    # Get user data from the platform
+    response = requests.get(
+        f'{PLATFORM_URL}/api/users/{tk_payload["uid"]}',
+        headers={'Authorization': token}
+    )
+    
+    if response.status_code != 200:
+        return jsonify(response.json()), response.status_code
+
+    user_data = response.json()
+
+    # Render a different page for admin or user
     if token_manager.is_admin(token):
-        return render_template('home_admin.html', username=tk_payload['username'], info=info)
+        # For admin, also calculate the number of nodes and of users
+        response_nodes = requests.get(
+            f'{PLATFORM_URL}/api/nodes/',
+            headers={'Authorization': token}
+        )
+        if response_nodes.status_code == 200:
+            nb_nodes = len(response_nodes.json()['nodes'])
+        else:
+            nb_nodes = 'error'
+
+        response_users = requests.get(
+            f'{PLATFORM_URL}/api/users/',
+            headers={'Authorization': token}
+        )
+        if response_users.status_code == 200:
+            nb_users = len(response_users.json()['users'])
+        else:
+            nb_users = 'error'
+
+        return render_template('home_admin.html', username=tk_payload['username'], user_data=user_data, nb_nodes=nb_nodes, nb_users=nb_users, info=info)
 
     else:
-        return render_template('home_user.html', username=tk_payload['username'], info=info)
+        return render_template('home_user.html', username=tk_payload['username'], user_data=user_data, info=info)
 
 @app.route('/reservation_page', methods=['GET', 'POST'])
 @token_required(SECRET_KEY)

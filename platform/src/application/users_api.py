@@ -74,16 +74,41 @@ def create_user():
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @users_api.route("/<user_id>", methods=['GET'])
-@token_required(only_admins=True)
+@token_required()
 def get_user(user_id):
-    '''Gets user details'''
+    '''
+    Gets user details
+
+    Authorization:
+        - Admins can get any user, and receive the whole data in output ;
+        - Users can only retrieve their data, and only selected fields.
+    '''
 
     try:
-        user = current_app.config["DB_SERVICE"].get_dr("user", user_id)
-        if not user:
-            return jsonify({"error": "user not found"}), 404
+        #---Check that user exists
+        user_checker = UserCheck(current_app.config['DB_SERVICE'], user_id)
+        if not user_checker.is_uid_valid():
+            return jsonify({'status': 'error', 'message': 'user not found'}), 404
 
-        return jsonify(user), 200
+        #---Authorization
+        token_uid = decode_token()['uid']
+
+        if is_admin():
+            return jsonify(user_checker.get()), 200
+
+        else:
+            if user_id != token_uid:
+                return jsonify({'status': 'error', 'message': 'Impossible to get an other user'}), 403
+            
+            all_user_data = user_checker.get()
+
+            user_data = {}
+            user_data['profile'] = all_user_data['profile']
+            user_data['violation_detected'] = all_user_data['violation_detected']
+            user_data['is_parked'] = all_user_data['is_parked']
+            user_data['nb_reservations'] = all_user_data['nb_reservations']
+
+            return jsonify(user_data), 200
 
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
@@ -122,7 +147,7 @@ def update_user(user_id):
     '''
 
     try:
-        #---Check that node exists
+        #---Check that user exists
         user_checker = UserCheck(current_app.config['DB_SERVICE'], user_id)
         if not user_checker.is_uid_valid():
             return jsonify({'status': 'error', 'message': 'user not found'}), 404

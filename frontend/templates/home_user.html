@@ -2,6 +2,10 @@
 
 {% block title %}Home{% endblock %}
 
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/reservation_style.css') }}">
+{% endblock %}
+
 {% block content %}
     <h2>Welcome, {{ username }}!</h2>
 
@@ -11,6 +15,39 @@
 
     <br>
 
-    <p>TODO: display user information</p>
+    <table class="node-table">
+        <tbody>
+            <tr class="free-node-row">
+                <td>Email address:</td>
+                <td>{{ user_data.profile.email }}</td>
+            </tr>
+
+            <tr class="free-node-row">
+                <td>Username:</td>
+                <td>{{ user_data.profile.username }}</td>
+            </tr>
+
+            <tr class="free-node-row">
+                <td>Badge expiration date:</td>
+                <td>{{ user_data.profile.badge_expiration }}</td>
+            </tr>
+
+            <tr class="free-node-row">
+                <td>Are you parked?</td>
+                <td>{{ user_data.is_parked }}</td>
+            </tr>
+
+            <tr class="free-node-row">
+                <td>Number of active reservations:</td>
+                <td>{{ user_data.nb_reservations }}</td>
+            </tr>
+
+            <tr class="free-node-row">
+                <td>Violation:</td>
+                <td>{{ user_data.violation_detected }}</td>
+            </tr>
+        </tbody>
+    </table>
+
 {% endblock %}
 

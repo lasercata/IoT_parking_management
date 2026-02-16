@@ -2,6 +2,10 @@
 
 {% block title %}Home{% endblock %}
 
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/reservation_style.css') }}">
+{% endblock %}
+
 {% block content %}
     <h2>Welcome, {{ username }}!</h2>
 
@@ -11,6 +15,29 @@
 
     <br>
 
-    <p>TODO: display stats</p>
+    <table class="node-table">
+        <tbody>
+            <tr class="free-node-row">
+                <td>Email address:</td>
+                <td>{{ user_data.profile.email }}</td>
+            </tr>
+
+            <tr class="free-node-row">
+                <td>Username:</td>
+                <td>{{ user_data.profile.username }}</td>
+            </tr>
+
+            <tr class="free-node-row">
+                <td>Number of nodes:</td>
+                <td>{{ nb_nodes }}</td>
+            </tr>
+
+            <tr class="free-node-row">
+                <td>Number of users:</td>
+                <td>{{ nb_users }}</td>
+            </tr>
+        </tbody>
+    </table>
+
 {% endblock %}
 
