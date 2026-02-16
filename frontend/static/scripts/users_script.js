@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const createForm = document.getElementById('user-creation-form');
     const createBt = document.getElementById('create-bt');
 
+    const readBadgeBt = document.getElementById('read-badge');
+
     userRows.forEach(row => {
         // Add click event to the entire row
         row.addEventListener('click', function(event) {
@@ -109,6 +111,34 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error:', error);
             alert('Failed to create the user');
         });
+    });
+
+    readBadgeBt.addEventListener('click', function() {
+        const uid_field = document.getElementById('uid-field');
+
+        if ('NDEFReader' in window) {
+            try {
+                const ndef = new NDEFReader();
+                // await ndef.scan();
+                ndef.scan();
+
+                ndef.onreading = event => {
+                    const { message, serialNumber } = event;
+                    console.log("NFC tag detected:", serialNumber);
+
+                    // Extract and display UID
+                    uid_field.textContent = serialNumber;
+                };
+
+                alert('Place your MIFARE Classic card near the NFC reader.');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error reading NFC tag. Please try again.');
+            }
+        }
+        else {
+            alert('Web NFC is not supported on this device.');
+        }
     });
 });
 
