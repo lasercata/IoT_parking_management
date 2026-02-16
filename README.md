@@ -122,6 +122,51 @@ docker exec -it project-mosquitto mosquitto_passwd -c /mosquitto/config/passwd s
 docker exec -it project-mosquitto mosquitto_passwd /mosquitto/config/passwd node
 ```
 
+### Create first user
+You will need to create the first admin user.
+
+First, start the database:
+```
+docker compose up iot-mongodb
+```
+
+Then, connect to it using `mongosh` (replace with your values):
+```
+mongosh mongodb://MONGODB_USERNAME:MONGODB_PASSWORD@localhost:27017/
+```
+
+Then, in the console, select the right database and create the admin user:
+```
+use iot_parking
+
+db.user_collection.insertOne({
+    _id: "admin_0",
+    profile: {
+        username: "change-me",
+        email: "change-me",
+        is_admin: true
+    },
+
+    pwd_reset_tk: "first_use_code",
+
+    type: "user",
+    auth_bytes: "0000000000000000",
+    is_parked: false,
+    nb_reservations: 0,
+    violation_detected: false,
+    pwd_hash: "",
+    metadata: {
+        updated_at: "01-01-2026"
+    },
+    data: {}
+})
+```
+
+Then, when the frontend will run, go to the password reset page (`/pwd_reset`, linked in the login page).
+Use the provided username. The code is `first_use_code`.
+
+Choose a strong password.
+
 ### Run (production)
 ```
 docker compose up -d

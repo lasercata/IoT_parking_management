@@ -8,6 +8,7 @@ curl \
     -H "Authorization: $token" \
     http://localhost:5000/api/users/2c18f1f8-5b8f-43a8-8f03-68ef1486453e
 
+# Create it
 curl \
     -X POST \
     -H "Authorization: $token" \
