@@ -116,29 +116,37 @@ document.addEventListener('DOMContentLoaded', function() {
     readBadgeBt.addEventListener('click', function() {
         const uid_field = document.getElementById('uid-field');
 
-        if ('NDEFReader' in window) {
-            try {
-                const ndef = new NDEFReader();
-                // await ndef.scan();
-                ndef.scan();
-
-                ndef.onreading = event => {
-                    const { message, serialNumber } = event;
-                    console.log("NFC tag detected:", serialNumber);
-
-                    // Extract and display UID
-                    uid_field.textContent = serialNumber;
-                };
-
-                alert('Place your MIFARE Classic card near the NFC reader.');
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error reading NFC tag. Please try again.');
-            }
-        }
-        else {
-            alert('Web NFC is not supported on this device.');
-        }
+        readNFC(uid_field);
     });
 });
 
+
+/**
+ * Tries to read a mifare classic tag and write its UID into `uidField`.
+ *
+ * @param {HTMLElement} uidField - the text input for the UID
+ */
+async function readNFC(uidField) {
+    if ('NDEFReader' in window) {
+        try {
+            const ndef = new NDEFReader();
+            await ndef.scan();
+
+            ndef.onreading = event => {
+                const { message, serialNumber } = event;
+                console.log('NFC tag detected:', serialNumber);
+                
+                uidField.value = serialNumber;
+            };
+
+            alert('Place your MIFARE Classic card near the NFC reader.');
+        }
+        catch (error) {
+            console.error('Error:', error);
+            alert('Error reading NFC tag. Please try again.');
+        }
+    }
+    else {
+        alert('Web NFC is not supported on this device.');
+    }
+}
