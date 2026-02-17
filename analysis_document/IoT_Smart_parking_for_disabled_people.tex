@@ -17,7 +17,7 @@
 %See https://github.com/lasercata/LaTeX_Templates for the file latex_base.sty
 \input{style/latex_base.sty}
 
-% \input{data/data_template.sty}
+%\input{data/data_template.sty}
 \input{data/data.sty}
 
 \renewcommand{\arraystretch}{1.4}
@@ -1568,6 +1568,47 @@
 
     \begin{indt}{\section{Design}} %{{{1
         \begin{indt}{\subsection{Selected Hardware and Technologies}} %{{{2
+
+        Our IoT solution is defined by the following architecture. We use both a publish/subscribe protocol (MQTT) and the HTTP protocol to enable communication between the node and the platform. Specifically, we use MQTT so that the node can subscribe to its status topic and be updated when a reservation is made. We use HTTP to verify a user ID and to notify the platform when the parking spot state changes (violation, reserved, free, occupied, etc.). \newline
+
+        We also use HTTP for communication between users and the platform, allowing the admin to create, delete, and edit user accounts, and allowing users to reserve a parking spot and view available parking spaces. Additionally, HTTP is used by the platform to notify the authorities when a violation is detected.
+        
+        \begin{indt}{\subsection{Architecture}} %{{{2
+            \begin{figure}[H]
+                \centering
+            
+                \includegraphics[width=.9\textwidth]{pics/archi.png}
+            
+                \caption{General architecture -- data flow view}
+                \label{fig:}
+            \end{figure}
+            
+            The architecture can also be analyzed through the VO-based IoT framework, as shown in the following figure, which identifies the four layers and the cross-cutting security and privacy layer.
+            
+            \begin{figure}[H]
+                \centering
+            
+                \includegraphics[width=.9\textwidth]{pics/archi_view_2.png}
+            
+                \caption{General architecture -- IoT layers view}
+                \label{fig:}
+            \end{figure}
+        \end{indt} %}}}2
+
+        \begin{indt}{\subsection{Node Automaton}} %{{{2
+            The hardware node operates according to a finite state machine (FSM) designed to ensure deterministic behavior and reliable parking space management. The automaton governs the transitions between the different operational states of the node, such as free, reserved, occupied, unauthorized and violation. State transitions are triggered by events including vehicle detection, RFID authentication, reservation updates received via MQTT, and time-based conditions. \newline
+            
+            Figure~\ref{fig:node_fsm} illustrates the complete state machine implemented on the node.
+        
+            \begin{figure}[H]
+                \centering
+                \includegraphics[width=.9\textwidth]{pics/FSM.png}
+                \caption{Finite State Machine (FSM) of the hardware node}
+                \label{fig:node_fsm}
+            \end{figure}
+
+            The following table summarizes the main hardware components and software technologies used to implement the node and the associated platform.
+ 
             \begin{table}[H]% {{{3
                 \centering
             
@@ -1615,41 +1656,29 @@
                 \caption{Selected hardware and technologies}
                 \label{tab:selected}
             \end{table}% }}}3
-        \end{indt} %}}}2
 
-        \begin{indt}{\subsection{Architecture}} %{{{2
-            \begin{figure}[H]
-                \centering
-            
-                \includegraphics[width=.9\textwidth]{pics/archi.png}
-            
-                \caption{General architecture -- data flow view}
-                \label{fig:}
-            \end{figure}
+             Finally, Figure~\ref{fig:IoT_node_schematic} presents the wiring diagram of the node, detailing the interconnections between the microcontroller, sensors, RFID module and LED. This schematic reflects the current prototype implementation.
 
             \begin{figure}[H]
                 \centering
             
-                \includegraphics[width=.9\textwidth]{pics/archi_view_2.png}
+                \includegraphics[width=.9\textwidth]{pics/IoT_node_schematic.png}
             
-                \caption{General architecture -- IoT layers view}
+                \caption{Node wiring diagram}
                 \label{fig:}
             \end{figure}
+            
         \end{indt} %}}}2
 
-        \begin{indt}{\subsection{Node Automaton}} %{{{2
-            \begin{figure}[H]
-                \centering
-            
-                \includegraphics[width=.9\textwidth]{pics/FSM.png}
-            
-                \caption{State machine (automaton) of the hardware node}
-                \label{fig:}
-            \end{figure}
+        \begin{indt}{\subsection{Mockup of the user interface}} %{{{2
+            %todo
         \end{indt} %}}}2
-
+        
         \begin{indt}{\subsection{Flow charts}} %{{{2
-            \begin{indt}{\subsubsection{FR1}} %{{{3
+
+            For each functional requirement (FR), a dedicated flowgraph was designed to formally describe the associated behavior and processing logic.
+        
+            \begin{indt}{\subsubsection{FR1 -- Occupancy detection}} %{{{3
                 \begin{figure}[H]
                     \centering
                 
@@ -1660,7 +1689,7 @@
                 \end{figure}
             \end{indt} %}}}3
 
-            \begin{indt}{\subsubsection{FR2}} %{{{3
+            \begin{indt}{\subsubsection{FR2 -- Authorization verification}} %{{{3
                 \begin{figure}[H]
                     \centering
                 
@@ -1671,7 +1700,7 @@
                 \end{figure}
             \end{indt} %}}}3
 
-            \begin{indt}{\subsubsection{FR3}} %{{{3
+            \begin{indt}{\subsubsection{FR3 --Authorization cloning detection}} %{{{3
                 \begin{figure}[H]
                     \centering
                 
@@ -1682,7 +1711,7 @@
                 \end{figure}
             \end{indt} %}}}3
 
-            \begin{indt}{\subsubsection{FR4}} %{{{3
+            \begin{indt}{\subsubsection{FR4 -- Violation identification}} %{{{3
                 \begin{figure}[H]
                     \centering
                 
@@ -1693,7 +1722,7 @@
                 \end{figure}
             \end{indt} %}}}3
 
-            \begin{indt}{\subsubsection{FR5}} %{{{3
+            \begin{indt}{\subsubsection{FR5 -- Authority notification}} %{{{3
                 \begin{figure}[H]
                     \centering
                 
@@ -1704,7 +1733,7 @@
                 \end{figure}
             \end{indt} %}}}3
 
-            \begin{indt}{\subsubsection{FR6}} %{{{3
+            \begin{indt}{\subsubsection{FR6 -- Parking availability visualization}} %{{{3
                 \begin{figure}[H]
                     \centering
                 
@@ -1715,7 +1744,7 @@
                 \end{figure}
             \end{indt} %}}}3
 
-            \begin{indt}{\subsubsection{FR7}} %{{{3
+            \begin{indt}{\subsubsection{FR7 -- Parking reservation}} %{{{3
                 \begin{figure}[H]
                     \centering
                 
@@ -1726,7 +1755,7 @@
                 \end{figure}
             \end{indt} %}}}3
 
-            \begin{indt}{\subsubsection{FR8}} %{{{3
+            \begin{indt}{\subsubsection{FR8 -- Reservation timeout management}} %{{{3
                 \begin{figure}[H]
                     \centering
                 
@@ -1737,7 +1766,7 @@
                 \end{figure}
             \end{indt} %}}}3
 
-            \begin{indt}{\subsubsection{FR9}} %{{{3
+            \begin{indt}{\subsubsection{FR9 -- Parking occupancy status}} %{{{3
                 \begin{figure}[H]
                     \centering
                 
@@ -1748,7 +1777,7 @@
                 \end{figure}
             \end{indt} %}}}3
 
-            \begin{indt}{\subsubsection{FR10}} %{{{3
+            \begin{indt}{\subsubsection{FR10 -- User registration}} %{{{3
                 \begin{figure}[H]
                     \centering
                 
@@ -1759,7 +1788,42 @@
                 \end{figure}
             \end{indt} %}}}3
         \end{indt} %}}}2
+        \end{indt} %}}}2
     \end{indt} %}}}1
+
+\begin{indt}{\section{Digital Twin VS. Real object}} %{{{2
+    %TODO
+\end{indt}
+
+\begin{indt}{\section{Ways of Improvement}} %{{{1
+
+    \begin{indt}{\subsection{Improved Authentication Mechanism for the Node}}
+        Currently, the system uses a token-based authentication approach with tokens hardcoded directly into the node firmware. This method presents security risks, as compromised firmware exposes valid credentials. A more secure solution would involve dynamic token provisioning, certificate-based authentication.
+    \end{indt}
+
+    \begin{indt}{\subsection{Automated Deployment of New Nodes}}
+        At present, nodes are deployed manually, requiring firmware flashing, token generation, ID assignment, and database registration. This process could be automated through a provisioning script or pipeline capable of:
+        \begin{itemize}
+            \item Flashing the correct firmware,
+            \item Generating unique secure credentials,
+            \item Registering the node automatically in the database,
+            \item Associating it with its geographic location.
+        \end{itemize}
+    \end{indt}
+
+    \begin{indt}{\subsection{Design of a Dedicated PCB}}
+        The current prototype relies on development boards and external wiring. A dedicated PCB integrating all required sensors and communication modules would improve reliability, reduce power consumption, minimize wiring issues, and make the system more suitable for large-scale deployment.
+    \end{indt}
+
+    \begin{indt}{\subsection{Power Management Optimization}}
+        The system could be improved by implementing advanced power management strategies, such as deep-sleep modes, event-driven wake-up mechanisms. This would make the solution more energy-efficient for outdoor deployments.
+    \end{indt}
+
+    \begin{indt}{\subsection{Use of a Magnetometer Instead of an Ultrasonic Sensor}}
+        The current system relies on an ultrasonic sensor, which may detect objects other than vehicles and can be affected by environmental conditions. A magnetometer would provide more reliable vehicle detection by sensing disturbances in the Earth's magnetic field caused by large metallic objects, reducing false positives and improving accuracy.
+    \end{indt}
+
+\end{indt}
 
     \begin{indt}{\section{Conclusion}} %{{{1
         This IoT-based smart parking system addresses a real societal need by improving accessibility for people with disabilities while providing authorities with efficient tools to prevent abuse.
