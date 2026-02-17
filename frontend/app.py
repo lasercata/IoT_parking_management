@@ -415,7 +415,7 @@ def users_page():
 
             else:
                 payload = {
-                    "_id": data['user_data']['user_id'],
+                    "_id": data['user_data']['user_id'].upper(),
                     "profile": data['user_data']['profile']
                 }
 
