@@ -136,10 +136,10 @@ async function readNFC(uidField) {
                 const { message, serialNumber } = event;
                 console.log('NFC tag detected:', serialNumber);
                 
-                uidField.value = serialNumber;
+                uidField.value = serialNumber.replaceAll(':', '');
             };
 
-            alert('Place your MIFARE Classic card near the NFC reader.');
+            // alert('Place your MIFARE Classic card near the NFC reader.');
         }
         catch (error) {
             console.error('Error:', error);
