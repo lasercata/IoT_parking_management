@@ -4,7 +4,7 @@
 %------------------------------------------------------------------------
 %
 % Author                :   Flow, Lasercata
-% Last modification     :   2026.02.16
+% Last modification     :   2026.02.17
 %
 %------------------------------------------------------------------------
 
@@ -1568,10 +1568,10 @@
 
     \begin{indt}{\section{Design}} %{{{1
         \begin{indt}{\subsection{Selected Hardware and Technologies}} %{{{2
+            Our IoT solution is defined by the following architecture. We use both a publish/subscribe protocol (MQTT) and the HTTP protocol to enable communication between the node and the platform. Specifically, we use MQTT so that the node can subscribe to its status topic and be updated when a reservation is made. We use HTTP to verify a user ID and to notify the platform when the parking spot state changes (violation, reserved, free, occupied, etc.). \newline
 
-        Our IoT solution is defined by the following architecture. We use both a publish/subscribe protocol (MQTT) and the HTTP protocol to enable communication between the node and the platform. Specifically, we use MQTT so that the node can subscribe to its status topic and be updated when a reservation is made. We use HTTP to verify a user ID and to notify the platform when the parking spot state changes (violation, reserved, free, occupied, etc.). \newline
-
-        We also use HTTP for communication between users and the platform, allowing the admin to create, delete, and edit user accounts, and allowing users to reserve a parking spot and view available parking spaces. Additionally, HTTP is used by the platform to notify the authorities when a violation is detected.
+            We also use HTTP for communication between users and the platform, allowing the admin to create, delete, and edit user accounts, and allowing users to reserve a parking spot and view available parking spaces. Additionally, HTTP is used by the platform to notify the authorities when a violation is detected.
+        \end{indt} %}}}2
         
         \begin{indt}{\subsection{Architecture}} %{{{2
             \begin{figure}[H]
@@ -1598,7 +1598,7 @@
         \begin{indt}{\subsection{Node Automaton}} %{{{2
             The hardware node operates according to a finite state machine (FSM) designed to ensure deterministic behavior and reliable parking space management. The automaton governs the transitions between the different operational states of the node, such as free, reserved, occupied, unauthorized and violation. State transitions are triggered by events including vehicle detection, RFID authentication, reservation updates received via MQTT, and time-based conditions. \newline
             
-            Figure~\ref{fig:node_fsm} illustrates the complete state machine implemented on the node.
+            \autoref{fig:node_fsm} illustrates the complete state machine implemented on the node.
         
             \begin{figure}[H]
                 \centering
@@ -1607,7 +1607,7 @@
                 \label{fig:node_fsm}
             \end{figure}
 
-            The following table summarizes the main hardware components and software technologies used to implement the node and the associated platform.
+            The \autoref{tab:selected} summarizes the main hardware components and software technologies used to implement the node and the associated platform.
  
             \begin{table}[H]% {{{3
                 \centering
@@ -1657,7 +1657,7 @@
                 \label{tab:selected}
             \end{table}% }}}3
 
-             Finally, Figure~\ref{fig:IoT_node_schematic} presents the wiring diagram of the node, detailing the interconnections between the microcontroller, sensors, RFID module and LED. This schematic reflects the current prototype implementation.
+             Finally, the \autoref{fig:IoT_node_schematic} presents the wiring diagram of the node, detailing the interconnections between the microcontroller, sensors, RFID module and LED. This schematic reflects the current prototype implementation.
 
             \begin{figure}[H]
                 \centering
@@ -1665,17 +1665,16 @@
                 \includegraphics[width=.9\textwidth]{pics/IoT_node_schematic.png}
             
                 \caption{Node wiring diagram}
-                \label{fig:}
+                \label{fig:IoT_node_schematic}
             \end{figure}
             
         \end{indt} %}}}2
 
         \begin{indt}{\subsection{Mockup of the user interface}} %{{{2
-            %todo
+            %TODO
         \end{indt} %}}}2
         
         \begin{indt}{\subsection{Flow charts}} %{{{2
-
             For each functional requirement (FR), a dedicated flowgraph was designed to formally describe the associated behavior and processing logic.
         
             \begin{indt}{\subsubsection{FR1 -- Occupancy detection}} %{{{3
@@ -1788,42 +1787,54 @@
                 \end{figure}
             \end{indt} %}}}3
         \end{indt} %}}}2
-        \end{indt} %}}}2
     \end{indt} %}}}1
 
-\begin{indt}{\section{Digital Twin VS. Real object}} %{{{2
-    %TODO
-\end{indt}
+    \begin{indt}{\section{Digital Twin VS. Real object}} %{{{1
+        In this project, there are two kinds of digital replicas: the \emph{users}, and the \emph{nodes}.
 
-\begin{indt}{\section{Ways of Improvement}} %{{{1
+        The digital replicas are stored in the database.
 
-    \begin{indt}{\subsection{Improved Authentication Mechanism for the Node}}
-        Currently, the system uses a token-based authentication approach with tokens hardcoded directly into the node firmware. This method presents security risks, as compromised firmware exposes valid credentials. A more secure solution would involve dynamic token provisioning, certificate-based authentication.
-    \end{indt}
+        The digital replica of a node evolve following events started by the physical node, or by the frontend.
+        The digital twin of a node is its digital replica along with the code to manage it.
 
-    \begin{indt}{\subsection{Automated Deployment of New Nodes}}
-        At present, nodes are deployed manually, requiring firmware flashing, token generation, ID assignment, and database registration. This process could be automated through a provisioning script or pipeline capable of:
-        \begin{itemize}
-            \item Flashing the correct firmware,
-            \item Generating unique secure credentials,
-            \item Registering the node automatically in the database,
-            \item Associating it with its geographic location.
-        \end{itemize}
-    \end{indt}
+        The digital twin of a user is its digital replica along with the services to manage it.
 
-    \begin{indt}{\subsection{Design of a Dedicated PCB}}
-        The current prototype relies on development boards and external wiring. A dedicated PCB integrating all required sensors and communication modules would improve reliability, reduce power consumption, minimize wiring issues, and make the system more suitable for large-scale deployment.
-    \end{indt}
+        The digital twins do not include predictive services.
+    \end{indt} %}}}1
 
-    \begin{indt}{\subsection{Power Management Optimization}}
-        The system could be improved by implementing advanced power management strategies, such as deep-sleep modes, event-driven wake-up mechanisms. This would make the solution more energy-efficient for outdoor deployments.
-    \end{indt}
+    \begin{indt}{\section{Ways of Improvement}} %{{{1
+        \begin{indt}{\subsection{Improved Authentication Mechanism for the Node}}% {{{2
+            Currently, the system uses a token-based authentication approach with tokens hardcoded directly into the node firmware.
+            This method could present security risks, as compromised firmware exposes valid credentials.
+            A more secure solution would involve using a cryptographic handshake protocol.
+        \end{indt}% }}}2
 
-    \begin{indt}{\subsection{Use of a Magnetometer Instead of an Ultrasonic Sensor}}
-        The current system relies on an ultrasonic sensor, which may detect objects other than vehicles and can be affected by environmental conditions. A magnetometer would provide more reliable vehicle detection by sensing disturbances in the Earth's magnetic field caused by large metallic objects, reducing false positives and improving accuracy.
-    \end{indt}
+        \begin{indt}{\subsection{Automated Deployment of New Nodes}}% {{{2
+            At present, nodes are deployed manually, requiring manual firmware flashing, token generation, ID assignment, and database registration.
+            This process could be automated through a provisioning script or pipeline capable of:
+            \begin{indi}{}
+                \item Flashing the correct firmware,
+                \item Generating unique secure credentials,
+                \item Registering the node automatically in the database,
+                \item Associating it with its geographic location.
+            \end{indi}
+        \end{indt}% }}}2
 
-\end{indt}
+        \begin{indt}{\subsection{Design of a Dedicated PCB}}% {{{2
+            The current prototype relies on development boards and external wiring.
+            A dedicated PCB integrating all required sensors and communication modules would improve reliability, reduce power consumption, minimize wiring issues, and make the system more suitable for large-scale deployment.
+        \end{indt}% }}}2
+
+        \begin{indt}{\subsection{Power Management Optimization}}% {{{2
+            The system could be improved by implementing advanced power management strategies, such as deep-sleep modes, event-driven wake-up mechanisms.
+            This would make the solution more energy-efficient for outdoor deployments.
+        \end{indt}% }}}2
+
+        \begin{indt}{\subsection{Use of a Magnetometer Instead of an Ultrasonic Sensor}}% {{{2
+            The current implementation relies on an ultrasonic sensor, which may detect objects other than vehicles and can be affected by environmental conditions.
+            A magnetometer would provide more reliable vehicle detection by sensing disturbances in the Earth's magnetic field caused by large metallic objects, reducing false positives and improving accuracy.
+        \end{indt}% }}}2
+    \end{indt} %}}}1
 
     \begin{indt}{\section{Conclusion}} %{{{1
         This IoT-based smart parking system addresses a real societal need by improving accessibility for people with disabilities while providing authorities with efficient tools to prevent abuse.
@@ -1831,24 +1842,31 @@
     \end{indt} %}}}1
 
     \begin{indt}{\section{Annexes}} %{{{1
-        \begin{itemize}[itemsep=0pt, leftmargin=\leftskip+12pt]
-            \item NodeMCU ESP8266 Datasheet: 
-                \url{https://cdn-shop.adafruit.com/product-files/2471/0A-ESP8266__Datasheet__EN_v4.3.pdf}
-
-            \item MFRC522 RFID Reader Datasheet (NXP): 
-                \url{https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf}
-
-            \item HC-SR04 Ultrasonic Distance Sensor Datasheet: 
-                \url{https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf}
-
-            \item Implementation repository (GitHub):
+        \begin{indt}{\subsection{Implementation repository}} %{{{2
+            The code of the implementation is available at
+            \begin{center}
                 \url{https://github.com/lasercata/IoT_parking_management}
-        \end{itemize}
-    \end{indt} %}}}1
+                
+            \end{center}
+        \end{indt} %}}}2
 
-    \begin{indt}{\section{Appendice}} %{{{1
-        \listoftables
-        \listoffigures
+        \begin{indt}{\subsection{References}} %{{{2
+            \begin{itemize}[itemsep=0pt, leftmargin=\leftskip+12pt]
+                \item NodeMCU ESP8266 Datasheet: 
+                    \url{https://cdn-shop.adafruit.com/product-files/2471/0A-ESP8266__Datasheet__EN_v4.3.pdf}
+            
+                \item MFRC522 RFID Reader Datasheet (NXP): 
+                    \url{https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf}
+            
+                \item HC-SR04 Ultrasonic Distance Sensor Datasheet: 
+                    \url{https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf}
+            \end{itemize}
+        \end{indt} %}}}2
+
+        \begin{indt}{\subsection{Appendice}} %{{{2
+            \listoftables
+            \listoffigures
+        \end{indt} %}}}2
     \end{indt} %}}}1
     
 \end{document}
