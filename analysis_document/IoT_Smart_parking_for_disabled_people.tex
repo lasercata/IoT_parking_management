@@ -1053,11 +1053,7 @@
                     \label{tab:fr2_comparison}
                 \end{table}
 
-
                 (1): This requires to develop and maintain applications for android and iOS, across multiple versions of the OSes, and requires that all users have a phone.
-
-                % TODO: reliability (NF2) here does not take into account the network (in fact, for security, it should always check the validity from the server.)
-            \end{indt} %}}}3
 
                 Among the considered authorization verification mechanisms, the identifier-based approach provides the best compromise between performance, reliability, privacy preservation, energy efficiency, and deployment cost. Solutions based on printed QR codes are simple and inexpensive but remain vulnerable to misuse and replay, while camera-based approaches introduce significant privacy concerns and higher system complexity.
             
@@ -1065,112 +1061,113 @@
 
                 We now proceed to compare NFC and BLE tag technologies in order to identify the solution best suited to the system requirements. 
 
-            \begin{table}[H]
-                \centering
-                {\small
-                \begin{tabular}{p{60pt} p{55pt} p{55pt} p{60pt} p{55pt} p{45pt} p{38pt} p{55pt}}
-                    \hline
-                    \textbf{Component}
-                    & \textbf{NFR1\newline Performance}
-                    & \textbf{NFR2\newline Reliability}
-                    & \textbf{NFR3\newline Durability}
-                    & \textbf{NFR4\newline Portability}
-                    & \textbf{NFR5\newline Efficiency}
-                    & \textbf{NFR7\newline Privacy}
-                    & \textbf{NFR8\newline Affordability}
-                    \\
-                    \hline
-                    %Colors : pastelGreen, pastelOrange, pastelRed
-                    
-                    PN532
-                    & \cellcolor{pastelGreen} RF: $212/424\,\text{kbit/s}$\newline NFCIP-1: up to $424\,\text{kbit/s}$
-                    & \cellcolor{pastelGreen} range: $50$--$100\,\text{mm}$\newline ISO14443 / FeliCa
-                    & \cellcolor{pastelGreen} $-30$ to $85\,^{\circ}\text{C}$
-                    & \cellcolor{pastelOrange} 43x41x4mm
-                    & \cellcolor{pastelOrange} HPD: $1$--$2\,\mu\text{A}$\newline SPD: $22$--$45\,\mu\text{A}$\newline active: $25\,\text{mA}$; TX: $60$--$150\,\text{mA}$
-                    & \cellcolor{pastelGreen} no personal data
-                    & \cellcolor{pastelOrange} 10-25€
-                    \\
-                                        
-                    ST25R3911B
-                    & \cellcolor{pastelGreen} RF: $3.4$--$6.8\,\text{Mbit/s}$\newline SPI: $6\,\text{Mbit/s}$
-                    & \cellcolor{pastelGreen} ISO14443 A/B\newline ISO15693; FeliCa; NFCIP-1
-                    & \cellcolor{pastelGreen} $-40$ to $125\,^{\circ}\text{C}$
-                    & \cellcolor{pastelGreen} 5x5 mm
-                    & \cellcolor{pastelRed} TX power: up to $1.4\,\text{W}$
-                    & \cellcolor{pastelGreen} no personal data
-                    & \cellcolor{pastelGreen} 4 - 10€
-                    \\
+                \begin{table}[H]
+                    \centering
+                    {\small
+                    \begin{tabular}{p{60pt} p{55pt} p{55pt} p{60pt} p{55pt} p{45pt} p{38pt} p{55pt}}
+                        \hline
+                        \textbf{Component}
+                        & \textbf{NFR1\newline Performance}
+                        & \textbf{NFR2\newline Reliability}
+                        & \textbf{NFR3\newline Durability}
+                        & \textbf{NFR4\newline Portability}
+                        & \textbf{NFR5\newline Efficiency}
+                        & \textbf{NFR7\newline Privacy}
+                        & \textbf{NFR8\newline Affordability}
+                        \\
+                        \hline
+                        %Colors : pastelGreen, pastelOrange, pastelRed
+                        
+                        PN532
+                        & \cellcolor{pastelGreen} RF: $212/424\,\text{kbit/s}$\newline NFCIP-1: up to $424\,\text{kbit/s}$
+                        & \cellcolor{pastelGreen} range: $50$--$100\,\text{mm}$\newline ISO14443 / FeliCa
+                        & \cellcolor{pastelGreen} $-30$ to $85\,^{\circ}\text{C}$
+                        & \cellcolor{pastelOrange} 43x41x4mm
+                        & \cellcolor{pastelOrange} HPD: $1$--$2\,\mu\text{A}$\newline SPD: $22$--$45\,\mu\text{A}$\newline active: $25\,\text{mA}$; TX: $60$--$150\,\text{mA}$
+                        & \cellcolor{pastelGreen} no personal data
+                        & \cellcolor{pastelOrange} 10-25€
+                        \\
+                                            
+                        ST25R3911B
+                        & \cellcolor{pastelGreen} RF: $3.4$--$6.8\,\text{Mbit/s}$\newline SPI: $6\,\text{Mbit/s}$
+                        & \cellcolor{pastelGreen} ISO14443 A/B\newline ISO15693; FeliCa; NFCIP-1
+                        & \cellcolor{pastelGreen} $-40$ to $125\,^{\circ}\text{C}$
+                        & \cellcolor{pastelGreen} 5x5 mm
+                        & \cellcolor{pastelRed} TX power: up to $1.4\,\text{W}$
+                        & \cellcolor{pastelGreen} no personal data
+                        & \cellcolor{pastelGreen} 4 - 10€
+                        \\
 
-                    RC522
-                    & \cellcolor{pastelGreen} RF: up to $848\,\text{kBd}$\newline SPI: $10\,\text{Mbit/s}$\newline I$^2$C: $400$--$3400\,\text{kBd}$\newline UART: $1228.8\,\text{kBd}$
-                    & \cellcolor{pastelGreen} range: up to $50\,\text{mm}$\newline ISO14443A / MIFARE / NTAG
-                    & \cellcolor{pastelGreen} $-25$ to $85\,^{\circ}\text{C}$
-                    & \cellcolor{pastelOrange} 39x59.5
-                    & \cellcolor{pastelOrange} HPD: $\leq5\,\mu\text{A}$\newline SPD: $\leq10\,\mu\text{A}$\newline dig.: $6.5$--$9\,\text{mA}$\newline ana.: $3$--$10\,\text{mA}$\newline TX: $60$--$100\,\text{mA}$
-                    & \cellcolor{pastelGreen} no personal data
-                    & \cellcolor{pastelGreen} 5€
-                    \\
+                        RC522
+                        & \cellcolor{pastelGreen} RF: up to $848\,\text{kBd}$\newline SPI: $10\,\text{Mbit/s}$\newline I$^2$C: $400$--$3400\,\text{kBd}$\newline UART: $1228.8\,\text{kBd}$
+                        & \cellcolor{pastelGreen} range: up to $50\,\text{mm}$\newline ISO14443A / MIFARE / NTAG
+                        & \cellcolor{pastelGreen} $-25$ to $85\,^{\circ}\text{C}$
+                        & \cellcolor{pastelOrange} 39x59.5
+                        & \cellcolor{pastelOrange} HPD: $\leq5\,\mu\text{A}$\newline SPD: $\leq10\,\mu\text{A}$\newline dig.: $6.5$--$9\,\text{mA}$\newline ana.: $3$--$10\,\text{mA}$\newline TX: $60$--$100\,\text{mA}$
+                        & \cellcolor{pastelGreen} no personal data
+                        & \cellcolor{pastelGreen} 5€
+                        \\
 
-                    \hline
-                \end{tabular}
-                }
-                \caption{NFC reader comparison for authorization verification (FR2)}
-                \label{tab:fr2_nfc_comparison}
-            \end{table}
+                        \hline
+                    \end{tabular}
+                    }
+                    \caption{NFC reader comparison for authorization verification (FR2)}
+                    \label{tab:fr2_nfc_comparison}
+                \end{table}
 
-            \begin{table}[H]
-                \centering
-                {\small
-                \begin{tabular}{p{60pt} p{55pt} p{55pt} p{60pt} p{55pt} p{45pt} p{38pt} p{55pt}}
-                    \hline
-                    \textbf{Component}
-                    & \textbf{NFR1\newline Performance}
-                    & \textbf{NFR2\newline Reliability}
-                    & \textbf{NFR3\newline Durability}
-                    & \textbf{NFR4\newline Portability}
-                    & \textbf{NFR5\newline Efficiency}
-                    & \textbf{NFR7\newline Privacy}
-                    & \textbf{NFR8\newline Affordability}
-                    \\
-                    \hline
-                    
-                    nRF52832
-                    & \cellcolor{pastelGreen} BLE: $1/2\,\text{Mbit/s}$
-                    & \cellcolor{pastelGreen} sens.: $-96\,\text{dBm}$\newline TX: $-20$ to $+4\,\text{dBm}$
-                    & \cellcolor{pastelGreen} storage: $-40$ to $125\,^{\circ}\text{C}$
-                    & \cellcolor{pastelGreen} 6x6 mm (QFN48)\newline 3.0x3.2 mm (WLCSP)
-                    & \cellcolor{pastelGreen} TX: $5.3\,\text{mA}$; RX: $5.4\,\text{mA}$\newline OFF: $0.3$--$0.7\,\mu\text{A}$\newline ON: $1.9\,\mu\text{A}$
-                    & \cellcolor{pastelGreen} no personal data
-                    & \cellcolor{pastelGreen} 3€
-                    \\
-                    
-                    nRF52840
-                    & \cellcolor{pastelGreen} BLE: $2/1/0.5/0.125\,\text{Mbit/s}$\newline $250\,\text{kbit/s}$
-                    & \cellcolor{pastelGreen} sens.: $-103$ to $-89\,\text{dBm}$\newline TX: $-20$ to $+8\,\text{dBm}$
-                    & \cellcolor{pastelGreen} storage: $-40$ to $125\,^{\circ}\text{C}$
-                    & \cellcolor{pastelOrange} 7x7 mm (aQFN73)\newline 6x6 mm (QFN48)\newline 3.5x3.6 mm (WLCSP94)
-                    & \cellcolor{pastelGreen} TX: $6.4$--$16.4\,\text{mA}$\newline RX: $6.26\,\text{mA}$\newline OFF: $0.4$--$1.86\,\mu\text{A}$\newline ON: $0.97$--$3.16\,\mu\text{A}$
-                    & \cellcolor{pastelGreen} no personal data
-                    & \cellcolor{pastelOrange} 4 - 5€
-                    \\
-                    
-                    ESP32 (BLE)
-                    & \cellcolor{pastelOrange} BLE: $1\,\text{Mbit/s}$
-                    & \cellcolor{pastelOrange} TX: $+10\,\text{dBm}$\newline sens.: $-98\,\text{dBm}$
-                    & \cellcolor{pastelGreen} $-40$ to $85\,^{\circ}\text{C}$
-                    & \cellcolor{pastelGreen} 6x6 mm (QFN48)
-                    & \cellcolor{pastelRed} TX (BLE): $\approx130\,\text{mA}$\newline RX (BLE): $\approx95\,\text{mA}$\newline sleep: $<10\,\mu\text{A}$
-                    & \cellcolor{pastelGreen} no personal data
-                    & \cellcolor{pastelRed} 10 - 12€
-                    \\
-                    
-                    \hline
-                \end{tabular}
-                }
-                \caption{BLE tag/module comparison for authorization verification (FR2)}
-                \label{tab:fr2_ble_comparison}
-            \end{table}
+                \begin{table}[H]
+                    \centering
+                    {\small
+                    \begin{tabular}{p{60pt} p{55pt} p{55pt} p{60pt} p{55pt} p{45pt} p{38pt} p{55pt}}
+                        \hline
+                        \textbf{Component}
+                        & \textbf{NFR1\newline Performance}
+                        & \textbf{NFR2\newline Reliability}
+                        & \textbf{NFR3\newline Durability}
+                        & \textbf{NFR4\newline Portability}
+                        & \textbf{NFR5\newline Efficiency}
+                        & \textbf{NFR7\newline Privacy}
+                        & \textbf{NFR8\newline Affordability}
+                        \\
+                        \hline
+                        
+                        nRF52832
+                        & \cellcolor{pastelGreen} BLE: $1/2\,\text{Mbit/s}$
+                        & \cellcolor{pastelGreen} sens.: $-96\,\text{dBm}$\newline TX: $-20$ to $+4\,\text{dBm}$
+                        & \cellcolor{pastelGreen} storage: $-40$ to $125\,^{\circ}\text{C}$
+                        & \cellcolor{pastelGreen} 6x6 mm (QFN48)\newline 3.0x3.2 mm (WLCSP)
+                        & \cellcolor{pastelGreen} TX: $5.3\,\text{mA}$; RX: $5.4\,\text{mA}$\newline OFF: $0.3$--$0.7\,\mu\text{A}$\newline ON: $1.9\,\mu\text{A}$
+                        & \cellcolor{pastelGreen} no personal data
+                        & \cellcolor{pastelGreen} 3€
+                        \\
+                        
+                        nRF52840
+                        & \cellcolor{pastelGreen} BLE: $2/1/0.5/0.125\,\text{Mbit/s}$\newline $250\,\text{kbit/s}$
+                        & \cellcolor{pastelGreen} sens.: $-103$ to $-89\,\text{dBm}$\newline TX: $-20$ to $+8\,\text{dBm}$
+                        & \cellcolor{pastelGreen} storage: $-40$ to $125\,^{\circ}\text{C}$
+                        & \cellcolor{pastelOrange} 7x7 mm (aQFN73)\newline 6x6 mm (QFN48)\newline 3.5x3.6 mm (WLCSP94)
+                        & \cellcolor{pastelGreen} TX: $6.4$--$16.4\,\text{mA}$\newline RX: $6.26\,\text{mA}$\newline OFF: $0.4$--$1.86\,\mu\text{A}$\newline ON: $0.97$--$3.16\,\mu\text{A}$
+                        & \cellcolor{pastelGreen} no personal data
+                        & \cellcolor{pastelOrange} 4 - 5€
+                        \\
+                        
+                        ESP32 (BLE)
+                        & \cellcolor{pastelOrange} BLE: $1\,\text{Mbit/s}$
+                        & \cellcolor{pastelOrange} TX: $+10\,\text{dBm}$\newline sens.: $-98\,\text{dBm}$
+                        & \cellcolor{pastelGreen} $-40$ to $85\,^{\circ}\text{C}$
+                        & \cellcolor{pastelGreen} 6x6 mm (QFN48)
+                        & \cellcolor{pastelRed} TX (BLE): $\approx130\,\text{mA}$\newline RX (BLE): $\approx95\,\text{mA}$\newline sleep: $<10\,\mu\text{A}$
+                        & \cellcolor{pastelGreen} no personal data
+                        & \cellcolor{pastelRed} 10 - 12€
+                        \\
+                        
+                        \hline
+                    \end{tabular}
+                    }
+                    \caption{BLE tag/module comparison for authorization verification (FR2)}
+                    \label{tab:fr2_ble_comparison}
+                \end{table}
+            \end{indt} %}}}3
             
             \begin{indt}{\subsubsection{Conclusion}} %{{{3
                 NFC-based authorization verification is retained for implementing FR2, as it meets the functional requirement while best aligning with the system’s non-functional constraints. Its short interaction range ensures controlled and reliable authorization, limiting unintended detections and simplifying system behavior.
@@ -1266,14 +1263,6 @@
             \end{indt} %}}}3
         \end{indt} %}}}2
 
-        %\begin{indt}{\subsection{FR4 -- Violation identification}} %{{{2
-        %    \begin{indt}{\subsubsection{Introduction}} %{{{3
-        %        The objective of this functional requirement is to identify parking violations related to disabled parking spaces, including unauthorized parking, expired authorizations, or the absence of any valid authorization. This functionality represents a critical decision layer within the smart parking system, as it transforms raw detection and verification data into actionable enforcement events.
-                
-        %        In the context of an IoT-based smart parking system, violation identification relies on the correlation of occupancy detection results with authorization verification outcomes. By applying predefined decision rules, the system can automatically and consistently determine whether a parking event complies with regulations. This automation reduces the need for manual inspection, improves fairness, and ensures that violations are detected in real time.
-        %    \end{indt} %}}}3
-        %\end{indt} %}}}2
-
         \begin{indt}{\subsection{FR5 -- Authority notification}} %{{{2
             \label{sub:fr5}
 
@@ -1283,13 +1272,9 @@
                 Within the proposed IoT-based smart parking system, authority notification is the final step of a multi-stage detection and validation process. The notification chain must also be secure and auditable because it can initiate enforcement actions. Practically, this implies (1) a dependable communication path from the parking node to the backend and (2) a standardized, secure mechanism from the backend to the authority endpoint (e.g., secure REST API, email/SMS fallback, or an event feed).
                 
                 This section therefore first examines the technological approaches used to detect and gather evidences of violations, before comparing the communication technologies suitable for transmitting validated events to law enforcement authorities.
-                
-                %TODO: here maybe two tables are needed: one to compare the \emph{protocols} (e.g HTTP, MQTT, CoaP, ...), and one to compare the \emph{authority endpoint} (SMS, Discord, Email, WhatsApp, push notification on smartphone, ad hoc app, ...)
             \end{indt} %}}}3
 
             \begin{indt}{\subsubsection{Comparison of real-time notification solutions}} %{{{3
-
-                
                 Once a violation event  (unauthorized parking or cloning)is identifier, it must be transmitted to law enforcement authorities through an appropriate notification mechanism. Since this communication is performed by the backend infrastructure, Wi-Fi connectivity is assumed.
 
                 The first step is therefore to compare the main evidence acquisition solutions against the non-functional requirements.
@@ -1407,64 +1392,8 @@
                 Email and SMS notifications remain suitable but their best-effort delivery guarantees and limited security properties make them less appropriate as primary channels for enforcement-related notifications.
             
                 A secure REST API is therefore retained as the preferred solution for implementing the backend-to-authority communication in FR5 — Authority notification.
-
             \end{indt} %}}}3
-
         \end{indt} %}}}2
-
-        % \begin{indt}{\subsection{FR6 -- Parking availability visualization}} %{{{2
-        %     \begin{indt}{\subsubsection{Introduction}} %{{{3
-        %         The objective of this functional requirement is to provide users with a clear and real-time visualization of available disabled parking spaces within a selected geographical area. This functionality directly improves accessibility for people with disabilities by reducing the time and effort required to locate an appropriate parking space, especially in dense urban environments.
-        %
-        %         % Within the IoT-based smart parking system, parking availability visualization serves as the primary user-facing interface. It relies on continuously updated parking spot status data collected from distributed IoT nodes and processed by the centralized backend. Accurate and intuitive visualization is essential to ensure user trust and to enable informed decision-making, particularly when combined with reservation capabilities.
-        %     \end{indt} %}}}3
-        %
-        %     \begin{indt}{\subsubsection{Comparison of visualization and mapping solutions}} %{{{3
-        %         Several technical solutions can be used to visualize parking availability data. \autoref{tab:fr6_comparison} presents a comparison of the most relevant mechanisms for this project.
-        %
-        %
-        %     \begin{indt}{\subsubsection{Conclusion}} %{{{3
-        %         In the light of the \autoref{tab:fr6_comparison}, the \emph{web interface} seems the most appropriate for the user interface as it has the largest compatibility.
-        %         Regarding reliability, in the event of a network outage, no real time data is possible. Even if with a native application, it might possible to cache data, it will become outdated and the visualisation will be wrong.
-        %         We put a stronger emphasis on the compatibility of end user's device.
-        %
-        %         This interface will also be appropriate to implement the multi-level authorizations (admin, user, ...)
-        %     \end{indt} %}}}3
-        % \end{indt} %}}}2
-        %
-        % \begin{indt}{\subsection{FR7 -- Advance reservation}} %{{{2
-        %     \begin{indt}{\subsubsection{Introduction}} %{{{3
-        %         The objective of this functional requirement is to allow authorized users to reserve a disabled parking space up to one hour in advance. This feature significantly improves accessibility and planning for people with disabilities by reducing uncertainty when traveling to areas with limited parking availability.
-        %
-        %         In the context of the IoT-based smart parking system, advance reservation must be tightly integrated with real-time parking availability data to avoid conflicts and ensure fairness. The reservation mechanism must prevent double-booking, enforce time constraints, and remain synchronized with on-site occupancy detection in order to release or confirm reservations accurately.
-        %     \end{indt} %}}}3
-        %
-        %\begin{indt}{\subsection{FR8 -- Reservation timeout management}} %{{{2
-        %    \begin{indt}{\subsubsection{Introduction}} %{{{3
-        %        The objective of this functional requirement is to automatically cancel a parking space reservation if the reserved vehicle does not arrive within a predefined grace period. This functionality is essential to ensure efficient utilization of disabled parking spaces and to prevent situations where a space remains unused due to unfulfilled reservations.
-        %
-        %        In the context of the IoT-based smart parking system, reservation timeout management must operate reliably and autonomously by correlating reservation timestamps with real-time occupancy detection data. By enforcing a grace period, the system balances flexibility for users with the need to maximize availability and fairness for other authorized drivers.
-        %    \end{indt} %}}}3
-        %
-        %    \begin{indt}{\subsubsection{Comparison of reservation timeout approaches}} %{{{3
-        %       Several technical approaches can be used to manage reservation timeout. \autoref{tab:fr8_comparison} compares the most relevant solutions for this project.
-        %            \end{indt} %}}}3
-        %
-        %    \begin{indt}{\subsubsection{Conclusion}} %{{{3
-        %        XXX
-        %    \end{indt} %}}}3
-        %
-        %    \begin{indt}{\subsubsection{References}} %{{{3
-        %        \begin{indi}[0pt]{}
-        %            \item XXX: \\
-        %                \url{https://}
-        %            \item XXX: \\
-        %                \url{https://}
-        %            \item XXX: \\
-        %                \url{https://}
-        %        \end{indi}
-        %    \end{indt} %}}}3
-        %\end{indt} %}}}2
 
         \begin{indt}{\subsection{FR9 -- Parking spot status display}} %{{{2
             \begin{indt}{\subsubsection{Introduction}} %{{{3
@@ -1671,7 +1600,20 @@
         \end{indt} %}}}2
 
         \begin{indt}{\subsection{Mockup of the user interface}} %{{{2
-            %TODO
+            Below are the proposed mockup designs for both the user and administrator interfaces.
+            All main pages of the platform are represented, including: the reservation page (user), user management interface (admin), node management interface (admin), home page (admin and user), login page (external), and password reset page (external).
+
+            \begin{figure}[H]
+                \centering
+                \includegraphics[width=.75\textwidth]{pics/mockup1.png}
+                \caption{Mockups part 1}
+            \end{figure}
+
+            \begin{figure}[H]
+                \centering
+                \includegraphics[width=.75\textwidth]{pics/mockup2.png}
+                \caption{Mockups, part 2}
+            \end{figure}
         \end{indt} %}}}2
         
         \begin{indt}{\subsection{Flow charts}} %{{{2
