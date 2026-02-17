@@ -15,6 +15,9 @@ node/
 The `build/` folder will contain the compiled code.
 
 ## Compilation
+### Create the `secrets.h` file
+Copy `secrets_example.h` into `secrets.h` and set the values.
+
 ### Edit the board and port
 Change the variables `FQBN` (board type) and `PORT` accordingly to your values.
 

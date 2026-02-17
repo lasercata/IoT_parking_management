@@ -19,7 +19,7 @@ FQBN = esp8266:esp8266:nodemcuv2
 PORT = /dev/ttyUSB0
 
 # *** Baud rate ***
-BAUDRATE=9600
+BAUDRATE=115200
 
 # ------ Target ------
 TARGET := $(notdir $(abspath $(CURDIR)))
@@ -43,7 +43,7 @@ all: upload
 .PHONY: compile
 compile: $(BUILD_FILE)
 
-$(BUILD_FILE): $(TARGET).ino
+$(BUILD_FILE): $(TARGET).ino secrets.h
 	$(CC) compile --export-binaries --fqbn $(FQBN) $<
 #}}}2
 

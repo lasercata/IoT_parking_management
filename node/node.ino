@@ -6,14 +6,9 @@
 #include <ESP8266HTTPClient.h>
 #include <ArduinoJson.h>
 
+#include "secrets.h"
+
 // =================== CONFIG ===================
-
-#define ID_NODE 0
-const char* NODE_SECRET_TOKEN = "MySuperSecretToken";
-
-// WiFi
-#define WIFI_SSID     "Iphone Flo"
-#define WIFI_PASSWORD "IoT_Project"
 
 // Pins
 // RC522 (SCK=D5, MISO=D6, MOSI=D7)
@@ -37,15 +32,14 @@ const uint32_t RETRY_TIMEOUT_MS       = 5000;    // 05 s
 // RFID
 MFRC522 rfid(PIN_SS, PIN_RST);
 
-// MQTT
-const char*    MQTT_SERVER = "broker.mqttdashboard.com";
-const uint16_t MQTT_PORT   = 1883;
+// // MQTT
+// const char*    MQTT_SERVER = "broker.mqttdashboard.com";
+// const uint16_t MQTT_PORT   = 1883;
 
+// MQTT
 WiFiClient   espClient;
 PubSubClient mqtt(espClient);
 
-// Backend API
-const char* API_BASE_URL = "http://172.20.10.2:5000/api";
 
 // =================== STATE MACHINE ===================
 
