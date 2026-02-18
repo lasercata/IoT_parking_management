@@ -5,6 +5,7 @@
 #include <PubSubClient.h>
 #include <ESP8266HTTPClient.h>
 #include <ArduinoJson.h>
+#include <WiFiClientSecure.h>
 
 #include "secrets.h"
 
@@ -25,21 +26,19 @@ const float    CAR_DISTANCE_THRESHOLD_CM = 25.0;
 const uint8_t  STABLE_COUNT_THRESHOLD    = 5;     // debounce samples
 
 // Timers
-const uint32_t RESERVATION_TIMEOUT_MS = 60000;   // 60 s
-const uint32_t AUTH_TIMEOUT_MS        = 15000;   // 15 s
+const uint32_t RESERVATION_TIMEOUT_MS = 120000;  // 120 s
+const uint32_t AUTH_TIMEOUT_MS        = 60000;   // 60 s
 const uint32_t RETRY_TIMEOUT_MS       = 5000;    // 05 s
 
 // RFID
 MFRC522 rfid(PIN_SS, PIN_RST);
 
-// // MQTT
-// const char*    MQTT_SERVER = "broker.mqttdashboard.com";
-// const uint16_t MQTT_PORT   = 1883;
+// HTTPS
+WiFiClientSecure espClient;
 
 // MQTT
-WiFiClient   espClient;
-PubSubClient mqtt(espClient);
-
+WiFiClient mqttClient;
+PubSubClient mqtt(mqttClient);
 
 // =================== STATE MACHINE ===================
 
@@ -69,23 +68,24 @@ NodeState originState = ST_FREE;
 
 // =================== VARIABLES ===================
 
-uint32_t stateEnterTime     = 0;
-uint32_t lastUltrasonicMs   = 0;
-uint32_t lastLEDBlinkMs     = 0;
+uint32_t stateEnterTime       = 0;
+uint32_t lastUltrasonicMs     = 0;
+uint32_t lastLEDBlinkMs       = 0;
 
-bool     occupancy          = false;     // true = car detected
-bool     prevOccupancy      = false;
-uint8_t  stabilityCounter   = 0;
+bool     occupancy            = false;     // true = car detected
+bool     prevOccupancy        = false;
+uint8_t  stabilityCounter     = 0;
 
-bool     ledBlinkState      = false;
-uint16_t BLINK_PERIOD       = 400;
+bool     ledBlinkState        = false;
+uint16_t BLINK_PERIOD         = 400;
 
-bool     mqttReservedFlag   = false;
-String   topicReserve       = "parking/node/" + String(ID_NODE) + "/reserve";
+bool     mqttReservedFlag     = false;
+bool     mqttCancellationFlag = false;
+String   topicReserve         = "nodes/" + String(ID_NODE);
 
-bool     invalidCardTried   = false;
-bool     validCardTried     = false;
-bool     violation          = false;
+bool     invalidCardTried     = false;
+bool     validCardTried       = false;
+bool     violation            = false;
 
 MFRC522::MIFARE_Key KNOWN_KEY = {
   {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}
@@ -171,10 +171,13 @@ void updateUltrasonic() {
   lastUltrasonicMs = now;
 
   float dist = readUltrasonicDistance();
-  if (dist < 0) return;
+  if (dist < 10){
+    Serial.println("[SONIC] Detection error <10cm");
+    return;
+  } 
 
   bool detected;
-  if (dist < 0 || dist > 500.0f) {          // invalid or too far
+  if (dist > 500) {
     detected = false;
   } else {
     detected = (dist < CAR_DISTANCE_THRESHOLD_CM);
@@ -206,26 +209,18 @@ bool selectCard() {
 }
 
 void endCardSession() {
-  rfid.PCD_StopCrypto1();
   rfid.PICC_HaltA();
+  rfid.PCD_StopCrypto1();
+  delay(50);
 }
 
 String readCardUID() {
-  if (!rfid.PICC_IsNewCardPresent()) {
-    return "";
-  }
-  if (!rfid.PICC_ReadCardSerial()) {
-    return "";
-  }
-
   String uid = "";
   for (byte i = 0; i < rfid.uid.size; i++) {
     if (rfid.uid.uidByte[i] < 0x10) uid += "0";
     uid += String(rfid.uid.uidByte[i], HEX);
   }
   uid.toUpperCase();
-
-  endCardSession();
   return uid;
 }
 
@@ -238,7 +233,8 @@ bool readCurrentAuthBytes(byte blockAddr, byte* currentBytes) {
   );
 
   if (status != MFRC522::STATUS_OK) {
-    Serial.printf("[RFID] Auth failed block %d: %s\n", blockAddr, rfid.GetStatusCodeName(status));
+    Serial.printf("[RFID] Auth failed: %s\n", rfid.GetStatusCodeName(status));
+    endCardSession();
     return false;
   }
 
@@ -247,21 +243,22 @@ bool readCurrentAuthBytes(byte blockAddr, byte* currentBytes) {
 
   status = rfid.MIFARE_Read(blockAddr, buffer, &size);
   if (status != MFRC522::STATUS_OK) {
-    Serial.printf("[RFID] Read failed block %d: %s\n", blockAddr, rfid.GetStatusCodeName(status));
+    Serial.printf("[RFID] Read failed: %s\n", rfid.GetStatusCodeName(status));
+    endCardSession();
     return false;
   }
 
-  memcpy(currentBytes, buffer, 6);
+  memcpy(currentBytes, buffer, 8);
 
-  Serial.print("[RFID] Current AUTH_BYTES read: ");
-  for (int i = 0; i < 6; i++) Serial.printf("%02X ", currentBytes[i]);
+  Serial.print("[RFID] Current AUTH_BYTES: ");
+  for (int i = 0; i < 8; i++) Serial.printf("%02X ", currentBytes[i]);
   Serial.println();
 
   return true;
 }
 
 void generateNewAuthBytes(byte* newBytes) {
-  for (int i = 0; i < 6; i++) newBytes[i] = (byte)random(0, 256);
+  for (int i = 0; i < 8; i++) newBytes[i] = (byte)random(0, 256);
 }
 
 bool replaceAuthBytes(byte blockAddr, const byte* newBytes) {
@@ -273,7 +270,8 @@ bool replaceAuthBytes(byte blockAddr, const byte* newBytes) {
   );
 
   if (status != MFRC522::STATUS_OK) {
-    Serial.printf("[RFID] Auth failed block %d: %s\n", blockAddr, rfid.GetStatusCodeName(status));
+    Serial.printf("[RFID] Auth failed: %s\n", rfid.GetStatusCodeName(status));
+    endCardSession();
     return false;
   }
 
@@ -282,7 +280,8 @@ bool replaceAuthBytes(byte blockAddr, const byte* newBytes) {
 
   status = rfid.MIFARE_Read(blockAddr, buffer, &size);
   if (status != MFRC522::STATUS_OK) {
-    Serial.printf("[RFID] Read failed block %d: %s\n", blockAddr, rfid.GetStatusCodeName(status));
+    Serial.printf("[RFID] Read failed: %s\n", rfid.GetStatusCodeName(status));
+    endCardSession();
     return false;
   }
 
@@ -291,31 +290,23 @@ bool replaceAuthBytes(byte blockAddr, const byte* newBytes) {
   memcpy(blockData, buffer, 16);
 
   // Replace first 6 bytes only
-  memcpy(blockData, newBytes, 6);
+  memcpy(blockData, newBytes, 8);
 
   status = rfid.MIFARE_Write(blockAddr, blockData, 16);
   if (status != MFRC522::STATUS_OK) {
-    Serial.printf("[RFID] Write failed block %d: %s\n", blockAddr, rfid.GetStatusCodeName(status));
+    Serial.printf("[RFID] Write failed: %s\n", rfid.GetStatusCodeName(status));
+    endCardSession();
     return false;
   }
-
-  Serial.println("[RFID] AUTH_BYTES replaced successfully (data block)");
+  Serial.printf("[RFID] Write successful: %s\n", rfid.GetStatusCodeName(status));
+  endCardSession();
   return true;
 }
 
-String readCardUID_NoHalt() {
-  String uid = "";
-  for (byte i = 0; i < rfid.uid.size; i++) {
-    if (rfid.uid.uidByte[i] < 0x10) uid += "0";
-    uid += String(rfid.uid.uidByte[i], HEX);
-  }
-  uid.toUpperCase();
-  return uid;
-}
 
 String bytesToHex(const byte* bytes) {
   String s;
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < 8; i++) {
     if (bytes[i] < 0x10) s += "0";
     s += String(bytes[i], HEX);
   }
@@ -328,7 +319,7 @@ void checkRFID() {
 
   if (!selectCard()) return;
 
-  String uid = readCardUID_NoHalt();
+  String uid = readCardUID();
   if (uid.length() == 0) {
     endCardSession();
     return;
@@ -337,7 +328,7 @@ void checkRFID() {
   Serial.print("[RFID] Detected UID: ");
   Serial.println(uid);
 
-  byte currentAuth[6] = {0};
+  byte currentAuth[8] = {0};
   if (!readCurrentAuthBytes(AUTH_BLOCK, currentAuth)) {
     invalidCardTried = true;
     validCardTried   = false;
@@ -347,37 +338,38 @@ void checkRFID() {
 
   String authBytesHex = bytesToHex(currentAuth);
 
-  byte newAuth[6];
+  byte newAuth[8];
   generateNewAuthBytes(newAuth);
   String newAuthBytesHex = bytesToHex(newAuth);
+
+  if(!replaceAuthBytes(AUTH_BLOCK, newAuth)){
+    invalidCardTried = true;
+    endCardSession();
+    return;
+  }
 
   String payload = buildAuthPayload(uid, authBytesHex, newAuthBytesHex);
   String authResult = requestBackendAuthorization(payload);
 
   if (authResult == "success") {
-    if (replaceAuthBytes(AUTH_BLOCK, newAuth)) {
-      Serial.println("[ANTI-CLONE] Successfully replaced AUTH_BYTES on card");
-    } else {
-      Serial.println("[ANTI-CLONE] Failed to write new bytes");
-    }
-
     validCardTried   = true;
     invalidCardTried = false;
-    sendNodeStatusUpdate("occupied");
-    curState = ST_OCCUPIED;
-    stateEnterTime = millis();
+    violation        = false;
   }
   else if (authResult == "violation") {
+    validCardTried   = false;
+    invalidCardTried = false;
+    violation        = true;
+  }
+  else if (authResult == "invalid") {
+    validCardTried   = false;
     invalidCardTried = true;
-    curState = ST_VIOLATION;
-    stateEnterTime = millis();
-    sendNodeStatusUpdate("violation");
+    violation        = false;
   }
   else {
-    invalidCardTried = true;
-    curState = ST_UNAUTHORIZED;
-    stateEnterTime = millis();
-    Serial.printf("[AUTH] Rejected: %s\n", authResult.c_str());
+    validCardTried   = false;
+    invalidCardTried = false;
+    violation        = false;
   }
 
   endCardSession();
@@ -407,9 +399,9 @@ void sendNodeStatusUpdate(const char* newStatus) {
   int code = http.PATCH(payload);
 
   if (code > 0) {
-    Serial.printf("[PATCH %s] Code %d OK\n", newStatus, code);
+    Serial.printf("[HTTP] PATCH %s: %d \n", newStatus, code);
   } else {
-    Serial.printf("[PATCH failed] %s\n", http.errorToString(code).c_str());
+    Serial.printf("[HTTP] PATCH failed %s\n", http.errorToString(code).c_str());
   }
   http.end();
 }
@@ -432,7 +424,7 @@ String buildAuthPayload(const String& uid, const String& authBytes, const String
 
 String requestBackendAuthorization(const String& payload) {
   if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("[HTTP] WiFi disconnected - ERROR");
+    Serial.println("[HTTP] WiFi disconnected");
     return "error"; 
   }
 
@@ -449,9 +441,10 @@ String requestBackendAuthorization(const String& payload) {
 
   String backendStatus = "error";   // default
 
+  Serial.printf("[AUTH] Code response: %d\n", code);
   if (code > 0) {
     String response = http.getString();
-    Serial.printf("[AUTH] Code %d → %s\n", code, response.c_str());
+    Serial.printf("[AUTH] Code %d : %s\n", code, response.c_str());
 
     StaticJsonDocument<512> resp;
     DeserializationError err = deserializeJson(resp, response);
@@ -460,7 +453,7 @@ String requestBackendAuthorization(const String& payload) {
       backendStatus = resp["status"] | "unknown";
     }
   } else {
-    Serial.printf("[AUTH HTTP failed] %s\n", http.errorToString(code).c_str());
+    Serial.printf("[AUTH HTTP failed] %s and %d\n", http.errorToString(code).c_str(), code);
   }
 
   http.end();
@@ -474,17 +467,17 @@ String requestBackendAuthorization(const String& payload) {
 bool mqttConnect() {
   if (mqtt.connected()) return true;
 
-  String nodeId = "Parking-Node" + String(ID_NODE);
+  String nodeId = String(ID_NODE);
 
   Serial.print("[MQTT] Connecting as ");
   Serial.println(nodeId);
 
-  if (mqtt.connect(nodeId.c_str())) {
+  if (mqtt.connect(nodeId.c_str())) { //   if (mqtt.connect(nodeId.c_str(), MQTT_USERNAME, MQTT_PASSWORD)) {
     Serial.println("[MQTT] Connected");
     mqtt.subscribe(topicReserve.c_str());
     return true;
   } else {
-    Serial.print("[MQTT] Failed, ");
+    Serial.print("[MQTT] Failed: ");
     Serial.println(mqtt.state());
     return false;
   }
@@ -502,17 +495,16 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   Serial.println(message);
 
   if (message == "reserved") {
-    if (curState == ST_FREE || curState == ST_UNAUTHORIZED) {
+    if (curState == ST_FREE || curState == ST_WAIT_AUTH || curState == ST_UNAUTHORIZED) {
       mqttReservedFlag = true;
-      stateEnterTime = millis();
       Serial.println("[MQTT] RESERVED");
     }
   }
   else if (message == "free") {
-    if (curState == ST_RESERVED) {
-      mqttReservedFlag = false;
-      stateEnterTime = millis();
-      Serial.println("[MQTT] FREE");
+    if (curState == ST_RESERVED || originState == ST_RESERVED){
+      originState = ST_RESERVED;
+      mqttCancellationFlag = true;
+      Serial.println("[MQTT] CANCELLATION");
     }
   }
 }
@@ -546,15 +538,14 @@ void runStateMachine() {
       if (occupancy) {
         curState = ST_WAIT_AUTH;
         stateEnterTime = now;
-        Serial.println("[STATE] Car detected (FREE => WAIT_AUTH)");
-        sendNodeStatusUpdate("waiting_for_authentication");
+        Serial.println("\n====== [STATE] Car detected (FREE => WAIT_AUTH) ======");
       } 
       else if (mqttReservedFlag) {
+        mqttReservedFlag = false;
         curState = ST_RESERVED;
         originState = ST_RESERVED;
         stateEnterTime = now;
-        Serial.println("[STATE] Reserved (FREE => RESERVED)");
-        sendNodeStatusUpdate("reserved");
+        Serial.println("\n====== [STATE] Reserved (FREE => RESERVED) ======");
       }
       break;
 
@@ -562,23 +553,22 @@ void runStateMachine() {
       if (occupancy) {
         curState = ST_WAIT_AUTH;
         stateEnterTime = now;
-        Serial.println("[STATE] Car detected (RESERVED => WAIT_AUTH)");
-        sendNodeStatusUpdate("waiting_for_authentication");
+        Serial.println("\n====== [STATE] Car detected (RESERVED => WAIT_AUTH) ======");
       }
       else if (timeInState > RESERVATION_TIMEOUT_MS) {
         curState = ST_FREE;
         originState = ST_FREE;
         stateEnterTime = now;
-        Serial.println("[STATE] Timeout (RESERVED => FREE)");
+        Serial.println("\n====== [STATE] Timeout (RESERVED => FREE) ======");
         sendNodeStatusUpdate("free");
 
       }
-      else if (!mqttReservedFlag) {
+      else if (mqttCancellationFlag) {
         curState = ST_FREE;
         originState = ST_FREE;
+        mqttCancellationFlag = false;
         stateEnterTime = now;
-        Serial.println("[STATE] Cancelled (RESERVED => FREE)");
-        sendNodeStatusUpdate("free");
+        Serial.println("\n====== [STATE] Cancelled (RESERVED => FREE) ======");
       }
       break;
 
@@ -586,26 +576,23 @@ void runStateMachine() {
       if ((timeInState > AUTH_TIMEOUT_MS) || violation) {
         curState = ST_VIOLATION;
         stateEnterTime = now;
-        Serial.println("[STATE] Timeout (WAIT_AUTH => VIOLATION)");
+        Serial.println("\n====== [STATE] Timeout (WAIT_AUTH => VIOLATION) ======");
         sendNodeStatusUpdate("violation");
       }
       else if (invalidCardTried) {
         curState = ST_UNAUTHORIZED;
         stateEnterTime = now;
-        Serial.println("[STATE] Invalid ID (WAIT_AUTH => UNAUTHORIZED)");
-        sendNodeStatusUpdate("unauthorized");
+        Serial.println("\n====== [STATE] Invalid ID (WAIT_AUTH => UNAUTHORIZED) ======");
       }
       else if (validCardTried) {
         curState = ST_OCCUPIED;
         stateEnterTime = now;
-        Serial.println("[STATE] Valid ID (WAIT_AUTH => OCCUPIED)");
-        sendNodeStatusUpdate("occupied");
+        Serial.println("\n====== [STATE] Valid ID (WAIT_AUTH => OCCUPIED) ======");
       }
       else if (!occupancy) {
         curState = originState;
         stateEnterTime = now;
-        Serial.println("[STATE] Car left (WAIT_AUTH => FREE/RESERVED)");
-        sendNodeStatusUpdate(originState == ST_RESERVED ? "reserved" : "free");
+        Serial.println("\n====== [STATE] Car left (WAIT_AUTH => FREE/RESERVED) ======");
       }
       break;
 
@@ -613,9 +600,9 @@ void runStateMachine() {
       if (timeInState > RETRY_TIMEOUT_MS) {
         curState = ST_WAIT_AUTH;
         stateEnterTime = now;
-        Serial.println("[STATE] Retry (UNAUTHORIZED => WAIT_AUTH)");
+        Serial.println("\n\t[STATE] Retry (UNAUTHORIZED => WAIT_AUTH)");
         invalidCardTried = false;
-        sendNodeStatusUpdate("waiting_for_authentication");
+        //sendNodeStatusUpdate("waiting_for_authentication");
       }
       break;
 
@@ -624,7 +611,7 @@ void runStateMachine() {
         curState = originState;
         stateEnterTime = now;
         violation = false;
-        Serial.println("[STATE] Car left (ST_VIOLATION => FREE/RESERVED)");
+        Serial.println("\n\t[STATE] Car left (ST_VIOLATION => FREE/RESERVED)");
         sendNodeStatusUpdate(originState == ST_RESERVED ? "reserved" : "free");
       }
       break;
@@ -634,7 +621,7 @@ void runStateMachine() {
         curState = ST_FREE;
         originState = ST_FREE;
         stateEnterTime = now;
-        Serial.println("[STATE] Car left (ST_OCCUPIED => ST_FREE)");
+        Serial.println("\n\t[STATE] Car left (ST_OCCUPIED => ST_FREE)");
         validCardTried = false;
         sendNodeStatusUpdate("free");
       }
@@ -645,9 +632,10 @@ void runStateMachine() {
 // =================== SETUP ===================
 
 void setup() {
-  Serial.begin(115200);
-  delay(500);
-  Serial.println("\nStarting Setup");
+  Serial.begin(9600);
+  delay(5000);
+
+  Serial.println("\n\n========== Begin SETUP ==========\n\n");
 
   pinMode(PIN_TRIG,      OUTPUT);
   pinMode(PIN_ECHO,      INPUT);
@@ -657,25 +645,28 @@ void setup() {
   digitalWrite(PIN_TRIG, LOW);
   ledsOff();
 
-  SPI.setFrequency(1000000);
+  SPI.setFrequency(1000000); // max gain to allow writing (ensure stability)
   SPI.begin();
   rfid.PCD_Init();
-  rfid.PCD_SetAntennaGain(rfid.RxGain_max);  // max gain to debug
+  rfid.PCD_SetAntennaGain(rfid.RxGain_max);  // max gain to allow writing (ensure stability)
   delay(200);
 
   connectWiFi();
-
+  espClient.setFingerprint(TLS_FINGERPRINT);
+  
   mqtt.setServer(MQTT_SERVER, MQTT_PORT);
   mqtt.setCallback(mqttCallback);
+  mqttConnect();
 
   curState = ST_FREE;
   stateEnterTime = millis();
+  Serial.println("\n\n========== Done SETUP ==========\n\n");
 }
 
 // =================== LOOP ===================
 
 void loop() {
-  uint32_t now = millis();
+  //uint32_t now = millis();
 
   if (!mqtt.connected()) {
     mqttConnect();
@@ -687,10 +678,11 @@ void loop() {
   runStateMachine();
   updateLEDs();
 
-  static uint32_t lastPrint = 0;
-  if (now - lastPrint >= 2000) {
-    lastPrint = now;
-    Serial.printf("[%-12s] car=%d  time=%lus\n",
-                  stateToStr(curState), occupancy, now / 1000UL);
-  }
+  delay(100);
+
+  //static uint32_t lastPrint = 0;
+  //if (now - lastPrint >= 2000) {
+  //  lastPrint = now;
+  //  Serial.printf("[%-12s] car=%d\n", stateToStr(curState), occupancy);
+  //}
 }
