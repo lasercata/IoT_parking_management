@@ -144,7 +144,7 @@ def authentication_request(node_id):
         #---Node authentication
         # Check that node exists
         node_management = NodeManagement(node_id, current_app.config['DB_SERVICE'], current_app.config['MQTT_HANDLER'])
-        if node_management.is_id_valid():
+        if not node_management.is_id_valid():
             return jsonify({'status': 'error', 'message': 'node not found'}), 404
 
         # Authenticate the node
