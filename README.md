@@ -105,6 +105,8 @@ cp .env.example .env
 Then edit it (set empty variables).
 
 ### Mosquitto
+If you decide to host mosquitto (not tested in this project):
+
 Run:
 ```
 cd data/

@@ -14,23 +14,22 @@ services:
     volumes:
       - ./data/mongodb:/data/db
 
-  iot-mosquitto:
-    image: eclipse-mosquitto:latest
-    restart: unless-stopped
-    container_name: iot-mosquitto
-    user: 3333:3333
-    expose:
-      - "8883:8883"  # TLS MQTT port
-    networks:
-      - iot-network
-      - docker-network
-    environment:
-      - DOMAIN=${MQTT_DOMAIN}
-    volumes:
-      - ./data/mosquitto/config:/mosquitto/config
-      - ./data/mosquitto/data:/mosquitto/data
-      - ./data/mosquitto/log:/mosquitto/log
-      - ./data/mosquitto/certs:/mosquitto/certs  # TLS certificates
+  # iot-mosquitto:
+  #   image: eclipse-mosquitto:latest
+  #   restart: unless-stopped
+  #   container_name: iot-mosquitto
+  #   user: 3333:3333
+  #   expose:
+  #     - "8883:8883"  # TLS MQTT port
+  #   networks:
+  #     - docker-network
+  #   environment:
+  #     - DOMAIN=${MQTT_DOMAIN}
+  #   volumes:
+  #     - ./data/mosquitto/config:/mosquitto/config
+  #     - ./data/mosquitto/data:/mosquitto/data
+  #     - ./data/mosquitto/log:/mosquitto/log
+  #     - ./data/mosquitto/certs:/mosquitto/certs  # TLS certificates
 
   iot-platform:
     build:
@@ -68,7 +67,7 @@ services:
       - JWT_SHARED_TOKEN=${JWT_SHARED_TOKEN}
     depends_on:
       - iot-mongodb
-      - iot-mosquitto
+      # - iot-mosquitto
 
   iot-frontend:
     build:
