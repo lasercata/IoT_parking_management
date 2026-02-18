@@ -77,6 +77,7 @@ class FlaskServer:
             'password': os.environ.get('MQTT_PWD')
         }
         mqtt_handler = NodeMQTTHandler(self.app)
+        mqtt_handler.start()
 
         # Store references
         self.app.config['SCHEMA_REGISTRY'] = schema_registry
@@ -106,7 +107,6 @@ class FlaskServer:
         """Run the Flask server"""
 
         try:
-            self.app.config['MQTT_HANDLER'].start()
             self.app.run(host=host, port=port, debug=debug)
 
         finally:
@@ -114,7 +114,8 @@ class FlaskServer:
             if "DB_SERVICE" in self.app.config:
                 self.app.config["DB_SERVICE"].disconnect()
 
-            self.app.config['MQTT_HANDLER'].stop()
+            if "MQTT_HANDLER" in self.app.config:
+                self.app.config['MQTT_HANDLER'].stop()
 
 server = FlaskServer()
 app = server.app # Needed to run with gunicorn
