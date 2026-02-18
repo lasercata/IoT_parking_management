@@ -86,7 +86,8 @@ services:
       - MONGO_IP=iot-mongodb
       - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@iot-mongodb:27017/
       - JWT_SHARED_TOKEN=${JWT_SHARED_TOKEN}
-      - PLATFORM_URL=${PLATFORM_URL}
+      # - PLATFORM_URL=${PLATFORM_URL}
+      - PLATFORM_URL=http://iot-platform:5000
     depends_on:
       - iot-platform
 
