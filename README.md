@@ -194,4 +194,4 @@ python app.py
 
 Then go to [`localhost:3000`](http://localhost:3000/)
 
-You can also test the APIs using the scripts in [`frontend/api_tests`](frontend/api_tests) and [`platform/api_tests`](platform/api_tests).
+You can also test the APIs using the scripts in [`api_tests/`](api_tests/).

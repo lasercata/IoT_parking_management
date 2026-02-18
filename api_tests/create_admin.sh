@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-token=$(tail -n 1 ../../frontend/api_tests/cookies.txt | awk -F '\t' '{print $NF}')
+token=$(tail -n 1 cookies.txt | awk -F '\t' '{print $NF}')
 
 # Delete it first if it exists
 curl \
