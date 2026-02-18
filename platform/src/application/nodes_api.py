@@ -192,7 +192,7 @@ def authentication_request(node_id):
 
         #---Check parking spot reservation
         if node_management.get_status() == 'reserved':
-            if node['used_by'] == uid:
+            if node_management.get()['used_by'] == uid:
                 # Remove the corresponding reservation
                 user_checker.decrease_nb_reservations()
             else:
