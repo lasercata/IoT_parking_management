@@ -48,15 +48,17 @@ def home():
     # If not logged in, redirect to login page
     try:
         token = token_manager.retrieve_token('cookies')
-    except RuntimeError:
+        tk_payload = token_manager.decode_token(token)
+
+    except RuntimeError: # No token (error from `retrieve_token`)
         return redirect(url_for('login'))
+
+    except ValueError: # Expired token (error from `decode_token`)
+        return redirect(url_for('logout'))
 
     # If comming from pwd_reset page and logged in, it means that the password has been changed.
     src = request.args.get('src')
     info = 'Password changed successfully!' if src == 'pwd_reset' else ''
-
-    # Get token
-    tk_payload = token_manager.decode_token(token)
 
     # Get user data from the platform
     response = requests.get(
