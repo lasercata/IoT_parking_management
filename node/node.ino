@@ -22,13 +22,15 @@
 
 // Ultrasonic settings
 const uint16_t US_SAMPLE_PERIOD_MS       = 100;
-const float    CAR_DISTANCE_THRESHOLD_CM = 25.0;
+const float    CAR_DISTANCE_THRESHOLD_CM = 50.0;
 const uint8_t  STABLE_COUNT_THRESHOLD    = 5;     // debounce samples
 
 // Timers
 const uint32_t RESERVATION_TIMEOUT_MS = 120000;  // 120 s
 const uint32_t AUTH_TIMEOUT_MS        = 60000;   // 60 s
 const uint32_t RETRY_TIMEOUT_MS       = 5000;    // 05 s
+const uint16_t STABILITY_DELAY_MS     = 10000;
+
 
 // RFID
 MFRC522 rfid(PIN_SS, PIN_RST);
@@ -86,6 +88,8 @@ String   topicReserve         = "nodes/" + String(ID_NODE);
 bool     invalidCardTried     = false;
 bool     validCardTried       = false;
 bool     violation            = false;
+
+bool StabilityFlag = false;
 
 MFRC522::MIFARE_Key KNOWN_KEY = {
   {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}
@@ -302,7 +306,6 @@ bool replaceAuthBytes(byte blockAddr, const byte* newBytes) {
   endCardSession();
   return true;
 }
-
 
 String bytesToHex(const byte* bytes) {
   String s;
@@ -532,6 +535,12 @@ void runStateMachine() {
   uint32_t now = millis();
   uint32_t timeInState = now - stateEnterTime;
 
+  if (timeInState < STABILITY_DELAY_MS){
+    StabilityFlag = true;
+  } else {
+    StabilityFlag = false;
+  }
+
   switch (curState) {
 
     case ST_FREE:
@@ -576,7 +585,7 @@ void runStateMachine() {
       if ((timeInState > AUTH_TIMEOUT_MS) || violation) {
         curState = ST_VIOLATION;
         stateEnterTime = now;
-        Serial.println("\n====== [STATE] Timeout (WAIT_AUTH => VIOLATION) ======");
+        Serial.println("\n====== [STATE] Timeout/Cloning (WAIT_AUTH => VIOLATION) ======");
         sendNodeStatusUpdate("violation");
       }
       else if (invalidCardTried) {
@@ -673,7 +682,9 @@ void loop() {
   }
   mqtt.loop();
 
-  updateUltrasonic();
+  if(!StabilityFlag){
+    updateUltrasonic();
+  }
   checkRFID();
   runStateMachine();
   updateLEDs();
