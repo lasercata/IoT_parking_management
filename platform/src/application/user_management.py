@@ -137,6 +137,7 @@ class UserCheck:
         '''
         Checks the current number of reservation of the user.
         Also check that the user is not currently parked.
+        Also check that the user is not in violation.
         A user can have at most 1 reservation.
 
         Out:
@@ -149,7 +150,7 @@ class UserCheck:
         if not self.is_uid_valid():
             raise ValueError('User not found')
 
-        return self._user['nb_reservations'] == 0 and not self._user['is_parked']
+        return self._user['nb_reservations'] == 0 and not self._user['is_parked'] and not self._user['violation']
 
     def get_nb_reservations(self) -> int:
         '''Retrieves the number of reservations from the database'''
