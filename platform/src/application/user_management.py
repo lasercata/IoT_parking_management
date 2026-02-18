@@ -150,7 +150,7 @@ class UserCheck:
         if not self.is_uid_valid():
             raise ValueError('User not found')
 
-        return self._user['nb_reservations'] == 0 and not self._user['is_parked'] and not self._user['violation']
+        return self._user['nb_reservations'] == 0 and not self._user['is_parked'] and not self._user['violation_detected']
 
     def get_nb_reservations(self) -> int:
         '''Retrieves the number of reservations from the database'''
